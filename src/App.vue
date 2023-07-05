@@ -1,10 +1,12 @@
 <script>
-import TextInput from "./components/form/inputs/TextInput.vue";
+import TableBody from "./components/table/TableBody.vue";
 
 export default {
   components: {
-    TextInput,
+    TableBody,
   },
 };
 </script>
-<template></template>
+<template>
+  <TableBody></TableBody>
+</template>
