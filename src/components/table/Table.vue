@@ -5,6 +5,7 @@ export default {
   props: {
     rows: Array,
     columns: Array,
+    urlPagination: String,
   },
 
   data() {
@@ -63,37 +64,43 @@ export default {
 </script>
 
 <template>
-  <div class="antialiased sans-serif bg-gray-200 h-screen">
-    <div class="container mx-auto py-6 px-4" v-cloak>
-      <div
-        class="w-full overflow-auto bg-white rounded-lg shadow overflow-y-auto relative"
-      >
-        <table
-          class="border-collapse table-auto w-full whitespace-no-wrap bg-white table-striped relative"
+  <div class="flow-root">
+    <div class="overflow-x-auto">
+      <div class="inline-block min-w-full align-middle">
+        <div
+          class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5"
         >
-          <thead>
-            <tr class="text-center">
-              <th
-                class="py-2 px-3 sticky top-0 border-b border-gray-200 bg-gray-100"
-              >
-                <label
-                  class="text-teal-500 inline-flex justify-between items-center hover:bg-gray-200 px-2 py-2 rounded-lg cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    ref="toggleAll"
-                    class="form-checkbox focus:outline-none focus:shadow-outline"
-                    @click="toggleAll"
-                  />
-                </label>
-              </th>
-              <template v-for="column in columns" :key="column.key">
+          <table
+            class="border-collapse overflow-auto table-auto w-full whitespace-no-wrap bg-white relative"
+          >
+            <thead>
+              <tr class="bg-slate-600">
                 <th
-                  class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-2 text-gray-600 font-bold tracking-wider uppercase text-xs"
-                  :ref="column.key"
-                  :class="{ [column.key]: true }"
+                  class="py-2 px-3 border-b border-gray-200"
+                  style="text-align: left"
                 >
-                  <span class="whitespace-nowrap">
+                  <label
+                    class="text-teal-500 hover:bg-gray-200 px-2 py-2 rounded-lg cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      ref="toggleAll"
+                      class="form-checkbox focus:outline-none focus:shadow-outline"
+                      @click="toggleAll"
+                    />
+                  </label>
+                </th>
+                <th
+                  v-for="column in columns"
+                  :key="column.key"
+                  class="border-b border-gray-200 px-3 py-1 items-start text-white"
+                  :ref="column.key"
+                  :class="{
+                    'cursor-pointer': column.sortable,
+                  }"
+                  style="text-align: left"
+                >
+                  <span class="whitespace-nowrap uppercase font-bold text-xs">
                     {{ column.value }}
                     <!-- :class="{
                         'opacity-60': query[sortName] !== column.name,
@@ -118,12 +125,14 @@ export default {
                     </svg>
                   </span>
                 </th>
-              </template>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-for="(row, index) in data" :key="index">
-              <tr>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(row, index) in data"
+                :key="index"
+                class="odd:bg-violet-50"
+              >
                 <td class="border-dashed border-t border-gray-200 px-3">
                   <label
                     class="text-teal-500 inline-flex justify-between items-center hover:bg-gray-200 px-2 py-2 rounded-lg cursor-pointer"
@@ -142,24 +151,22 @@ export default {
                   :key="column.key + index"
                   class="border-dashed border-t border-gray-200"
                 >
-                  <span class="text-gray-700 px-6 py-3 flex items-center">
+                  <span
+                    class="table-cell px-3 py-4 text-sm text-gray-500 overflow-hidden dark:text-slate-300 whitespace-nowrap"
+                  >
                     {{ row[column.key] }}
                   </span>
                 </td>
               </tr>
-            </template>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-[v-cloak] {
-  display: none;
-}
-
 [type="checkbox"] {
   box-sizing: border-box;
   padding: 0;

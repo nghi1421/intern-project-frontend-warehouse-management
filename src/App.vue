@@ -12,26 +12,32 @@ export default {
         {
           key: "id",
           value: "User ID",
+          sortable: true,
         },
         {
           key: "firstName",
           value: "Firstname",
+          sortable: true,
         },
         {
           key: "lastName",
           value: "Lastname",
+          sortable: true,
         },
         {
           key: "emailAddress",
           value: "Email",
+          sortable: true,
         },
         {
           key: "gender",
           value: "Gender",
+          sortable: true,
         },
         {
           key: "phoneNumber",
           value: "Phone",
+          sortable: true,
         },
       ],
       users: [
@@ -161,5 +167,7 @@ export default {
 };
 </script>
 <template>
-  <Table :columns="columns" :rows="users"></Table>
+  <div class="w-full">
+    <Table :columns="columns" :rows="users"></Table>
+  </div>
 </template>
