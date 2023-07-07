@@ -1,10 +1,12 @@
 <script>
 import Table from "./components/table/Table.vue";
 import TextInput from "./components/form/inputs/TextInput.vue";
+import LoginIcon from "./components/icons/Login.vue";
 export default {
   components: {
     Table,
     TextInput,
+    LoginIcon,
   },
 
   data() {
@@ -175,20 +177,7 @@ export default {
       label="Nguyen Thanh Nghi"
       place-holder="Fill your name"
     >
-      <template v-slot:icon
-        ><svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 text-gray-400"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </template>
+      <template v-slot:icon> <login-icon /></template>
     </TextInput>
   </div>
 </template>
