@@ -3,22 +3,37 @@ export default {
   name: "input-text",
 
   props: {
+    type: String,
+    name: String,
     label: String,
+    placeHolder: String,
+    errorMessage: String,
   },
 };
 </script>
 <template>
-  <div class="mb-6">
+  <div class="group">
     <label
       for="default-input"
-      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+      class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
     >
       {{ label }}
     </label>
-    <input
-      type="text"
-      id="default-input"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-    />
+
+    <div
+      class="-mt-2 flex items-center border-2 focus-within:border-primary-400 py-2 px-3 rounded-2xl mb-4"
+    >
+      <slot name="icon" />
+      <input
+        :name="name"
+        :type="type"
+        id="default-input"
+        :placeholder="placeHolder"
+        class="pl-2 outline-none w-full border-none"
+      />
+    </div>
+    <p v-if="errorMessage" class="-mt-4 ms-4 text-danger-600 text-sm">
+      {{ errorMessage }}
+    </p>
   </div>
 </template>

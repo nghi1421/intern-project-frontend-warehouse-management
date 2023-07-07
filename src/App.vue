@@ -1,9 +1,10 @@
 <script>
 import Table from "./components/table/Table.vue";
-
+import TextInput from "./components/form/inputs/TextInput.vue";
 export default {
   components: {
     Table,
+    TextInput,
   },
 
   data() {
@@ -168,6 +169,26 @@ export default {
 </script>
 <template>
   <div class="w-full">
-    <Table :columns="columns" :rows="users"></Table>
+    <TextInput
+      type="email"
+      name="name"
+      label="Nguyen Thanh Nghi"
+      place-holder="Fill your name"
+    >
+      <template v-slot:icon
+        ><svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 text-gray-400"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </template>
+    </TextInput>
   </div>
 </template>
