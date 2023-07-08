@@ -11,15 +11,6 @@ const store = createStore({
       loading: false,
       data: {}
     },
-    surveys: {
-      loading: false,
-      links: [],
-      data: []
-    },
-    currentSurvey: {
-      data: {},
-      loading: false,
-    },
     questionTypes: ["text", "select", "radio", "checkbox", "textarea"],
     notification: {
       show: false,
