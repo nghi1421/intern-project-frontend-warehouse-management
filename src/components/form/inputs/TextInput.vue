@@ -6,8 +6,15 @@ export default {
     type: String,
     name: String,
     label: String,
+    value: String,
     placeHolder: String,
     errorMessage: String,
+  },
+
+  methods: {
+    updateInput(event) {
+      this.$emit("update:value", event.target.value);
+    },
   },
 };
 </script>
@@ -25,10 +32,11 @@ export default {
     >
       <slot name="icon" />
       <input
+        @input="updateInput"
         :name="name"
         :type="type"
-        id="default-input"
         :placeholder="placeHolder"
+        :value="value"
         class="pl-2 outline-none w-full border-none"
       />
     </div>
