@@ -13,6 +13,7 @@ module.exports = {
       ...colors,
       primary: colors.blue,
       secondary: colors.indigo,
+      success: colors.green,
       danger: colors.red,
       warning: colors.amber,
       transparent: 'transparent',
