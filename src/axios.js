@@ -2,7 +2,7 @@ import axios from "axios";
 import store from "./store";
 import router from "./router";
 
-const baseUrlApi = 'localhost:8000'
+const baseUrlApi = 'http://localhost:8000'
 
 const axiosClient = axios.create({
   baseURL: `${baseUrlApi}/api`

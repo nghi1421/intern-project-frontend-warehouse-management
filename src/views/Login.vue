@@ -8,12 +8,27 @@ export default {
   components: { TextInput, PersonIcon, PasswordIcon, PrimaryButton },
 
   data() {
-    return { errorMessage: "" };
+    return {
+      errorMessage: "",
+      credential: {
+        username: "",
+        password: "",
+        remember: false,
+      },
+    };
   },
 
-  mounted() {
-    this.$store.dispatch("test", "this is a message");
-    // console.log(this.$store.dispatch("test"));
+  methods: {
+    login() {
+      this.$store
+        .dispatch("login", this.credential)
+        .then(() => {
+          this.$router.push("Home");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
   },
 };
 </script>
@@ -34,13 +49,17 @@ export default {
         </h2>
       </div>
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form @submit.prevent="" class="p-6 bg-white rounded-lg drop-shadow-lg">
-          <TextInput label="Username">
+        <form
+          @submit.prevent="login"
+          class="p-6 bg-white rounded-lg drop-shadow-lg"
+        >
+          <TextInput label="Username" v-model:value="credential.username">
             <template v-slot:icon><PersonIcon /></template>
           </TextInput>
           <TextInput
             label="Password"
             type="password"
+            v-model:value="credential.password"
             :errorMessage="errorMessage"
           >
             <template v-slot:icon><PasswordIcon /></template>

@@ -20,17 +20,18 @@ const store = createStore({
   },
   getters: {},
   actions: {
-    login({commit}, user) {
-      return axiosClient.post('/login', user)
+    login({ commit }, credential) {
+      console.log(credential);
+      return axiosClient.post('/login', credential)
         .then(({data}) => {
-          commit('setUser', data.user);
+          commit('setStaffInformation', data.staff_information);
           commit('setToken', data.token)
           return data;
         })
     },
   },
   mutations: {
-    setUser: (state, user) => {
+    setStaffInformation: (state, user) => {
       state.user.data = user;
     },
     setToken: (state, token) => {
