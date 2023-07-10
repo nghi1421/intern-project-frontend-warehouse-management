@@ -20,10 +20,23 @@ const store = createStore({
   },
   getters: {},
   actions: {
-
+    login({commit}, user) {
+      return axiosClient.post('/login', user)
+        .then(({data}) => {
+          commit('setUser', data.user);
+          commit('setToken', data.token)
+          return data;
+        })
+    },
   },
   mutations: {
-    
+    setUser: (state, user) => {
+      state.user.data = user;
+    },
+    setToken: (state, token) => {
+      state.user.token = token;
+      sessionStorage.setItem('TOKEN', token);
+    },
   },
   modules: {},
 });

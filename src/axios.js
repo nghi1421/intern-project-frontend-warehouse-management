@@ -2,8 +2,10 @@ import axios from "axios";
 import store from "./store";
 import router from "./router";
 
+const baseUrlApi = 'localhost:8000'
+
 const axiosClient = axios.create({
-  baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`
+  baseURL: `${baseUrlApi}/api`
 })
 
 axiosClient.interceptors.request.use(config => {

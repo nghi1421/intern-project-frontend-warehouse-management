@@ -10,6 +10,11 @@ export default {
   data() {
     return { errorMessage: "" };
   },
+
+  mounted() {
+    this.$store.dispatch("test", "this is a message");
+    // console.log(this.$store.dispatch("test"));
+  },
 };
 </script>
 
