@@ -22,8 +22,9 @@ export default {
     login() {
       this.$store
         .dispatch("login", this.credential)
-        .then(() => {
-          this.$router.push("Home");
+        .then((data) => {
+          this.$router.push("/");
+          this.$toast.success("Login successfully!");
         })
         .catch((err) => {
           console.log(err);
