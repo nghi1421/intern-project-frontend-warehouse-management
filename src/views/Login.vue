@@ -22,12 +22,12 @@ export default {
     login() {
       this.$store
         .dispatch("login", this.credential)
-        .then((data) => {
+        .then(() => {
           this.$router.push("/");
           this.$toast.success("Login successfully!");
         })
-        .catch((err) => {
-          console.log(err);
+        .catch((error) => {
+          console.log(error.response.data.message);
         });
     },
   },
