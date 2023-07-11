@@ -1,34 +1,66 @@
 <script>
-import TextInput from ".././components/form/inputs/TextInput.vue";
-import PersonIcon from ".././components/icons/Person.vue";
-import PasswordIcon from ".././components/icons/Password.vue";
-import PrimaryButton from ".././components/form/buttons/PrimaryButton.vue";
+import TextInput from "@/components/form/inputs/TextInput.vue";
+import PersonIcon from "@/components/icons/Person.vue";
+import PasswordIcon from "@/components/icons/Password.vue";
+import PrimaryButton from "@/components/form/buttons/PrimaryButton.vue";
+import { useVuelidate } from "@vuelidate/core";
+import { required, minLength, maxLength } from "@vuelidate/validators";
 
 export default {
   components: { TextInput, PersonIcon, PasswordIcon, PrimaryButton },
 
+  setup() {
+    return { v$: useVuelidate() };
+  },
+
   data() {
     return {
-      errorMessage: "",
+      errorMessage: {
+        username: "",
+        password: "",
+      },
       credential: {
         username: "",
         password: "",
         remember: false,
+      },
+      username: "",
+      password: "",
+    };
+  },
+
+  validations() {
+    return {
+      username: {
+        required,
+        minLengthValue: minLength(8),
+        maxLengthValue: maxLength(255),
+      },
+      password: {
+        required,
+        minLengthValue: minLength(8),
+        maxLengthValue: maxLength(255),
       },
     };
   },
 
   methods: {
     login() {
-      this.$store
-        .dispatch("login", this.credential)
-        .then(() => {
-          this.$router.push("/");
-          this.$toast.success("Login successfully!");
-        })
-        .catch((error) => {
-          console.log(error.response.data.message);
-        });
+      this.$v.$touch();
+      if (!this.$v.$invalid) {
+        // Submit form
+      }
+      // console.log(v$.$errors);
+      console.log(this.username);
+      // this.$store
+      //   .dispatch("login", this.credential)
+      //   .then(() => {
+      //     this.$router.push("/");
+      //     this.$toast.success("Login successfully!");
+      //   })
+      //   .catch((error) => {
+      //     console.log(error.response.data.message);
+      //   });
     },
   },
 };
@@ -54,14 +86,18 @@ export default {
           @submit.prevent="login"
           class="p-6 bg-white rounded-lg drop-shadow-lg"
         >
-          <TextInput label="Username" v-model:value="credential.username">
+          <TextInput
+            label="Username"
+            v-model:value="username"
+            :errorMessage="v$.$silentErrors[0]?.$message"
+          >
             <template v-slot:icon><PersonIcon /></template>
           </TextInput>
           <TextInput
             label="Password"
             type="password"
-            v-model:value="credential.password"
-            :errorMessage="errorMessage"
+            v-model:value="password"
+            :errorMessage="v$.$silentErrors[1]?.$message"
           >
             <template v-slot:icon><PasswordIcon /></template>
           </TextInput>

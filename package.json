@@ -11,6 +11,8 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.14",
     "@heroicons/vue": "^2.0.18",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.3",
     "@vuepic/vue-datepicker": "^5.4.0",
     "axios": "^1.4.0",
     "tiny-emitter": "^2.1.0",
