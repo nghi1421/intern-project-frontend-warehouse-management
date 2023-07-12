@@ -40,7 +40,8 @@ const store = createStore({
 
           return data;
         });
-    }
+    },
+    // getUsers()
   },
   mutations: {
     setName: (state, staffInformation) => {

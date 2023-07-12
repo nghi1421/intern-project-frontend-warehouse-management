@@ -1,21 +1,36 @@
 import { createRouter, createWebHistory } from "vue-router";
 import store from "../store";
-import HomeComponent from '../views/HomeComponent.vue';
+import Dashboard from '../views/Dashboard.vue';
+import UserTable from '../views/UserTable.vue';
 import Login from '../views/Login.vue';
+import StaffTable from '../views/StaffTable.vue'
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: HomeComponent,
+    name: 'Dashboard',
+    component: Dashboard,
     meta: { requiresAuth: true },
+    children: [
+        {
+          path: '/users',
+          name: 'User',
+          component: UserTable,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/staffs',
+          name: 'Staff',
+          component: StaffTable,
+          meta: { requiresAuth: true },
+        }
+    ]
   },
   {
     path: '/login',
     name: 'Login',
     component: Login,
     meta: {isGuest: true},
-  }
-
+  },
 ];
 
 const router = createRouter({

@@ -1,8 +1,8 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-
+import SideBar from "@/components/SideBar.vue";
 import store from "../store";
 import { useRouter } from "vue-router";
 import {
@@ -15,21 +15,11 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import {
-  Bars3Icon,
-  HomeIcon,
-  UsersIcon,
-  XMarkIcon,
-} from "@heroicons/vue/24/outline";
+import { Bars3Icon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { ChevronDownIcon } from "@heroicons/vue/20/solid";
 
 const router = useRouter();
 const toast = useToast();
-
-const navigation = [
-  { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-  { name: "Team", href: "#", icon: UsersIcon, current: false },
-];
 
 const userNavigation = [
   { name: "Your profile", href: "#" },
@@ -44,16 +34,17 @@ const name = computed(() => {
 
 function handleAction(event) {
   if (event.target.innerText === "Log out") {
-    store.dispatch("logout").then((response) => {
-      router.push("/login");
-      toast.success(response);
-    });
+    store
+      .dispatch("logout")
+      .then((response) => {
+        router.push("/login");
+        toast.success(response.data.message);
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
   }
 }
-
-onMounted(() => {
-  console.log(store.state);
-});
 </script>
 <template>
   <div>
@@ -115,35 +106,7 @@ onMounted(() => {
                   <span class="text-white font-semibold">Logo</span>
                 </div>
                 <nav class="flex flex-1 flex-col">
-                  <ul role="list" class="flex flex-1 flex-col gap-y-7">
-                    <li>
-                      <ul role="list" class="-mx-2 space-y-1">
-                        <li v-for="item in navigation" :key="item.name">
-                          <a
-                            :href="item.href"
-                            :class="[
-                              item.current
-                                ? 'bg-primary-700 text-white'
-                                : 'text-primary-200 hover:text-white hover:bg-primary-700',
-                              'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                            ]"
-                          >
-                            <component
-                              :is="item.icon"
-                              :class="[
-                                item.current
-                                  ? 'text-white'
-                                  : 'text-primary-200 group-hover:text-white',
-                                'h-6 w-6 shrink-0',
-                              ]"
-                              aria-hidden="true"
-                            />
-                            {{ item.name }}
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
+                  <SideBar></SideBar>
                 </nav>
               </div>
             </DialogPanel>
@@ -166,35 +129,7 @@ onMounted(() => {
           />
         </div>
         <nav class="flex flex-1 flex-col">
-          <ul role="list" class="flex flex-1 flex-col gap-y-7">
-            <li>
-              <ul role="list" class="-mx-2 space-y-1">
-                <li v-for="item in navigation" :key="item.name">
-                  <a
-                    :href="item.href"
-                    :class="[
-                      item.current
-                        ? 'bg-primary-700 text-white'
-                        : 'text-primary-200 hover:text-white hover:bg-primary-700',
-                      'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                    ]"
-                  >
-                    <component
-                      :is="item.icon"
-                      :class="[
-                        item.current
-                          ? 'text-white'
-                          : 'text-primary-200 group-hover:text-white',
-                        'h-6 w-6 shrink-0',
-                      ]"
-                      aria-hidden="true"
-                    />
-                    {{ item.name }}
-                  </a>
-                </li>
-              </ul>
-            </li>
-          </ul>
+          <SideBar></SideBar>
         </nav>
       </div>
     </div>
@@ -271,7 +206,7 @@ onMounted(() => {
 
       <main class="py-10">
         <div class="px-4 sm:px-6 lg:px-8">
-          <!-- Your content -->
+          <router-view></router-view>
         </div>
       </main>
     </div>
