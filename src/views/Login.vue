@@ -9,23 +9,16 @@ import { required, minLength, maxLength } from "@vuelidate/validators";
 export default {
   components: { TextInput, PersonIcon, PasswordIcon, PrimaryButton },
 
-  setup() {
-    return { v$: useVuelidate() };
-  },
-
   data() {
     return {
+      v$: useVuelidate(),
       errorMessage: {
         username: "",
         password: "",
       },
-      credential: {
-        username: "",
-        password: "",
-        remember: false,
-      },
       username: "",
       password: "",
+      remember: false,
     };
   },
 
@@ -33,34 +26,39 @@ export default {
     return {
       username: {
         required,
-        minLengthValue: minLength(8),
-        maxLengthValue: maxLength(255),
+        minLength: minLength(8),
+        maxLength: maxLength(255),
       },
       password: {
         required,
-        minLengthValue: minLength(8),
-        maxLengthValue: maxLength(255),
+        minLength: minLength(8),
+        maxLength: maxLength(255),
       },
     };
   },
 
   methods: {
     login() {
-      this.$v.$touch();
-      if (!this.$v.$invalid) {
-        // Submit form
+      this.v$.$validate();
+      if (this.v$.$invalid) {
+        this.errorMessage.username = this.v$.username.$errors[0].$message;
+        this.errorMessage.password = this.v$.password.$errors[0].$message;
+      } else {
+        const credential = {
+          username: this.username,
+          password: this.password,
+          remember: this.remember,
+        };
+        this.$store
+          .dispatch("login", credential)
+          .then(() => {
+            this.$router.push("/");
+            this.$toast.success("Login successfully!");
+          })
+          .catch((error) => {
+            this.$toast.error(error.response.data.message);
+          });
       }
-      // console.log(v$.$errors);
-      console.log(this.username);
-      // this.$store
-      //   .dispatch("login", this.credential)
-      //   .then(() => {
-      //     this.$router.push("/");
-      //     this.$toast.success("Login successfully!");
-      //   })
-      //   .catch((error) => {
-      //     console.log(error.response.data.message);
-      //   });
     },
   },
 };
@@ -89,7 +87,7 @@ export default {
           <TextInput
             label="Username"
             v-model:value="username"
-            :errorMessage="v$.$silentErrors[0]?.$message"
+            v-model:errorMessage="errorMessage.username"
           >
             <template v-slot:icon><PersonIcon /></template>
           </TextInput>
@@ -97,7 +95,7 @@ export default {
             label="Password"
             type="password"
             v-model:value="password"
-            :errorMessage="v$.$silentErrors[1]?.$message"
+            v-model:errorMessage="errorMessage.password"
           >
             <template v-slot:icon><PasswordIcon /></template>
           </TextInput>

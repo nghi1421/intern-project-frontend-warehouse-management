@@ -15,6 +15,9 @@ export default {
     updateInput(event) {
       this.$emit("update:value", event.target.value);
     },
+    clearErrorMessage() {
+      this.$emit("update:errorMessage", "");
+    },
   },
 };
 </script>
@@ -32,6 +35,7 @@ export default {
     >
       <slot name="icon" />
       <input
+        @focus="clearErrorMessage"
         @input="updateInput"
         :name="name"
         :type="type"
