@@ -14,7 +14,6 @@ const store = createStore({
       loading: false,
       data: {}
     },
-    questionTypes: ["text", "select", "radio", "checkbox", "textarea"],
     notification: {
       show: false,
       type: 'success',
@@ -41,7 +40,12 @@ const store = createStore({
           return data;
         });
     },
-    // getUsers()
+    getStaffs() {
+      return axiosClient.get('/manager/staffs')
+        .then((data) => {
+          return data;
+        })
+    }
   },
   mutations: {
     setName: (state, staffInformation) => {

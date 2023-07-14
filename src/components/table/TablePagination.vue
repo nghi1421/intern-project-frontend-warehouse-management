@@ -40,14 +40,14 @@ export default {
         class="relative inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-slate-900 dark:text-slate-300"
         @click.prevent="click"
       >
-        {{ __("Previous") }}
+        {{ "Previous" }}
       </a>
       <a
         :href="links[links.length - 1]?.url"
         class="relative ms-3 inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-slate-900 dark:text-slate-300"
         @click.prevent="click"
       >
-        {{ __("Next") }}
+        {{ "Next" }}
       </a>
     </div>
     <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -56,11 +56,7 @@ export default {
           class="text-sm text-gray-700 dark:text-slate-400"
           v-if="meta?.from && meta?.to && meta?.total"
           v-html="
-            __('Showing :from to :to of :total results', {
-              from: `<span class='font-medium'>${from}</span>`,
-              to: `<span class='font-medium'>${to}</span>`,
-              total: `<span class='font-medium'>${total}</span>`,
-            })
+            `Showing <span class='font-medium'>${from}</span> to <span class='font-medium'>${to}</span> of <span class='font-medium'>${total}</span> results`
           "
         />
       </div>
@@ -77,7 +73,7 @@ export default {
               :class="[
                 'relative z-10 inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20',
                 link.active
-                  ? 'bg-primary-600 focus-visible:outline-primary-600 z-10 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
+                  ? 'bg-slate-600 focus-visible:outline-slate-600 z-10 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
                   : '',
                 !link.active
                   ? 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0 dark:text-slate-400 dark:ring-slate-700 hover:dark:bg-slate-900'
@@ -91,7 +87,7 @@ export default {
             ></a>
             <span
               v-else
-              :key="`pagination-links-${linkIndex}`"
+              :key="`pagination-${linkIndex}`"
               class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0 dark:text-slate-400 dark:ring-slate-700"
             >
               {{ link.label }}

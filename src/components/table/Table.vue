@@ -1,11 +1,20 @@
 <script>
+import Loading from "@/components/Loading.vue";
+import TablePagination from "@/components/table/TablePagination.vue";
+
 export default {
   name: "Table",
+
+  components: {
+    Loading,
+    TablePagination,
+  },
 
   props: {
     rows: Array,
     columns: Array,
-    urlPagination: String,
+    meta: Object,
+    links: Array,
   },
 
   data() {
@@ -14,6 +23,7 @@ export default {
         return { ...row, selected: false };
       }),
       open: false,
+      loading: true,
     };
   },
 
@@ -59,6 +69,17 @@ export default {
         }
       }
     },
+
+    changePage(url) {},
+  },
+
+  watch: {
+    rows(newRows) {
+      this.data = newRows.map(function (row) {
+        return { ...row, selected: false };
+      });
+      this.loading = false;
+    },
   },
 };
 </script>
@@ -71,9 +92,9 @@ export default {
           class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5"
         >
           <table
-            class="border-collapse overflow-auto table-auto w-full whitespace-no-wrap bg-white relative"
+            class="min-h-[400px] min-w-full border-collapse overflow-auto table-auto w-full whitespace-no-wrap bg-white relative"
           >
-            <thead>
+            <thead class="">
               <tr class="bg-slate-600">
                 <th
                   class="py-2 px-3 border-b border-gray-200"
@@ -160,9 +181,15 @@ export default {
               </tr>
             </tbody>
           </table>
+          <Loading :loading="loading" />
         </div>
       </div>
     </div>
+    <table-pagination
+      :meta="meta"
+      :links="links"
+      :changePage="changePage"
+    ></table-pagination>
   </div>
 </template>
 
