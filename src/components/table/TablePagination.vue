@@ -24,7 +24,8 @@ export default {
 
   methods: {
     click(event) {
-      this.changePage(event.target.getAttribute("href"));
+      if (event.target.getAttribute("href"))
+        this.changePage(event.target.getAttribute("href"));
     },
   },
 };

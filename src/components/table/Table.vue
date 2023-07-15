@@ -1,6 +1,7 @@
 <script>
 import Loading from "@/components/Loading.vue";
 import TablePagination from "@/components/table/TablePagination.vue";
+import axios from "axios";
 
 export default {
   name: "Table",
@@ -22,6 +23,8 @@ export default {
       data: this.rows.map(function (row) {
         return { ...row, selected: false };
       }),
+      metaData: this.meta,
+      linksData: this.links,
       open: false,
       loading: true,
     };
@@ -70,7 +73,21 @@ export default {
       }
     },
 
-    changePage(url) {},
+    changePage(url) {
+      this.loading = true;
+      axios
+        .get(url, {
+          headers: { Authorization: `Bearer ${this.$store.state.user.token}` },
+        })
+        .then((response) => {
+          this.data = response.data.data.map(function (row) {
+            return { ...row, selected: false };
+          });
+          this.metaData = response.data.meta;
+          this.linksData = response.data.meta.links;
+          this.loading = false;
+        });
+    },
   },
 
   watch: {
@@ -78,6 +95,8 @@ export default {
       this.data = newRows.map(function (row) {
         return { ...row, selected: false };
       });
+      this.metaData = this.meta;
+      this.linksData = this.links;
       this.loading = false;
     },
   },
@@ -92,7 +111,7 @@ export default {
           class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5"
         >
           <table
-            class="min-h-[400px] min-w-full border-collapse overflow-auto table-auto w-full whitespace-no-wrap bg-white relative"
+            class="min-h-[100px] min-w-full border-collapse overflow-auto table-auto w-full whitespace-no-wrap bg-white relative"
           >
             <thead class="">
               <tr class="bg-slate-600">
@@ -186,8 +205,8 @@ export default {
       </div>
     </div>
     <table-pagination
-      :meta="meta"
-      :links="links"
+      :meta="metaData"
+      :links="linksData"
       :changePage="changePage"
     ></table-pagination>
   </div>
