@@ -41,10 +41,14 @@ const store = createStore({
         });
     },
     getStaffs() {
-      return axiosClient.get('/manager/staffs')
+      return axiosClient.get('/staffs')
         .then((data) => {
           return data;
         })
+    },
+    getPositions() {
+      return axiosClient.get('/positions')
+      .then((data)=> data)
     }
   },
   mutations: {
