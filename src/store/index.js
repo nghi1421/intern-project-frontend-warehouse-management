@@ -49,6 +49,11 @@ const store = createStore({
     getPositions() {
       return axiosClient.get('/positions')
       .then((data)=> data)
+    },
+    createStaff({ commit }, data) {
+      return axiosClient.post('staffs', data).then((response) => {
+        return response;
+      })
     }
   },
   mutations: {
