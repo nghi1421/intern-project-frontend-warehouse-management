@@ -46,6 +46,12 @@ const store = createStore({
           return data;
         })
     },
+    getUsers() {
+      return axiosClient.get('/users')
+        .then((data) => {
+          return data;
+        })
+    },
     getPositions() {
       return axiosClient.get('/positions')
       .then((data)=> data)

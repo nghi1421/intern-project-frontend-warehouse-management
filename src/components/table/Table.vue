@@ -16,6 +16,10 @@ export default {
     columns: Array,
     meta: Object,
     links: Array,
+    actionColumn: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
@@ -165,6 +169,15 @@ export default {
                     </svg>
                   </span>
                 </th>
+                <th
+                  v-if="actionColumn"
+                  class="border-b border-gray-200 px-3 py-1 items-start text-white"
+                  style="text-align: left"
+                >
+                  <span class="whitespace-nowrap uppercase font-bold text-xs">
+                    Action
+                  </span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -196,6 +209,10 @@ export default {
                   >
                     {{ row[column.key] }}
                   </span>
+                </td>
+
+                <td class="border-dashed border-t border-gray-200">
+                  <slot name="actions" v-bind="{ row }" />
                 </td>
               </tr>
             </tbody>
