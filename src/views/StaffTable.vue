@@ -3,6 +3,9 @@ import store from "../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
 import CreateStaffModal from "./staff/CreateStaffModal.vue";
+import EditStaffModal from "./staff/EditStaffModal.vue";
+
+const selectedStaff = ref({});
 
 const columns = ref([
   {
@@ -35,7 +38,9 @@ const rows = ref([]);
 
 const meta = ref({});
 
-const isOpen = ref(false);
+const isOpenCreateModal = ref(false);
+
+const isOpenEditModal = ref(false);
 
 const links = ref([]);
 
@@ -50,25 +55,44 @@ function fetchStaffsData() {
 }
 
 function closeModal() {
-  isOpen.value = false;
+  isOpenCreateModal.value = false;
+  isOpenEditModal.value = false;
 }
-function openModal() {
-  isOpen.value = true;
+
+function openCreateModal() {
+  isOpenCreateModal.value = true;
+}
+
+function openEditModal(staff) {
+  isOpenEditModal.value = true;
+  selectedStaff.value = staff;
+}
+
+function storePositions() {
+  store.dispatch("getPositions").then((data) => {
+    return data;
+  });
 }
 
 onMounted(() => {
   fetchStaffsData();
+  storePositions();
 });
 </script>
 <template>
-  <create-staff-modal :is-open="isOpen" :closeModal="closeModal">
+  <create-staff-modal :is-open="isOpenCreateModal" :close-modal="closeModal">
   </create-staff-modal>
+  <edit-staff-modal
+    :staff="selectedStaff"
+    :is-open="isOpenEditModal"
+    :close-modal="closeModal"
+  ></edit-staff-modal>
   <div>
     <div class="flex flex-1">
       <h2 class="p-4 font-semibold uppercase">Staff Table</h2>
       <button
         type="button"
-        @click="openModal"
+        @click="openCreateModal"
         class="rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
       >
         Create new staff
@@ -85,6 +109,7 @@ onMounted(() => {
   >
     <template v-slot:actions="{ row }">
       <button
+        @click="openEditModal(row)"
         class="p-1 overflow-hidden hover:opacity-60 bg-success-600 rounded-3xl text-white whitespace-nowrap"
       >
         <svg

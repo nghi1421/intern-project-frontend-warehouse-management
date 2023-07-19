@@ -97,6 +97,7 @@ function handleSubmit() {
   validate();
   if (isValidPhoneNumber) {
     const data = {
+      id: props.staff.id ? props.staff.id : "",
       name: name.value,
       phone_number: phoneNumber.value,
       address: address.value,
@@ -124,21 +125,24 @@ function clearData() {
 }
 
 onMounted(() => {
-  store.dispatch("getPositions").then((response) => {
-    positions.value = response.data.positions;
+  positions.value = store.state.positions;
+  if (props.staff) {
+    selectedGender.value = genders.find(
+      (gender) => gender.name === props.staff.gender
+    );
 
-    if (props.staff) {
-      selectedGender.value = genders.value.find(
-        (gender) => gender.name === props.staff.gender
-      );
+    selectedPosition.value = positions.value.find(
+      (position) => position.id === props.staff.position_id
+    );
 
-      selectedPosition.value = positions.value.find(
-        (position) => position.id === props.staff.position_id
-      );
-    } else {
-      selectedPosition.value = positions.value[0];
-    }
-  });
+    name.value = props.staff.name;
+    address.value = props.staff.address;
+    phoneNumber.value = props.staff.phone_number;
+    dob.value = props.staff.dob;
+    working.value = props.staff.working;
+  } else {
+    selectedPosition.value = positions.value[0];
+  }
 });
 function validate() {
   errorMessage.value = {};

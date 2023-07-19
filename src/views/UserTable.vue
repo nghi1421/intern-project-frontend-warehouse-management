@@ -33,9 +33,9 @@ const links = ref([]);
 
 function fetchStaffsData() {
   store.dispatch("getUsers").then((response) => {
-    meta.value = response.data;
+    meta.value = response.data.meta;
 
-    links.value = response.data.links;
+    links.value = response.data.meta.links;
 
     rows.value = response.data.data;
   });

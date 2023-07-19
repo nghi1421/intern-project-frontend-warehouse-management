@@ -14,11 +14,7 @@ const store = createStore({
       loading: false,
       data: {}
     },
-    notification: {
-      show: false,
-      type: 'success',
-      message: ''
-    }
+    positions: []
   },
   getters: {},
   actions: {
@@ -52,14 +48,22 @@ const store = createStore({
           return data;
         })
     },
-    getPositions() {
+    getPositions({ commit }) {
       return axiosClient.get('/positions')
-      .then((data)=> data)
+        .then((data) => {
+          commit('setPositions', data.data.positions)
+          return data
+        })
     },
     createStaff({ commit }, data) {
       return axiosClient.post('staffs', data).then((response) => {
         return response;
       })
+    },
+    updateStaff({ commit }, data) {
+      return axiosClient.put(`/staffs/${data.id}`, data).then((response) => {
+        return response;
+      }) 
     }
   },
   mutations: {
@@ -74,6 +78,9 @@ const store = createStore({
     setRole: (state, role) => {
       state.user.data = { ...state.user.data, role: role };
       sessionStorage.setItem('ROLE', role);
+    },
+    setPositions: (state, positions) => {
+      state.positions = positions;
     },
     logout(state) {
       state.user.token = null;
