@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import store from "../store";
 import Dashboard from '../views/Dashboard.vue';
-import UserTable from '../views/UserTable.vue';
+import UserTable from '../views/user/UserTable.vue';
 import Login from '../views/Login.vue';
-import StaffTable from '../views/StaffTable.vue'
+import StaffTable from '../views/staff/StaffTable.vue'
 const routes = [
   {
     path: '/',

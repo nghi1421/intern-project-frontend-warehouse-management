@@ -1,41 +1,25 @@
 <script setup>
-import store from "../store";
+import store from "../../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
-import CreateStaffModal from "./staff/CreateStaffModal.vue";
-import EditStaffModal from "./staff/EditStaffModal.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
-
-const toast = useToast();
-
-const selectedStaff = ref({});
+import CreateStaffModal from "../staff/CreateStaffModal.vue";
 
 const columns = ref([
   {
     key: "id",
-    value: "Staff ID",
+    value: "User ID",
   },
   {
-    key: "name",
-    value: "Name",
+    key: "username",
+    value: "Username",
   },
   {
-    key: "position",
-    value: "Position",
+    key: "created_at",
+    value: "Create at",
   },
   {
-    key: "phone_number",
-    value: "Phone number",
-  },
-  {
-    key: "gender",
-    value: "Gender",
-  },
-  {
-    key: "status",
-    value: "Status",
+    key: "updated_at",
+    value: "updated at",
   },
 ]);
 
@@ -43,16 +27,12 @@ const rows = ref([]);
 
 const meta = ref({});
 
-const isOpenCreateModal = ref(false);
-
-const isOpenEditModal = ref(false);
-
-const isOpenConfirmModal = ref(false);
+const isOpen = ref(false);
 
 const links = ref([]);
 
 function fetchStaffsData() {
-  store.dispatch("getStaffs").then((response) => {
+  store.dispatch("getUsers").then((response) => {
     meta.value = response.data.meta;
 
     links.value = response.data.meta.links;
@@ -62,74 +42,25 @@ function fetchStaffsData() {
 }
 
 function closeModal() {
-  isOpenCreateModal.value = false;
-  isOpenEditModal.value = false;
-  isOpenConfirmModal.value = false;
-  selectedStaff.value = null;
+  isOpen.value = false;
 }
-
-function openCreateModal() {
-  isOpenCreateModal.value = true;
-}
-
-function openEditModal(staff) {
-  isOpenEditModal.value = true;
-  selectedStaff.value = staff;
-}
-
-function openConfirmModal(staff) {
-  isOpenConfirmModal.value = true;
-  selectedStaff.value = staff;
-}
-
-function storePositions() {
-  store.dispatch("getPositions").then((data) => {
-    return data;
-  });
-}
-
-function deleteStaff() {
-  return store
-    .dispatch("deleteStaff", selectedStaff.value.id)
-    .then((response) => {
-      console.log(response);
-      if (response.status === 200) {
-        toast.success(response.data.message);
-        return true;
-      } else {
-        toast.error(response.data.message);
-        return false;
-      }
-    });
+function openModal() {
+  isOpen.value = true;
 }
 
 onMounted(() => {
   fetchStaffsData();
-  storePositions();
 });
 </script>
 <template>
-  <create-staff-modal :is-open="isOpenCreateModal" :close-modal="closeModal">
+  <create-staff-modal :is-open="isOpen" :closeModal="closeModal">
   </create-staff-modal>
-  <edit-staff-modal
-    :staff="selectedStaff"
-    :is-open="isOpenEditModal"
-    :close-modal="closeModal"
-  ></edit-staff-modal>
-  <confirm-modal
-    :is-open="isOpenConfirmModal"
-    :close-modal="closeModal"
-    :submit="deleteStaff"
-  >
-    <template v-slot:header> Are your sure? </template>
-    <template v-slot:message> Delete staff information! </template>
-  </confirm-modal>
   <div>
     <div class="flex flex-1">
       <h2 class="p-4 font-semibold uppercase">Staff Table</h2>
       <button
         type="button"
-        @click="openCreateModal"
+        @click="openModal"
         class="rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
       >
         Create new staff
@@ -146,7 +77,6 @@ onMounted(() => {
   >
     <template v-slot:actions="{ row }">
       <button
-        @click="openEditModal(row)"
         class="p-1 overflow-hidden hover:opacity-60 bg-success-600 rounded-3xl text-white whitespace-nowrap"
       >
         <svg
@@ -167,7 +97,6 @@ onMounted(() => {
       </button>
 
       <button
-        @click="openConfirmModal(row)"
         class="p-1 ms-2 overflow-hidden hover:opacity-60 bg-danger-600 rounded-xl text-white whitespace-nowrap"
       >
         <svg
