@@ -32,7 +32,6 @@ const store = createStore({
       return axiosClient.post('/logout')
         .then((data) => {
           commit('logout');
-
           return data;
         });
     },
@@ -44,9 +43,7 @@ const store = createStore({
     },
     getUsers() {
       return axiosClient.get('/users')
-        .then((data) => {
-          return data;
-        })
+        .then((data) => data)
     },
     getPositions({ commit }) {
       return axiosClient.get('/positions')
@@ -56,14 +53,19 @@ const store = createStore({
         })
     },
     createStaff({ commit }, data) {
-      return axiosClient.post('staffs', data).then((response) => {
-        return response;
-      })
+      return axiosClient
+        .post('staffs', data)
+        .then((response) => response)
     },
     updateStaff({ commit }, data) {
-      return axiosClient.put(`/staffs/${data.id}`, data).then((response) => {
-        return response;
-      }) 
+      return axiosClient
+        .put(`/staffs/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteStaff({ commit }, staffId) {
+      return axiosClient
+        .delete(`staffs/${staffId}`)
+        .then((response) => response)
     }
   },
   mutations: {

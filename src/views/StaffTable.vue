@@ -4,6 +4,11 @@ import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
 import CreateStaffModal from "./staff/CreateStaffModal.vue";
 import EditStaffModal from "./staff/EditStaffModal.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
+const toast = useToast();
 
 const selectedStaff = ref({});
 
@@ -42,6 +47,8 @@ const isOpenCreateModal = ref(false);
 
 const isOpenEditModal = ref(false);
 
+const isOpenConfirmModal = ref(false);
+
 const links = ref([]);
 
 function fetchStaffsData() {
@@ -57,6 +64,8 @@ function fetchStaffsData() {
 function closeModal() {
   isOpenCreateModal.value = false;
   isOpenEditModal.value = false;
+  isOpenConfirmModal.value = false;
+  selectedStaff.value = null;
 }
 
 function openCreateModal() {
@@ -68,10 +77,30 @@ function openEditModal(staff) {
   selectedStaff.value = staff;
 }
 
+function openConfirmModal(staff) {
+  isOpenConfirmModal.value = true;
+  selectedStaff.value = staff;
+}
+
 function storePositions() {
   store.dispatch("getPositions").then((data) => {
     return data;
   });
+}
+
+function deleteStaff() {
+  return store
+    .dispatch("deleteStaff", selectedStaff.value.id)
+    .then((response) => {
+      console.log(response);
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        return true;
+      } else {
+        toast.error(response.data.message);
+        return false;
+      }
+    });
 }
 
 onMounted(() => {
@@ -87,6 +116,14 @@ onMounted(() => {
     :is-open="isOpenEditModal"
     :close-modal="closeModal"
   ></edit-staff-modal>
+  <confirm-modal
+    :is-open="isOpenConfirmModal"
+    :close-modal="closeModal"
+    :submit="deleteStaff"
+  >
+    <template v-slot:header> Are your sure? </template>
+    <template v-slot:message> Delete staff information! </template>
+  </confirm-modal>
   <div>
     <div class="flex flex-1">
       <h2 class="p-4 font-semibold uppercase">Staff Table</h2>
@@ -130,6 +167,7 @@ onMounted(() => {
       </button>
 
       <button
+        @click="openConfirmModal(row)"
         class="p-1 ms-2 overflow-hidden hover:opacity-60 bg-danger-600 rounded-xl text-white whitespace-nowrap"
       >
         <svg

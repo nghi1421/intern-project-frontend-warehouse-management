@@ -96,8 +96,7 @@ let isValidPhoneNumber = false;
 function handleSubmit() {
   validate();
   if (isValidPhoneNumber) {
-    const data = {
-      id: props.staff.id ? props.staff.id : "",
+    let data = {
       name: name.value,
       phone_number: phoneNumber.value,
       address: address.value,
@@ -106,6 +105,9 @@ function handleSubmit() {
       position_id: selectedPosition.value.id,
       gender: selectedGender.value.id,
     };
+    if (props.staff) {
+      data = { ...data, id: props.staff.id };
+    }
     props.submit(data).then(function (isSuccess) {
       if (isSuccess) {
         clearData;
