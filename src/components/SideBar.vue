@@ -1,10 +1,14 @@
 <script setup>
 import { ref } from "vue";
 import { UsersIcon } from "@heroicons/vue/24/outline";
+import CategoryIcon from "@/components/icons/Category.vue";
+import ImportIcon from "@/components/icons/Import.vue";
 
 const navigation = ref([
   { name: "User", href: "/users", icon: UsersIcon },
   { name: "Staff", href: "/staffs", icon: UsersIcon },
+  { name: "Category", href: "/categories", icon: CategoryIcon },
+  { name: "Import", href: "/imports", icon: ImportIcon },
 ]);
 </script>
 

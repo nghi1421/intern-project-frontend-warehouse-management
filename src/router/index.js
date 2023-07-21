@@ -4,6 +4,9 @@ import Dashboard from '../views/Dashboard.vue';
 import UserTable from '../views/user/UserTable.vue';
 import Login from '../views/Login.vue';
 import StaffTable from '../views/staff/StaffTable.vue'
+import CategoryTable from '../views/category/CategoryTable.vue'
+import ImportTable from '../views/import/ImportTable.vue'
+
 const routes = [
   {
     path: '/',
@@ -21,6 +24,18 @@ const routes = [
           path: '/staffs',
           name: 'Staff',
           component: StaffTable,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/categories',
+          name: 'Category',
+          component: CategoryTable,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/imports',
+          name: 'Import',
+          component: ImportTable,
           meta: { requiresAuth: true },
         }
     ]

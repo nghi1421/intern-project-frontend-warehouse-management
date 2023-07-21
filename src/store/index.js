@@ -10,9 +10,8 @@ const store = createStore({
       },
       token: sessionStorage.getItem("TOKEN"),
     },
-    dashboard: {
-      loading: false,
-      data: {}
+    staff: {
+      totalPages: 1,
     },
     positions: []
   },
@@ -35,7 +34,7 @@ const store = createStore({
           return data;
         });
     },
-    getStaffs() {
+    getStaffs({ commit }) {
       return axiosClient.get('/staffs')
         .then((data) => {
           return data;
@@ -66,7 +65,15 @@ const store = createStore({
       return axiosClient
         .delete(`staffs/${staffId}`)
         .then((response) => response)
-    }
+    },
+    getCategories() {
+      return axiosClient.get('/categories')
+        .then((response) => response)
+    },
+    getImports() {
+      return axiosClient.get('/imports')
+        .then((response) => response)
+    },
   },
   mutations: {
     setName: (state, staffInformation) => {
