@@ -1,20 +1,14 @@
-<script>
-export default {
-  name: "Category",
+<script setup>
+import { computed } from "vue";
 
-  props: {
-    size: {
-      type: Number,
-      default: 5,
-    },
+const props = defineProps({
+  size: {
+    type: Number,
+    default: 5,
   },
+});
 
-  computed: {
-    classSize() {
-      return `w-${this.size} h-${this.size}`;
-    },
-  },
-};
+const classSize = computed(() => `w-${props.size} h-${props.size}`);
 </script>
 <template>
   <svg

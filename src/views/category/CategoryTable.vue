@@ -2,7 +2,13 @@
 import store from "../../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
-// import CreateStaffModal from "../staff/CreateStaffModal.vue";
+import CreateCategoryModal from "./CreateCategoryModal.vue";
+import EditCategoryModal from "./EditCategoryModal.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
+const toast = useToast();
 
 const columns = ref([
   {
@@ -27,6 +33,8 @@ const columns = ref([
   },
 ]);
 
+const selectedCategory = ref({});
+
 const rows = ref([]);
 
 const meta = ref({});
@@ -34,6 +42,12 @@ const meta = ref({});
 const isOpen = ref(false);
 
 const links = ref([]);
+
+const isOpenCreateModal = ref(false);
+
+const isOpenEditModal = ref(false);
+
+const isOpenConfirmModal = ref(false);
 
 function fetchCategoriesData() {
   store.dispatch("getCategories").then((response) => {
@@ -45,27 +59,69 @@ function fetchCategoriesData() {
     rows.value = response.data.data;
   });
 }
-
 function closeModal() {
-  isOpen.value = false;
+  isOpenCreateModal.value = false;
+  isOpenEditModal.value = false;
+  isOpenConfirmModal.value = false;
+  selectedCategory.value = null;
 }
-function openModal() {
-  isOpen.value = true;
+
+function openCreateModal() {
+  isOpenCreateModal.value = true;
+}
+
+function openEditModal(staff) {
+  isOpenEditModal.value = true;
+  selectedCategory.value = staff;
+}
+
+function openConfirmModal(staff) {
+  isOpenConfirmModal.value = true;
+  selectedCategory.value = staff;
+}
+
+function deleteCategory() {
+  return store
+    .dispatch("deleteCategory", selectedCategory.value.id)
+    .then((response) => {
+      console.log(response);
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        return true;
+      } else {
+        toast.error(response.data.message);
+        return false;
+      }
+    });
 }
 
 onMounted(() => {
   fetchCategoriesData();
 });
 </script>
+
 <template>
-  <!-- <create-staff-modal :is-open="isOpen" :closeModal="closeModal">
-  </create-staff-modal> -->
+  <create-category-modal :is-open="isOpenCreateModal" :closeModal="closeModal">
+  </create-category-modal>
+  <edit-category-modal
+    :category="selectedCategory"
+    :is-open="isOpenEditModal"
+    :close-modal="closeModal"
+  ></edit-category-modal>
+  <confirm-modal
+    :is-open="isOpenConfirmModal"
+    :close-modal="closeModal"
+    :submit="deleteCategory"
+  >
+    <template v-slot:header> Are your sure? </template>
+    <template v-slot:message> Delete staff category! </template>
+  </confirm-modal>
   <div>
     <div class="flex flex-1">
       <h2 class="p-4 font-semibold uppercase">Category Table</h2>
       <button
         type="button"
-        @click="openModal"
+        @click="openCreateModal"
         class="rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
       >
         Create category
@@ -82,6 +138,7 @@ onMounted(() => {
   >
     <template v-slot:actions="{ row }">
       <button
+        @click="openEditModal(row)"
         class="p-1 overflow-hidden hover:opacity-60 bg-success-600 rounded-3xl text-white whitespace-nowrap"
       >
         <svg
@@ -102,6 +159,7 @@ onMounted(() => {
       </button>
 
       <button
+        @click="openConfirmModal(row)"
         class="p-1 ms-2 overflow-hidden hover:opacity-60 bg-danger-600 rounded-xl text-white whitespace-nowrap"
       >
         <svg

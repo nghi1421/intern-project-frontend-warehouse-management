@@ -70,6 +70,21 @@ const store = createStore({
       return axiosClient.get('/categories')
         .then((response) => response)
     },
+    createCategory({ commit }, data) {
+      return axiosClient
+        .post('categories', data)
+        .then((response) => response)
+    },
+    updateCategory({ commit }, data) {
+      return axiosClient
+        .put(`/categories/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteCategory({ commit }, categoryId) {
+      return axiosClient
+        .delete(`categories/${categoryId}`)
+        .then((response) => response)
+    },
     getImports() {
       return axiosClient.get('/imports')
         .then((response) => response)
