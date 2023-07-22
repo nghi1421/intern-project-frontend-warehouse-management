@@ -18,7 +18,7 @@ const props = defineProps({
   category: Object,
 });
 
-async function updateCategory(data) {
+function updateCategory(data) {
   return store.dispatch("updateCategory", data).then((response) => {
     if (response.status === 200) {
       toast.success(response.data.message);

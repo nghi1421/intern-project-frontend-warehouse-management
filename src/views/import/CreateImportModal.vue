@@ -9,17 +9,18 @@ import {
 } from "@headlessui/vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-import CategoryForm from "./CategoryForm.vue";
+import ImportForm from "./ImportForm.vue";
 
 const toast = useToast();
 
 const props = defineProps({
+  staff: Object,
   isOpen: Boolean,
   closeModal: Function,
 });
 
-function createCategory(data) {
-  return store.dispatch("createCategory", data).then((response) => {
+function createImport(data) {
+  return store.dispatch("createImport", data).then((response) => {
     if (response.status === 200) {
       toast.success(response.data.message);
       return true;
@@ -68,10 +69,11 @@ function createCategory(data) {
                 Category
               </DialogTitle>
 
-              <category-form
+              <import-form
+                :staff="staff"
                 :close-form="props.closeModal"
-                :submit="createCategory"
-              ></category-form>
+                :submit="createImport"
+              ></import-form>
               <div class="mt-2"></div>
             </DialogPanel>
           </TransitionChild>

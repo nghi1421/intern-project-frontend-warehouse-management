@@ -5,6 +5,7 @@ const store = createStore({
   state: {
     user: {
       data: {
+        id: sessionStorage.getItem('ID'),
         name: sessionStorage.getItem('NAME'),
         role: sessionStorage.getItem('ROLE')
       },
@@ -22,6 +23,7 @@ const store = createStore({
       return axiosClient.post('/login', credential)
         .then(({data}) => {
           commit('setName', data.staff_information);
+          commit('setStaffId', data.staff_information);
           commit('setRole', data.role);
           commit('setToken', data.token)
           return data;
@@ -39,6 +41,10 @@ const store = createStore({
         .then((data) => {
           return data;
         })
+    },
+    searchStaff(context) {
+      return axiosClient.get(`/staffs/${context.state.user.data.id}`)
+        .then((response) => response)
     },
     getUsers() {
       return axiosClient.get('/users')
@@ -66,7 +72,7 @@ const store = createStore({
         .delete(`staffs/${staffId}`)
         .then((response) => response)
     },
-    getCategories() {
+    getCategory() {
       return axiosClient.get('/categories')
         .then((response) => response)
     },
@@ -82,11 +88,26 @@ const store = createStore({
     },
     deleteCategory({ commit }, categoryId) {
       return axiosClient
-        .delete(`categories/${categoryId}`)
+        .delete(`/categories/${categoryId}`)
         .then((response) => response)
     },
     getImports() {
       return axiosClient.get('/imports')
+        .then((response) => response)
+    },
+    createImport({ commit }, data) {
+      return axiosClient
+        .post('/README.mdimports', data)
+        .then((response) => response)
+    },
+    updateImport({ commit }, data) {
+      return axiosClient
+        .put(`/imports/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteImport({ commit }, importId) {
+      return axiosClient
+        .delete(`/package.jsonimports/${importId}`)
         .then((response) => response)
     },
   },
@@ -94,6 +115,10 @@ const store = createStore({
     setName: (state, staffInformation) => {
       state.user.data = { ...state.user.data, name: staffInformation.name };
       sessionStorage.setItem('NAME', staffInformation.name);
+    },
+    setStaffId: (state, staffInformation) => {
+      state.user.data = { ...state.user.data, id: staffInformation.id };
+      sessionStorage.setItem('ID', staffInformation.id);
     },
     setToken: (state, token) => {
       state.user.token = token;

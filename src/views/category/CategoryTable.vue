@@ -39,8 +39,6 @@ const rows = ref([]);
 
 const meta = ref({});
 
-const isOpen = ref(false);
-
 const links = ref([]);
 
 const isOpenCreateModal = ref(false);
@@ -59,6 +57,7 @@ function fetchCategoriesData() {
     rows.value = response.data.data;
   });
 }
+
 function closeModal() {
   isOpenCreateModal.value = false;
   isOpenEditModal.value = false;

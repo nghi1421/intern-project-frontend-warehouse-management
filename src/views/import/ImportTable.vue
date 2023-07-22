@@ -2,7 +2,7 @@
 import store from "../../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
-// import CreateStaffModal from "../staff/CreateStaffModal.vue";
+import CreateImportModal from "./CreateImportModal.vue";
 
 const columns = ref([
   {
@@ -31,13 +31,21 @@ const columns = ref([
   },
 ]);
 
+const staffInformation = ref({});
+
 const rows = ref([]);
 
 const meta = ref({});
 
-const isOpen = ref(false);
-
 const links = ref([]);
+
+const selectedImport = ref({});
+
+const isOpenCreateModal = ref(false);
+
+const isOpenEditModal = ref(false);
+
+const isOpenConfirmModal = ref(false);
 
 function fetchCategoriesData() {
   store.dispatch("getImports").then((response) => {
@@ -51,25 +59,53 @@ function fetchCategoriesData() {
 }
 
 function closeModal() {
-  isOpen.value = false;
+  isOpenCreateModal.value = false;
+  isOpenEditModal.value = false;
+  isOpenConfirmModal.value = false;
+  selectedImport.value = null;
 }
-function openModal() {
-  isOpen.value = true;
+
+function openCreateModal() {
+  isOpenCreateModal.value = true;
+}
+
+function openEditModal(staff) {
+  isOpenEditModal.value = true;
+  selectedImport.value = staff;
+}
+
+function openConfirmModal(staff) {
+  isOpenConfirmModal.value = true;
+  selectedImport.value = staff;
+}
+
+function fetchCurrentUser() {
+  store.dispatch("searchStaff").then((response) => {
+    if (response.status === 200) {
+      staffInformation.value = response.data;
+    }
+    console.log(response);
+  });
 }
 
 onMounted(() => {
+  fetchCurrentUser();
   fetchCategoriesData();
 });
 </script>
 <template>
-  <!-- <create-staff-modal :is-open="isOpen" :closeModal="closeModal">
-  </create-staff-modal> -->
+  <create-import-modal
+    :is-open="isOpenCreateModal"
+    :closeModal="closeModal"
+    :staff="staffInformation"
+  >
+  </create-import-modal>
   <div>
     <div class="flex flex-1">
       <h2 class="p-4 font-semibold uppercase">Import Table</h2>
       <button
         type="button"
-        @click="openModal"
+        @click="openCreateModal"
         class="rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
       >
         Create import
