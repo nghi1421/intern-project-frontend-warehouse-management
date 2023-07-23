@@ -14,6 +14,7 @@ const store = createStore({
     staff: {
       totalPages: 1,
     },
+    providers: [],
     positions: []
   },
   getters: {},
@@ -97,7 +98,7 @@ const store = createStore({
     },
     createImport({ commit }, data) {
       return axiosClient
-        .post('/README.mdimports', data)
+        .post('/imports', data)
         .then((response) => response)
     },
     updateImport({ commit }, data) {
@@ -107,9 +108,18 @@ const store = createStore({
     },
     deleteImport({ commit }, importId) {
       return axiosClient
-        .delete(`/package.jsonimports/${importId}`)
+        .delete(`/imports/${importId}`)
         .then((response) => response)
     },
+    getProviders({ commit }) {
+      return axiosClient
+        .get(`providers/?no_pagination=1`)
+        .then((response) => {
+          console.log(response)
+          commit('setProviders', response.data.data)
+          return response
+        })
+    }
   },
   mutations: {
     setName: (state, staffInformation) => {
@@ -130,6 +140,9 @@ const store = createStore({
     },
     setPositions: (state, positions) => {
       state.positions = positions;
+    },
+    setProviders: (state, providers) => {
+      state.providers = providers;
     },
     logout(state) {
       state.user.token = null;

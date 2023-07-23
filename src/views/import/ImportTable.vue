@@ -84,12 +84,16 @@ function fetchCurrentUser() {
     if (response.status === 200) {
       staffInformation.value = response.data;
     }
-    console.log(response);
   });
+}
+
+function fetchProvidersData() {
+  store.dispatch("getProviders").then((response) => response);
 }
 
 onMounted(() => {
   fetchCurrentUser();
+  fetchProvidersData();
   fetchCategoriesData();
 });
 </script>
