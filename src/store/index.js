@@ -15,7 +15,8 @@ const store = createStore({
       totalPages: 1,
     },
     providers: [],
-    positions: []
+    positions: [],
+    categories: [],
   },
   getters: {},
   actions: {
@@ -73,9 +74,16 @@ const store = createStore({
         .delete(`staffs/${staffId}`)
         .then((response) => response)
     },
-    getCategory() {
+    getCategories({ commit }) {
       return axiosClient.get('/categories')
         .then((response) => response)
+    },
+    getAllCategories({ commit }) {
+      return axiosClient.get('/categories/?no_pagination=1')
+        .then((response) => {
+          commit('setCategories', response.data)
+          return response
+        })
     },
     createCategory({ commit }, data) {
       return axiosClient
@@ -115,7 +123,6 @@ const store = createStore({
       return axiosClient
         .get(`providers/?no_pagination=1`)
         .then((response) => {
-          console.log(response)
           commit('setProviders', response.data.data)
           return response
         })
@@ -143,6 +150,9 @@ const store = createStore({
     },
     setProviders: (state, providers) => {
       state.providers = providers;
+    },
+    setCategories: (state, categories) => {
+      state.categories = categories;
     },
     logout(state) {
       state.user.token = null;

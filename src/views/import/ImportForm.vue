@@ -29,8 +29,6 @@ const props = defineProps({
 
 const status = ref("");
 
-const categories = ref([]);
-
 const providers = ref([]);
 
 const selectedProvider = ref({});
@@ -51,6 +49,10 @@ const statuses = [
     name: "Completed",
   },
 ];
+
+const categories = ref([]);
+
+const selectedCategories = ref([]);
 
 const selectedStatus = ref(statuses[1]);
 
@@ -91,7 +93,21 @@ function selectProvider(proivder) {
 onMounted(() => {
   providers.value = store.state.providers;
   selectedProvider.value = providers.value[0];
+  categories.value = store.state.categories.map((category) => {
+    return { ...category, selected: false };
+  });
 });
+
+function selectRow(rowId) {
+  let indexRowSelected = categories.value.findIndex(function (row) {
+    return row.id == rowId;
+  });
+
+  categories.value[indexRowSelected].selected =
+    !categories.value[indexRowSelected].selected;
+
+  console.log(categories.value);
+}
 
 function validate() {}
 </script>
@@ -343,6 +359,94 @@ function validate() {}
             </transition>
           </div>
         </Listbox>
+      </div>
+    </div>
+    <div class="mt-12 col-span-6 grid grid-cols-7 max-h-40">
+      <div class="col-span-3 flex flex-col overflow-auto">
+        <table>
+          <thead class="p-2">
+            <tr class="bg-slate-500 text-white text-xs">
+              <th>
+                <span class="p-2 text-sm font-semibold">ID</span>
+              </th>
+              <th>
+                <span class="p-2 text-sm font-semibold">Category name</span>
+              </th>
+              <th>
+                <span class="p-2 text-sm font-semibold">Unit</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="category in categories"
+              :key="`cateogry-${category.id}`"
+              :class="{
+                'text-gray-800 text-xs hover:bg-slate-100 bg-slate-300':
+                  category.selected,
+                'text-gray-800 text-xs hover:bg-slate-100 bg-white':
+                  !category.selected,
+              }"
+              @click="selectRow(category.id)"
+            >
+              <th>
+                <span class="p-2 font-semibold">{{ category.id }}</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">{{ category.name }}</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">{{ category.unit }}</span>
+              </th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-span-1 flex flex-col">
+        <button>>></button>
+        <button>></button>
+        <button v-text="'<<'"></button>
+        <button v-text="'<'"></button>
+      </div>
+      <div class="col-span-3 flex flex-col overflow-auto">
+        <table>
+          <thead class="p-2">
+            <tr class="bg-slate-500 text-white text-xs">
+              <th>
+                <span class="p-2 text-sm font-semibold">ID</span>
+              </th>
+              <th>
+                <span class="p-2 text-sm font-semibold">Category name</span>
+              </th>
+              <th>
+                <span class="p-2 text-sm font-semibold">Unit</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="category in selectedCategories"
+              :key="`cateogry-${category.id}`"
+              :class="{
+                'text-gray-800 text-xs hover:bg-slate-100 bg-slate-300':
+                  category.selected,
+                'text-gray-800 text-xs hover:bg-slate-100 bg-white':
+                  !category.selected,
+              }"
+              @click="selectRow(category.id)"
+            >
+              <th>
+                <span class="p-2 font-semibold">{{ category.id }}</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">{{ category.name }}</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">{{ category.unit }}</span>
+              </th>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

@@ -47,17 +47,6 @@ const isOpenEditModal = ref(false);
 
 const isOpenConfirmModal = ref(false);
 
-function fetchCategoriesData() {
-  store.dispatch("getImports").then((response) => {
-    console.log(response);
-    meta.value = response.data.meta;
-
-    links.value = response.data.meta.links;
-
-    rows.value = response.data.data;
-  });
-}
-
 function closeModal() {
   isOpenCreateModal.value = false;
   isOpenEditModal.value = false;
@@ -87,14 +76,28 @@ function fetchCurrentUser() {
   });
 }
 
+function fetchImortsData() {
+  store.dispatch("getImports").then((response) => {
+    console.log(response);
+    meta.value = response.data.meta;
+
+    links.value = response.data.meta.links;
+
+    rows.value = response.data.data;
+  });
+}
 function fetchProvidersData() {
   store.dispatch("getProviders").then((response) => response);
 }
 
+function fetchCategoriesData() {
+  store.dispatch("getAllCategories").then((response) => response);
+}
 onMounted(() => {
   fetchCurrentUser();
   fetchProvidersData();
   fetchCategoriesData();
+  fetchImortsData();
 });
 </script>
 <template>
