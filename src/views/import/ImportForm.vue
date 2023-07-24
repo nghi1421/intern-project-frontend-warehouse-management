@@ -25,6 +25,7 @@ import LeftOneIcon from "@/components/icons/LeftOne.vue";
 import LeftDoubleIcon from "@/components/icons/LeftDouble.vue";
 
 const props = defineProps({
+  import: Object,
   staff: Object,
   submit: Function,
   closeForm: Function,
@@ -143,10 +144,27 @@ function deselectedAllCategories() {
 
 onMounted(() => {
   providers.value = store.state.providers;
-  selectedProvider.value = providers.value[0];
-  categories.value = store.state.categories.map((category) => {
-    return { ...category, selected: false };
-  });
+  if (props.import) {
+    selectedProvider.value = props.import.provider;
+    selectedCategories.value = props.import.categories.map((category) => {
+      return { ...category, selected: false };
+    });
+    const selectedCategoryId = selectedCategories.value.map(
+      (category) => category.id
+    );
+    categories.value = store.state.categories.filter(
+      (category) => selectedCategoryId.indexOf(category.id) < 0
+    );
+    categories.value = store.state.categories.map((category) => {
+      return { ...category, selected: false };
+    });
+  } else {
+    selectedProvider.value = providers.value[0];
+
+    categories.value = store.state.categories.map((category) => {
+      return { ...category, selected: false };
+    });
+  }
 });
 
 function selectCategory(categoryId) {
@@ -419,7 +437,7 @@ function validate() {}
         </Listbox>
       </div>
     </div>
-    <div class="mt-12 col-span-6 grid grid-cols-9 max-h-60 min-h-60">
+    <div class="mt-12 col-span-6 grid grid-cols-9">
       <div class="col-span-4 flex flex-col overflow-auto">
         <table>
           <thead class="p-2">
@@ -460,7 +478,7 @@ function validate() {}
           </tbody>
         </table>
       </div>
-      <div class="col-span-1 flex flex-col">
+      <div class="col-span-1 flex flex-1 gap-1 flex-col min-h-60">
         <button
           @click="selectCategories"
           class="m-auto bg-slate-200 hover:bg-slate-300 hover:drop-shadow-md drop-shadow-sm p-1 rounded-lg text-slate-900"
@@ -533,10 +551,18 @@ function validate() {}
                 <span class="p-2 font-semibold">{{ category.unit }}</span>
               </th>
               <th>
-                <span class="p-2 font-semibold">{{ category.unit_price }}</span>
+                <input
+                  type="number"
+                  class="p-2 font-semibold"
+                  v-model="category.unit_price"
+                />
               </th>
               <th>
-                <span class="p-2 font-semibold">{{ category.amount }}</span>
+                <input
+                  type="number"
+                  class="p-2 font-semibold"
+                  v-model="category.amount"
+                />
               </th>
             </tr>
           </tbody>

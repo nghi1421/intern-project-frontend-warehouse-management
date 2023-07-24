@@ -94,10 +94,10 @@ function fetchCategoriesData() {
   store.dispatch("getAllCategories").then((response) => response);
 }
 onMounted(() => {
+  fetchImortsData();
   fetchCurrentUser();
   fetchProvidersData();
   fetchCategoriesData();
-  fetchImortsData();
 });
 </script>
 <template>
