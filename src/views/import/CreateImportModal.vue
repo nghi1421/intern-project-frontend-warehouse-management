@@ -71,7 +71,7 @@ function createImport(data) {
 
               <import-form
                 :staff="staff"
-                :close-form="props.closeModal"
+                :close-form="closeModal"
                 :submit="createImport"
               ></import-form>
               <div class="mt-2"></div>

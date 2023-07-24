@@ -70,7 +70,7 @@ async function updateStaff(data) {
 
               <staff-form
                 :staff="staff"
-                :close-form="props.closeModal"
+                :close-form="closeModal"
                 :submit="updateStaff"
               ></staff-form>
               <div class="mt-2"></div>

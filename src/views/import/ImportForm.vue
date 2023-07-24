@@ -149,13 +149,16 @@ onMounted(() => {
     selectedCategories.value = props.import.categories.map((category) => {
       return { ...category, selected: false };
     });
-    const selectedCategoryId = selectedCategories.value.map(
+    const selectedCategoryIds = selectedCategories.value.map(
       (category) => category.id
     );
+    console.log(selectedCategoryIds);
+
     categories.value = store.state.categories.filter(
-      (category) => selectedCategoryId.indexOf(category.id) < 0
+      (category) => selectedCategoryIds.indexOf(category.id) < 0
     );
-    categories.value = store.state.categories.map((category) => {
+
+    categories.value = categories.value.map((category) => {
       return { ...category, selected: false };
     });
   } else {
@@ -206,7 +209,7 @@ function validate() {}
           <span class="inline-block align-middle">Staff ID</span>
         </div>
         <div class="col-span-2 text-xs mb-1 ps-1">
-          <span>{{ staff.id }}</span>
+          <span>{{ staff?.id }}</span>
         </div>
 
         <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
@@ -216,7 +219,7 @@ function validate() {}
           <span class="inline-block align-middle">Full Name</span>
         </div>
         <div class="col-span-2 text-xs mb-1">
-          <span>{{ staff.name }}</span>
+          <span>{{ staff?.name }}</span>
         </div>
 
         <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
@@ -226,7 +229,7 @@ function validate() {}
           <span class="inline-block align-middle">Phone Number</span>
         </div>
         <div class="col-span-2 text-xs mb-1">
-          <span>{{ staff.phone_number }}</span>
+          <span>{{ staff?.phone_number }}</span>
         </div>
 
         <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
@@ -236,7 +239,7 @@ function validate() {}
           <span class="inline-block align-middle">Address</span>
         </div>
         <div class="col-span-2 text-xs mb-1">
-          <span class="">{{ staff.address }}</span>
+          <span class="">{{ staff?.address }}</span>
         </div>
       </div>
     </div>
@@ -438,7 +441,9 @@ function validate() {}
       </div>
     </div>
     <div class="mt-12 col-span-6 grid grid-cols-9">
-      <div class="col-span-4 flex flex-col overflow-auto">
+      <div
+        class="col-span-4 drop-shadow-lg border-gray-400 flex flex-col overflow-auto"
+      >
         <table>
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">
@@ -508,7 +513,9 @@ function validate() {}
           <LeftDoubleIcon />
         </button>
       </div>
-      <div class="col-span-4 flex flex-col overflow-auto">
+      <div
+        class="col-span-4 drop-shadow-lg border-gray-400 flex flex-col overflow-auto"
+      >
         <table>
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">

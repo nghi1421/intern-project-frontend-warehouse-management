@@ -1,5 +1,6 @@
 <script setup>
 import store from "../../store";
+import { ref, onMounted } from "vue";
 import {
   TransitionRoot,
   TransitionChild,
@@ -9,17 +10,17 @@ import {
 } from "@headlessui/vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-import CategoryForm from "./ImportForm.vue";
+import ImportForm from "./ImportForm.vue";
 const toast = useToast();
 
 const props = defineProps({
   isOpen: Boolean,
+  importData: Object,
   closeModal: Function,
-  category: Object,
 });
 
-function updateCategory(data) {
-  return store.dispatch("updateCategory", data).then((response) => {
+function updateImport(data) {
+  return store.dispatch("updateImport", data).then((response) => {
     if (response.status === 200) {
       toast.success(response.data.message);
       return true;
@@ -68,11 +69,12 @@ function updateCategory(data) {
                 Edit staff
               </DialogTitle>
 
-              <category-form
-                :category="category"
+              <ImportForm
+                :staff="importData?.staff"
+                :import="importData"
                 :close-form="props.closeModal"
-                :submit="updateCategory"
-              ></category-form>
+                :submit="updateImport"
+              ></ImportForm>
               <div class="mt-2"></div>
             </DialogPanel>
           </TransitionChild>

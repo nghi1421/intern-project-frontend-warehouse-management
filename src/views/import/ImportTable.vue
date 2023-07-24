@@ -3,6 +3,7 @@ import store from "../../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
 import CreateImportModal from "./CreateImportModal.vue";
+import EditImportModal from "./EditImportModal.vue";
 
 const columns = ref([
   {
@@ -58,14 +59,14 @@ function openCreateModal() {
   isOpenCreateModal.value = true;
 }
 
-function openEditModal(staff) {
+function openEditModal(row) {
   isOpenEditModal.value = true;
-  selectedImport.value = staff;
+  selectedImport.value = row;
 }
 
-function openConfirmModal(staff) {
+function openConfirmModal(row) {
   isOpenConfirmModal.value = true;
-  selectedImport.value = staff;
+  selectedImport.value = row;
 }
 
 function fetchCurrentUser() {
@@ -101,12 +102,18 @@ onMounted(() => {
 });
 </script>
 <template>
-  <create-import-modal
+  <CreateImportModal
     :is-open="isOpenCreateModal"
     :closeModal="closeModal"
     :staff="staffInformation"
   >
-  </create-import-modal>
+  </CreateImportModal>
+  <EditImportModal
+    :is-open="isOpenEditModal"
+    :closeModal="closeModal"
+    :importData="selectedImport"
+  >
+  </EditImportModal>
   <div>
     <div class="flex flex-1">
       <h2 class="p-4 font-semibold uppercase">Import Table</h2>
@@ -129,6 +136,7 @@ onMounted(() => {
   >
     <template v-slot:actions="{ row }">
       <button
+        @click="openEditModal(row)"
         class="p-1 overflow-hidden hover:opacity-60 bg-success-600 rounded-3xl text-white whitespace-nowrap"
       >
         <svg
