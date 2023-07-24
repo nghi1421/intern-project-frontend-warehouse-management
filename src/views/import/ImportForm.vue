@@ -15,11 +15,14 @@ import {
   ListboxOption,
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-
 import IdenfifyIcon from "@/components/icons/Identify.vue";
 import PersonIcon from "@/components/icons/Person.vue";
 import LocationIcon from "@/components/icons/Location.vue";
 import PhoneIcon from "@/components/icons/Phone.vue";
+import RightOneIcon from "@/components/icons/RightOne.vue";
+import RightDoubleIcon from "@/components/icons/RightDouble.vue";
+import LeftOneIcon from "@/components/icons/LeftOne.vue";
+import LeftDoubleIcon from "@/components/icons/LeftDouble.vue";
 
 const props = defineProps({
   staff: Object,
@@ -90,6 +93,54 @@ function selectProvider(proivder) {
   selectedProvider.value = proivder;
 }
 
+function selectCategories() {
+  const moveList = categories.value.filter((category) => category.selected);
+  categories.value = categories.value.filter((category) => !category.selected);
+  selectedCategories.value = [
+    ...selectedCategories.value,
+    ...moveList.map((category) => {
+      return { ...category, selected: false, amount: 0, unit_price: 0 };
+    }),
+  ];
+}
+
+function selectAllCategories() {
+  selectedCategories.value = [
+    ...selectedCategories.value,
+    ...categories.value.map((category) => {
+      return { ...category, selected: false, amount: 0, unit_price: 0 };
+    }),
+  ];
+
+  categories.value = [];
+}
+
+function deselectCategories() {
+  const moveList = selectedCategories.value.filter(
+    (category) => category.selected
+  );
+  selectedCategories.value = selectedCategories.value.filter(
+    (category) => !category.selected
+  );
+  categories.value = [
+    ...categories.value,
+    ...moveList.map((category) => {
+      return { ...category, selected: false };
+    }),
+  ];
+}
+
+function deselectedAllCategories() {
+  categories.value = [
+    ...categories.value,
+    ...selectedCategories.value.map((category) => {
+      return { ...category, selected: false };
+    }),
+  ];
+
+  selectedCategories.value = [];
+}
+
 onMounted(() => {
   providers.value = store.state.providers;
   selectedProvider.value = providers.value[0];
@@ -98,15 +149,22 @@ onMounted(() => {
   });
 });
 
-function selectRow(rowId) {
+function selectCategory(categoryId) {
   let indexRowSelected = categories.value.findIndex(function (row) {
-    return row.id == rowId;
+    return row.id == categoryId;
   });
 
   categories.value[indexRowSelected].selected =
     !categories.value[indexRowSelected].selected;
+}
 
-  console.log(categories.value);
+function selectSelectedCategory(categoryId) {
+  let indexRowSelected = selectedCategories.value.findIndex(function (row) {
+    return row.id == categoryId;
+  });
+
+  selectedCategories.value[indexRowSelected].selected =
+    !selectedCategories.value[indexRowSelected].selected;
 }
 
 function validate() {}
@@ -361,19 +419,19 @@ function validate() {}
         </Listbox>
       </div>
     </div>
-    <div class="mt-12 col-span-6 grid grid-cols-7 max-h-40">
-      <div class="col-span-3 flex flex-col overflow-auto">
+    <div class="mt-12 col-span-6 grid grid-cols-9 max-h-60 min-h-60">
+      <div class="col-span-4 flex flex-col overflow-auto">
         <table>
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">
               <th>
-                <span class="p-2 text-sm font-semibold">ID</span>
+                <span class="p-2 font-semibold">ID</span>
               </th>
               <th>
-                <span class="p-2 text-sm font-semibold">Category name</span>
+                <span class="p-2 font-semibold">Name</span>
               </th>
               <th>
-                <span class="p-2 text-sm font-semibold">Unit</span>
+                <span class="p-2 font-semibold">Unit</span>
               </th>
             </tr>
           </thead>
@@ -387,7 +445,7 @@ function validate() {}
                 'text-gray-800 text-xs hover:bg-slate-100 bg-white':
                   !category.selected,
               }"
-              @click="selectRow(category.id)"
+              @click="selectCategory(category.id)"
             >
               <th>
                 <span class="p-2 font-semibold">{{ category.id }}</span>
@@ -403,37 +461,67 @@ function validate() {}
         </table>
       </div>
       <div class="col-span-1 flex flex-col">
-        <button>>></button>
-        <button>></button>
-        <button v-text="'<<'"></button>
-        <button v-text="'<'"></button>
+        <button
+          @click="selectCategories"
+          class="m-auto bg-slate-200 hover:bg-slate-300 hover:drop-shadow-md drop-shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <RightOneIcon />
+        </button>
+        <button
+          @click="selectAllCategories"
+          class="m-auto bg-slate-200 hover:bg-slate-300 hover:drop-shadow-md drop-shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <RightDoubleIcon />
+        </button>
+        <button
+          @click="deselectCategories"
+          class="m-auto bg-slate-200 hover:bg-slate-300 hover:drop-shadow-md drop-shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <LeftOneIcon />
+        </button>
+        <button
+          @click="deselectedAllCategories"
+          class="m-auto bg-slate-200 hover:bg-slate-300 hover:drop-shadow-md drop-shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <LeftDoubleIcon />
+        </button>
       </div>
-      <div class="col-span-3 flex flex-col overflow-auto">
+      <div class="col-span-4 flex flex-col overflow-auto">
         <table>
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">
               <th>
-                <span class="p-2 text-sm font-semibold">ID</span>
+                <span class="p-2 font-semibold">ID</span>
               </th>
               <th>
-                <span class="p-2 text-sm font-semibold">Category name</span>
+                <span class="p-2 font-semibold">Name</span>
               </th>
               <th>
-                <span class="p-2 text-sm font-semibold">Unit</span>
+                <span class="p-2 font-semibold">Unit</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">Unit price</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">Amount</span>
               </th>
             </tr>
           </thead>
           <tbody>
             <tr
               v-for="category in selectedCategories"
-              :key="`cateogry-${category.id}`"
+              :key="`selected-category-${category.id}`"
               :class="{
                 'text-gray-800 text-xs hover:bg-slate-100 bg-slate-300':
                   category.selected,
                 'text-gray-800 text-xs hover:bg-slate-100 bg-white':
                   !category.selected,
               }"
-              @click="selectRow(category.id)"
+              @click="selectSelectedCategory(category.id)"
             >
               <th>
                 <span class="p-2 font-semibold">{{ category.id }}</span>
@@ -444,13 +532,19 @@ function validate() {}
               <th>
                 <span class="p-2 font-semibold">{{ category.unit }}</span>
               </th>
+              <th>
+                <span class="p-2 font-semibold">{{ category.unit_price }}</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">{{ category.amount }}</span>
+              </th>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <div class="col-span-6 mt-12">
+    <div class="col-span-6">
       <button
         type="submit"
         class="inline-flex justify-center rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"
