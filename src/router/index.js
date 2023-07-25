@@ -6,6 +6,7 @@ import Login from '../views/Login.vue';
 import StaffTable from '../views/staff/StaffTable.vue'
 import CategoryTable from '../views/category/CategoryTable.vue'
 import ImportTable from '../views/import/ImportTable.vue'
+import ProviderTable from '../views/provider/ProviderTable.vue'
 
 const routes = [
   {
@@ -36,6 +37,12 @@ const routes = [
           path: '/imports',
           name: 'Import',
           component: ImportTable,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/providers',
+          name: 'Provider',
+          component: ProviderTable,
           meta: { requiresAuth: true },
         }
     ]

@@ -119,14 +119,33 @@ const store = createStore({
         .delete(`/imports/${importId}`)
         .then((response) => response)
     },
-    getProviders({ commit }) {
+    getAllProviders({ commit }) {
       return axiosClient
         .get(`providers/?no_pagination=1`)
         .then((response) => {
           commit('setProviders', response.data.data)
           return response
         })
-    }
+    },
+    getProviders() {
+      return axiosClient.get('/providers')
+        .then((response) => response)
+    },
+    createProvider({ commit }, data) {
+      return axiosClient
+        .post('/providers', data)
+        .then((response) => response)
+    },
+    updateProvider({ commit }, data) {
+      return axiosClient
+        .put(`/providers/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteProvider({ commit }, providerId) {
+      return axiosClient
+        .delete(`/providers/${providerId}`)
+        .then((response) => response)
+    },
   },
   mutations: {
     setName: (state, staffInformation) => {

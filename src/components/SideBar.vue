@@ -3,12 +3,14 @@ import { ref, shallowRef } from "vue";
 import { UsersIcon } from "@heroicons/vue/24/outline";
 import CategoryIcon from "@/components/icons/Category.vue";
 import ImportIcon from "@/components/icons/Import.vue";
+import PartnerIcon from "@/components/icons/Partner.vue";
 
 const navigation = ref([
   { name: "User", href: "/users", icon: UsersIcon },
   { name: "Staff", href: "/staffs", icon: UsersIcon },
   { name: "Category", href: "/categories", icon: shallowRef(CategoryIcon) },
   { name: "Import", href: "/imports", icon: shallowRef(ImportIcon) },
+  { name: "Provider", href: "/providers", icon: shallowRef(PartnerIcon) },
 ]);
 </script>
 

@@ -2,9 +2,9 @@
 import store from "../../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
-import CreateImportModal from "./CreateImportModal.vue";
+import CreateProviderModal from "./CreateProviderModal.vue";
+import EditProviderModal from "./EditProviderModal.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
-import EditImportModal from "./EditImportModal.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 
@@ -13,31 +13,27 @@ const toast = useToast();
 const columns = ref([
   {
     key: "id",
-    value: "Import ID",
+    value: "provider ID",
   },
   {
-    key: "staff_name",
-    value: "Created by",
+    key: "name",
+    value: "Name",
   },
   {
-    key: "provider_name",
-    value: "Provided by",
+    key: "address",
+    value: "Address",
   },
   {
-    key: "status",
-    value: "status",
+    key: "email",
+    value: "Email",
   },
   {
-    key: "created_at",
-    value: "create at",
-  },
-  {
-    key: "updated_at",
-    value: "updated  at",
+    key: "phone_number",
+    value: "Phone number",
   },
 ]);
 
-const staffInformation = ref({});
+const selectedProvider = ref({});
 
 const rows = ref([]);
 
@@ -45,45 +41,14 @@ const meta = ref({});
 
 const links = ref([]);
 
-const selectedImport = ref({});
-
 const isOpenCreateModal = ref(false);
 
 const isOpenEditModal = ref(false);
 
 const isOpenConfirmModal = ref(false);
 
-function closeModal() {
-  isOpenCreateModal.value = false;
-  isOpenEditModal.value = false;
-  isOpenConfirmModal.value = false;
-  selectedImport.value = null;
-}
-
-function openCreateModal() {
-  isOpenCreateModal.value = true;
-}
-
-function openEditModal(row) {
-  isOpenEditModal.value = true;
-  selectedImport.value = row;
-}
-
-function openConfirmModal(row) {
-  isOpenConfirmModal.value = true;
-  selectedImport.value = row;
-}
-
-function fetchCurrentUser() {
-  store.dispatch("searchStaff").then((response) => {
-    if (response.status === 200) {
-      staffInformation.value = response.data;
-    }
-  });
-}
-
-function fetchImortsData() {
-  store.dispatch("getImports").then((response) => {
+function fetchCategoriesData() {
+  store.dispatch("getProviders").then((response) => {
     console.log(response);
     meta.value = response.data.meta;
 
@@ -92,17 +57,31 @@ function fetchImortsData() {
     rows.value = response.data.data;
   });
 }
-function fetchProvidersData() {
-  store.dispatch("getAllProviders").then((response) => response);
+
+function closeModal() {
+  isOpenCreateModal.value = false;
+  isOpenEditModal.value = false;
+  isOpenConfirmModal.value = false;
+  selectedProvider.value = null;
 }
 
-function fetchCategoriesData() {
-  store.dispatch("getAllCategories").then((response) => response);
+function openCreateModal() {
+  isOpenCreateModal.value = true;
 }
 
-function deleteImport() {
+function openEditModal(provider) {
+  isOpenEditModal.value = true;
+  selectedProvider.value = provider;
+}
+
+function openConfirmModal(provider) {
+  isOpenConfirmModal.value = true;
+  selectedProvider.value = provider;
+}
+
+function deleteProvider() {
   return store
-    .dispatch("deleteImport", selectedImport.value.id)
+    .dispatch("deleteProvider", selectedProvider.value.id)
     .then((response) => {
       console.log(response);
       if (response.status === 200) {
@@ -116,42 +95,35 @@ function deleteImport() {
 }
 
 onMounted(() => {
-  fetchImortsData();
-  fetchCurrentUser();
-  fetchProvidersData();
   fetchCategoriesData();
 });
 </script>
+
 <template>
-  <CreateImportModal
-    :is-open="isOpenCreateModal"
-    :closeModal="closeModal"
-    :staff="staffInformation"
-  >
-  </CreateImportModal>
-  <EditImportModal
+  <CreateProviderModal :is-open="isOpenCreateModal" :closeModal="closeModal">
+  </CreateProviderModal>
+  <EditProviderModal
+    :provider="selectedProvider"
     :is-open="isOpenEditModal"
-    :closeModal="closeModal"
-    :importData="selectedImport"
-  >
-  </EditImportModal>
-  <ConfirmModal
+    :close-modal="closeModal"
+  ></EditProviderModal>
+  <confirm-modal
     :is-open="isOpenConfirmModal"
     :close-modal="closeModal"
-    :submit="deleteImport"
+    :submit="deleteProvider"
   >
     <template v-slot:header> Are your sure? </template>
-    <template v-slot:message> Delete import information! </template>
-  </ConfirmModal>
+    <template v-slot:message> Delete provider! </template>
+  </confirm-modal>
   <div>
     <div class="flex flex-1">
-      <h2 class="p-4 font-semibold uppercase">Import Table</h2>
+      <h2 class="p-4 font-semibold uppercase">Provider Table</h2>
       <button
         type="button"
         @click="openCreateModal"
         class="rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
       >
-        Create import
+        Create provider
       </button>
     </div>
   </div>
