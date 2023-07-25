@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import store from "../../store";
-// import TextInput from "@/components/form/inputs/TextInput.vue";
 import {
   Combobox,
   ComboboxInput,
@@ -23,6 +22,10 @@ import RightOneIcon from "@/components/icons/RightOne.vue";
 import RightDoubleIcon from "@/components/icons/RightDouble.vue";
 import LeftOneIcon from "@/components/icons/LeftOne.vue";
 import LeftDoubleIcon from "@/components/icons/LeftDouble.vue";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
+const toast = useToast();
 
 const props = defineProps({
   import: Object,
@@ -60,6 +63,14 @@ const selectedCategories = ref([]);
 
 const selectedStatus = ref(statuses[1]);
 
+const searchCategory = ref("");
+
+const searchSelectedCateogry = ref("");
+
+const filteredCategoreis = ref([]);
+
+const filterdSelectedCategories = ref([]);
+
 let filteredProviders = computed(() =>
   query.value === ""
     ? providers.value
@@ -72,18 +83,24 @@ let filteredProviders = computed(() =>
 );
 
 function handleSubmit() {
-  validate();
-
-  let data = {
-    status: status.value,
-  };
-
-  props.submit(data).then(function (isSuccess) {
-    if (isSuccess) {
-      clearData;
-      props.closeForm();
-    }
-  });
+  if (validate()) {
+    let data = {
+      staff_id: props.staff.id,
+      provider_id: selectedProvider.value.id,
+      status: selectedStatus.value.id,
+      categories: selectedCategories.value.map((category) => category.id),
+      amounts: selectedCategories.value.map((category) => category.amount),
+      unit_prices: selectedCategories.value.map(
+        (category) => category.unit_price
+      ),
+    };
+    props.submit(data).then(function (isSuccess) {
+      if (isSuccess) {
+        clearData;
+        props.closeForm();
+      }
+    });
+  }
 }
 
 function clearData() {
@@ -188,7 +205,21 @@ function selectSelectedCategory(categoryId) {
     !selectedCategories.value[indexRowSelected].selected;
 }
 
-function validate() {}
+function validate() {
+  if (selectedCategories.value.length > 0) {
+    const isInvalid = selectedCategories.value.some(
+      (category) => category.amount <= 0 || category.unit_price <= 0
+    );
+    if (isInvalid) {
+      toast.warning(
+        "Please check your amount and unit price of selected categories"
+      );
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="grid grid-cols-6 gap-3 bg-white">
@@ -442,8 +473,26 @@ function validate() {}
     </div>
     <div class="mt-12 col-span-6 grid grid-cols-9">
       <div
-        class="col-span-4 drop-shadow-lg border-gray-400 flex flex-col overflow-auto"
+        class="relative col-span-4 shadow-lg border-gray-400 flex flex-col overflow-auto"
       >
+        <div class="absolute top-2 left-1 text-gray-400">
+          <svg
+            class="w-5 h-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
+            ></path>
+          </svg>
+        </div>
+        <input
+          class="mb-1 p-1 ps-8 shadow-md border-gray-400 focus:border-primary-500 border rounded-lg"
+          type="text"
+          placeholder="Search category"
+        />
         <table>
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">
@@ -486,36 +535,54 @@ function validate() {}
       <div class="col-span-1 flex flex-1 gap-1 flex-col min-h-60">
         <button
           @click="selectCategories"
-          class="m-auto bg-slate-200 hover:bg-slate-300 hover:drop-shadow-md drop-shadow-sm p-1 rounded-lg text-slate-900"
+          class="m-auto bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
         >
           <RightOneIcon />
         </button>
         <button
           @click="selectAllCategories"
-          class="m-auto bg-slate-200 hover:bg-slate-300 hover:drop-shadow-md drop-shadow-sm p-1 rounded-lg text-slate-900"
+          class="m-auto bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
         >
           <RightDoubleIcon />
         </button>
         <button
           @click="deselectCategories"
-          class="m-auto bg-slate-200 hover:bg-slate-300 hover:drop-shadow-md drop-shadow-sm p-1 rounded-lg text-slate-900"
+          class="m-auto bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
         >
           <LeftOneIcon />
         </button>
         <button
           @click="deselectedAllCategories"
-          class="m-auto bg-slate-200 hover:bg-slate-300 hover:drop-shadow-md drop-shadow-sm p-1 rounded-lg text-slate-900"
+          class="m-auto bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
         >
           <LeftDoubleIcon />
         </button>
       </div>
       <div
-        class="col-span-4 drop-shadow-lg border-gray-400 flex flex-col overflow-auto"
+        class="relative col-span-4 shadow-lg border-gray-400 flex flex-col overflow-auto"
       >
+        <div class="absolute top-2 left-1 text-gray-400">
+          <svg
+            class="w-5 h-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
+            ></path>
+          </svg>
+        </div>
+        <input
+          class="mb-1 p-1 ps-8 shadow-md border-gray-400 focus:border-primary-500 border rounded-lg"
+          type="text"
+          placeholder="Search selected category"
+        />
         <table>
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">
