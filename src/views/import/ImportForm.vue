@@ -65,11 +65,31 @@ const selectedStatus = ref(statuses[1]);
 
 const searchCategory = ref("");
 
-const searchSelectedCateogry = ref("");
+const searchSelectedCategory = ref("");
 
-const filteredCategoreis = ref([]);
+let filteredCategories = computed(() =>
+  searchCategory.value === ""
+    ? categories.value
+    : categories.value.filter((category) =>
+        category.name
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(searchCategory.value.toLowerCase().replace(/\s+/g, ""))
+      )
+);
 
-const filterdSelectedCategories = ref([]);
+let filterdSelectedCategories = computed(() =>
+  searchSelectedCategory.value === ""
+    ? selectedCategories.value
+    : selectedCategories.value.filter((category) =>
+        category.name
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(
+            searchSelectedCategory.value.toLowerCase().replace(/\s+/g, "")
+          )
+      )
+);
 
 let filteredProviders = computed(() =>
   query.value === ""
@@ -173,7 +193,6 @@ onMounted(() => {
     const selectedCategoryIds = selectedCategories.value.map(
       (category) => category.id
     );
-    console.log(selectedCategoryIds);
 
     categories.value = store.state.categories.filter(
       (category) => selectedCategoryIds.indexOf(category.id) < 0
@@ -496,6 +515,7 @@ function validate() {
         <input
           class="mb-1 p-1 ps-8 shadow-md border-gray-400 focus:border-primary-500 border rounded-lg"
           type="text"
+          v-model="searchCategory"
           placeholder="Search category"
         />
         <table>
@@ -514,7 +534,7 @@ function validate() {
           </thead>
           <tbody>
             <tr
-              v-for="category in categories"
+              v-for="category in filteredCategories"
               :key="`cateogry-${category.id}`"
               :class="{
                 'text-gray-800 text-xs hover:bg-slate-100 bg-slate-300':
@@ -586,6 +606,7 @@ function validate() {
         <input
           class="mb-1 p-1 ps-8 shadow-md border-gray-400 focus:border-primary-500 border rounded-lg"
           type="text"
+          v-model="searchSelectedCategory"
           placeholder="Search selected category"
         />
         <table>
@@ -610,7 +631,7 @@ function validate() {
           </thead>
           <tbody>
             <tr
-              v-for="category in selectedCategories"
+              v-for="category in filterdSelectedCategories"
               :key="`selected-category-${category.id}`"
               :class="{
                 'text-gray-800 text-xs hover:bg-slate-100 bg-slate-300':
