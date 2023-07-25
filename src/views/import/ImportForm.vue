@@ -94,6 +94,10 @@ function handleSubmit() {
         (category) => category.unit_price
       ),
     };
+
+    if (props.import) {
+      data = { ...data, id: props.import.id };
+    }
     props.submit(data).then(function (isSuccess) {
       if (isSuccess) {
         clearData;
@@ -218,6 +222,7 @@ function validate() {
     }
     return true;
   }
+  toast.warning("Please select at least one category");
   return false;
 }
 </script>
