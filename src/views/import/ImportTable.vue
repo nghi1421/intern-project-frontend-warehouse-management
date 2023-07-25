@@ -3,7 +3,12 @@ import store from "../../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
 import CreateImportModal from "./CreateImportModal.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
 import EditImportModal from "./EditImportModal.vue";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
+const toast = useToast();
 
 const columns = ref([
   {
@@ -94,6 +99,22 @@ function fetchProvidersData() {
 function fetchCategoriesData() {
   store.dispatch("getAllCategories").then((response) => response);
 }
+
+function deleteImport() {
+  return store
+    .dispatch("deleteImport", selectedImport.value.id)
+    .then((response) => {
+      console.log(response);
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        return true;
+      } else {
+        toast.error(response.data.message);
+        return false;
+      }
+    });
+}
+
 onMounted(() => {
   fetchImortsData();
   fetchCurrentUser();
@@ -114,6 +135,14 @@ onMounted(() => {
     :importData="selectedImport"
   >
   </EditImportModal>
+  <ConfirmModal
+    :is-open="isOpenConfirmModal"
+    :close-modal="closeModal"
+    :submit="deleteImport"
+  >
+    <template v-slot:header> Are your sure? </template>
+    <template v-slot:message> Delete import information! </template>
+  </ConfirmModal>
   <div>
     <div class="flex flex-1">
       <h2 class="p-4 font-semibold uppercase">Import Table</h2>
@@ -157,6 +186,7 @@ onMounted(() => {
       </button>
 
       <button
+        @click="openConfirmModal(row)"
         class="p-1 ms-2 overflow-hidden hover:opacity-60 bg-danger-600 rounded-xl text-white whitespace-nowrap"
       >
         <svg
