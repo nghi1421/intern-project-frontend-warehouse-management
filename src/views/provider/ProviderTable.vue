@@ -24,10 +24,6 @@ const columns = ref([
     value: "Address",
   },
   {
-    key: "email",
-    value: "Email",
-  },
-  {
     key: "phone_number",
     value: "Phone number",
   },
@@ -50,6 +46,7 @@ const isOpenConfirmModal = ref(false);
 function fetchCategoriesData() {
   store.dispatch("getProviders").then((response) => {
     console.log(response);
+
     meta.value = response.data.meta;
 
     links.value = response.data.meta.links;

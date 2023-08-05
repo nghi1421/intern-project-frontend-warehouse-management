@@ -27,6 +27,17 @@ export default {
       if (event.target.getAttribute("href"))
         this.changePage(event.target.getAttribute("href"));
     },
+    lable(lable) {
+      if (lable === "pagination.previous") {
+        return "Previous";
+      }
+
+      if (lable === "pagination.next") {
+        return "Next";
+      }
+
+      return lable;
+    },
   },
 };
 </script>
@@ -41,14 +52,14 @@ export default {
         class="relative inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-slate-900 dark:text-slate-300"
         @click.prevent="click"
       >
-        {{ "Previous" }}
+        Previous
       </a>
       <a
         :href="links[links.length - 1]?.url"
         class="relative ms-3 inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-slate-900 dark:text-slate-300"
         @click.prevent="click"
       >
-        {{ "Next" }}
+        Next
       </a>
     </div>
     <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -82,17 +93,10 @@ export default {
                 linkIndex === 0 ? 'rounded-s-md' : '',
                 linkIndex === links.length - 1 ? 'rounded-e-md' : '',
               ]"
-              v-html="link.label"
               :aria-current="link.active ? 'page' : null"
               @click.prevent="click"
-            ></a>
-            <span
-              v-else
-              :key="`pagination-${linkIndex}`"
-              class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0 dark:text-slate-400 dark:ring-slate-700"
+              >{{ lable(link.label) }}</a
             >
-              {{ link.label }}
-            </span>
           </template>
         </nav>
       </div>

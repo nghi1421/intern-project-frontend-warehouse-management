@@ -20,10 +20,6 @@ const rules = computed(() => ({
     required,
     maxLength: maxLength(255),
   },
-  email: {
-    required,
-    maxLength: maxLength(255),
-  },
   phoneNumber: {
     required,
     maxLength: maxLength(15),
@@ -34,11 +30,9 @@ const name = ref("");
 
 const address = ref("");
 
-const email = ref("");
-
 const phoneNumber = ref("");
 
-const v$ = useVuelidate(rules, { name, address, email, phoneNumber });
+const v$ = useVuelidate(rules, { name, address, phoneNumber });
 
 const errorMessage = ref({});
 
@@ -51,7 +45,6 @@ function handleSubmit() {
     let data = {
       name: name.value,
       address: address.value,
-      email: email.value,
       phone_number: phoneNumber.value,
     };
 
@@ -71,7 +64,6 @@ function handleSubmit() {
 function clearData() {
   name.value = "";
   address.value = "";
-  email.value = "";
   phoneNumber.value = "";
   errorMessage.value = {};
 }
@@ -80,7 +72,6 @@ onMounted(() => {
   if (props.provider) {
     name.value = props.provider.name;
     address.value = props.provider.address;
-    email.value = props.provider.email;
     phoneNumber.value = props.provider.phone_number;
   }
 });
@@ -105,10 +96,6 @@ function validate() {
 
     errorMessage.value.address = v$.value.address.$error
       ? v$.value.address.$errors[0].$message
-      : "";
-
-    errorMessage.value.email = v$.value.email.$error
-      ? v$.value.email.$errors[0].$message
       : "";
 
     errorMessage.value.phoneNumber = v$.value.phoneNumber.$error
@@ -139,18 +126,6 @@ function validate() {
         place-holder="Fill provider address"
         v-model:value="address"
         :error-message="errorMessage.address"
-      >
-      </TextInput>
-    </div>
-
-    <div class="col-span-3">
-      <TextInput
-        label="Email"
-        type="email"
-        v-model:value="email"
-        place-holder="Fill provider email"
-        name="email"
-        :error-message="errorMessage.email"
       >
       </TextInput>
     </div>

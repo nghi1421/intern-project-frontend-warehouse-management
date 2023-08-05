@@ -65,7 +65,7 @@ function createProvider(data) {
                 as="h3"
                 class="text-lg font-medium leading-6 text-gray-900"
               >
-                Category
+                Provider
               </DialogTitle>
 
               <ProviderForm
