@@ -8,6 +8,7 @@ import CategoryTable from '../views/category/CategoryTable.vue'
 import ImportTable from '../views/import/ImportTable.vue'
 import ProviderTable from '../views/provider/ProviderTable.vue'
 import WarehouseBranchTable from '../views/warehouse-branch/WarehouseBranchTable.vue'
+import LocationTable from '../views/location/LocationTable.vue'
 
 const routes = [
   {
@@ -50,6 +51,12 @@ const routes = [
           path: '/warehouse-branches',
           name: 'WarehouseBranch',
           component: WarehouseBranchTable,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/locations',
+          name: 'Locations',
+          component: LocationTable,
           meta: { requiresAuth: true },
         }
     ]

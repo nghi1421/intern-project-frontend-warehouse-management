@@ -17,6 +17,8 @@ const store = createStore({
     providers: [],
     positions: [],
     categories: [],
+    warehouseBranches: [],
+    locations: [],
   },
   getters: {},
   actions: {
@@ -146,6 +148,14 @@ const store = createStore({
         .delete(`/providers/${providerId}`)
         .then((response) => response)
     },
+    getAllWarehouseBranches({ commit }) {
+      return axiosClient
+        .get(`warehouse-branches/?no_pagination=1`)
+        .then((response) => {
+          commit('setWarehouseBranches', response.data.data)
+          return response
+        })
+    },
     getWarehouseBranches() {
       return axiosClient.get('/warehouse-branches')
         .then((response) => response)
@@ -163,6 +173,33 @@ const store = createStore({
     deleteWarehouseBranch({ commit }, warehouseBranchId) {
       return axiosClient
         .delete(`/warehouse-branches/${warehouseBranchId}`)
+        .then((response) => response)
+    },
+    getAllLocations({ commit }) {
+      return axiosClient
+        .get(`locations/?no_pagination=1`)
+        .then((response) => {
+          commit('setLocations', response.data.data)
+          return response
+        })
+    },
+    getLocations() {
+      return axiosClient.get('/locations')
+        .then((response) => response)
+    },
+    createLocation({ commit }, data) {
+      return axiosClient
+        .post('/locations', data)
+        .then((response) => response)
+    },
+    updateLocation({ commit }, data) {
+      return axiosClient
+        .put(`/locations/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteLocation({ commit }, locationId) {
+      return axiosClient
+        .delete(`/locations/${locationId}`)
         .then((response) => response)
     },
   },
@@ -189,8 +226,14 @@ const store = createStore({
     setProviders: (state, providers) => {
       state.providers = providers;
     },
+    setWarehouseBranches: (state, warehouseBranches) => {
+      state.warehouseBranches = warehouseBranches;
+    },
     setCategories: (state, categories) => {
       state.categories = categories;
+    },
+    setLocations: (state, locations) => {
+      state.locations = locations;
     },
     logout(state) {
       state.user.token = null;

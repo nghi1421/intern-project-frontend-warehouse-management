@@ -5,6 +5,7 @@ import CategoryIcon from "@/components/icons/Category.vue";
 import ImportIcon from "@/components/icons/Import.vue";
 import PartnerIcon from "@/components/icons/Partner.vue";
 import BranchIcon from "@/components/icons/Branch.vue";
+import LocationIcon from "@/components/icons/Location.vue";
 
 const navigation = ref([
   { name: "User", href: "/users", icon: UsersIcon },
@@ -16,6 +17,11 @@ const navigation = ref([
     name: "Warehouse branch",
     href: "/warehouse-branches",
     icon: shallowRef(BranchIcon),
+  },
+  {
+    name: "Location",
+    href: "/locations",
+    icon: shallowRef(LocationIcon),
   },
 ]);
 </script>
