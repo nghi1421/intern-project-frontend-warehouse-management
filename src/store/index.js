@@ -146,6 +146,25 @@ const store = createStore({
         .delete(`/providers/${providerId}`)
         .then((response) => response)
     },
+    getWarehouseBranches() {
+      return axiosClient.get('/warehouse-branches')
+        .then((response) => response)
+    },
+    createWarehouseBranch({ commit }, data) {
+      return axiosClient
+        .post('/warehouse-branches', data)
+        .then((response) => response)
+    },
+    updateWarehouseBranch({ commit }, data) {
+      return axiosClient
+        .put(`/warehouse-branches/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteWarehouseBranch({ commit }, warehouseBranchId) {
+      return axiosClient
+        .delete(`/warehouse-branches/${warehouseBranchId}`)
+        .then((response) => response)
+    },
   },
   mutations: {
     setName: (state, staffInformation) => {
