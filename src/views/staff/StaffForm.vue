@@ -392,14 +392,6 @@ function validate() {
         </div>
       </div>
     </div>
-    <!-- <div class="col-span-3 mt-12">
-                    <image-input
-                      name="avatar"
-                      :value="avatar"
-                      :default-url="DefaultImage"
-                      helper-text="PNG, JPEG, JPG. Upto 20MB"
-                    ></image-input>
-                  </div> -->
     <div class="col-span-3 mt-12 inline-flex">
       <label
         for="default-input"

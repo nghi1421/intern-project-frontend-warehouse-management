@@ -18,8 +18,8 @@ const props = defineProps({
   closeModal: Function,
 });
 
-function createProvider(data) {
-  return store.dispatch("createProvider", data).then((response) => {
+function createLocation(data) {
+  return store.dispatch("createLocation", data).then((response) => {
     if (response.status === 200) {
       toast.success(response.data.message);
       return true;
@@ -70,7 +70,7 @@ function createProvider(data) {
 
               <ProviderForm
                 :close-form="closeModal"
-                :submit="createProvider"
+                :submit="createLocation"
               ></ProviderForm>
               <div class="mt-2"></div>
             </DialogPanel>

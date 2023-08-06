@@ -92,6 +92,7 @@ function fetchImortsData() {
     rows.value = response.data.data;
   });
 }
+
 function fetchProvidersData() {
   store.dispatch("getAllProviders").then((response) => response);
 }
