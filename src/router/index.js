@@ -9,6 +9,7 @@ import ImportTable from '../views/import/ImportTable.vue'
 import ProviderTable from '../views/provider/ProviderTable.vue'
 import WarehouseBranchTable from '../views/warehouse-branch/WarehouseBranchTable.vue'
 import LocationTable from '../views/location/LocationTable.vue'
+import StockTable from '../views/stock/StockTable.vue'
 
 const routes = [
   {
@@ -57,6 +58,12 @@ const routes = [
           path: '/locations',
           name: 'Locations',
           component: LocationTable,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/stocks',
+          name: 'Stock',
+          component: StockTable,
           meta: { requiresAuth: true },
         }
     ]

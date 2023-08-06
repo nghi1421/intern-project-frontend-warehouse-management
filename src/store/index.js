@@ -202,6 +202,25 @@ const store = createStore({
         .delete(`/locations/${locationId}`)
         .then((response) => response)
     },
+    createLocation({ commit }, data) {
+      return axiosClient
+        .post('/locations', data)
+        .then((response) => response)
+    },
+    updateLocation({ commit }, data) {
+      return axiosClient
+        .put(`/locations/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteLocation({ commit }, locationId) {
+      return axiosClient
+        .delete(`/locations/${locationId}`)
+        .then((response) => response)
+    },
+    getStocks() {
+      return axiosClient.get('/stocks')
+        .then((response) => response)
+    }
   },
   mutations: {
     setName: (state, staffInformation) => {
