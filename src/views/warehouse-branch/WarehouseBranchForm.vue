@@ -78,7 +78,6 @@ onMounted(() => {
     address.value = props.warehouseBranch.address;
     opening.value = props.warehouseBranch.opening === 1 ? true : false;
     phoneNumber.value = props.warehouseBranch.phone_number;
-    console.log(opening.value);
   }
 });
 

@@ -92,7 +92,6 @@ function deleteStaff() {
   return store
     .dispatch("deleteStaff", selectedStaff.value.id)
     .then((response) => {
-      console.log(response);
       if (response.status === 200) {
         toast.success(response.data.message);
         return true;

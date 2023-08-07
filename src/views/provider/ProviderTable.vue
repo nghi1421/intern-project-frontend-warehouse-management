@@ -45,8 +45,6 @@ const isOpenConfirmModal = ref(false);
 
 function fetchCategoriesData() {
   store.dispatch("getProviders").then((response) => {
-    console.log(response);
-
     meta.value = response.data.meta;
 
     links.value = response.data.meta.links;
@@ -80,7 +78,6 @@ function deleteProvider() {
   return store
     .dispatch("deleteProvider", selectedProvider.value.id)
     .then((response) => {
-      console.log(response);
       if (response.status === 200) {
         toast.success(response.data.message);
         return true;

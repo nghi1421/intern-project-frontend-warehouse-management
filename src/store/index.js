@@ -23,7 +23,6 @@ const store = createStore({
   getters: {},
   actions: {
     login({ commit }, credential) {
-      console.log(credential);
       return axiosClient.post('/login', credential)
         .then(({data}) => {
           commit('setName', data.staff_information);

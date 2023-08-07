@@ -8,10 +8,6 @@ import {
   ComboboxOptions,
   ComboboxOption,
   TransitionRoot,
-  Listbox,
-  ListboxButton,
-  ListboxOptions,
-  ListboxOption,
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import IdenfifyIcon from "@/components/icons/Identify.vue";
@@ -42,30 +38,32 @@ const selectedProvider = ref({});
 
 const query = ref("");
 
-const statuses = [
-  {
-    id: 0,
-    name: "Cancel",
-  },
-  {
-    id: 1,
-    name: "In Progress",
-  },
-  {
-    id: 2,
-    name: "Completed",
-  },
-];
+const warehouseBranches = ref([]);
 
 const categories = ref([]);
 
 const selectedCategories = ref([]);
 
-const selectedStatus = ref(statuses[1]);
+const selectedWarehouseBranch = ref({});
 
 const searchCategory = ref("");
 
 const searchSelectedCategory = ref("");
+
+const warehouseBranchQuery = ref("");
+
+let filteredWarehouseBranches = computed(() =>
+  warehouseBranchQuery.value === ""
+    ? warehouseBranches.value
+    : warehouseBranches.value.filter((warehoueBranch) =>
+        warehoueBranch.name
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(
+            warehouseBranchQuery.value.toLowerCase().replace(/\s+/g, "")
+          )
+      )
+);
 
 let filteredCategories = computed(() =>
   searchCategory.value === ""
@@ -107,7 +105,8 @@ function handleSubmit() {
     let data = {
       staff_id: props.staff.id,
       provider_id: selectedProvider.value.id,
-      status: selectedStatus.value.id,
+      status: 1,
+      warehouse_branch_id: selectedWarehouseBranch.value.id,
       categories: selectedCategories.value.map((category) => category.id),
       amounts: selectedCategories.value.map((category) => category.amount),
       unit_prices: selectedCategories.value.map(
@@ -185,11 +184,19 @@ function deselectedAllCategories() {
 
 onMounted(() => {
   providers.value = store.state.providers;
+  warehouseBranches.value = store.state.warehouseBranches;
+  console.log(props.staff);
   if (props.import) {
     selectedProvider.value = props.import.provider;
+    selectedWarehouseBranch.value = selectedWarehouseBranch.value.find(
+      (warehouseBranch) =>
+        warehouseBranch.id === props.import.warehouse_branch_id
+    );
+
     selectedCategories.value = props.import.categories.map((category) => {
       return { ...category, selected: false };
     });
+
     const selectedCategoryIds = selectedCategories.value.map(
       (category) => category.id
     );
@@ -203,10 +210,22 @@ onMounted(() => {
     });
   } else {
     selectedProvider.value = providers.value[0];
-
+    selectedWarehouseBranch.value = warehouseBranches.value[0];
     categories.value = store.state.categories.map((category) => {
       return { ...category, selected: false };
     });
+  }
+  if (warehouseBranches.value.length === 0) {
+    toast.info("Please add warehouse branch, before create import.");
+    props.closeForm();
+  }
+  if (providers.value.length === 0) {
+    toast.info("Please add provider, before create import.");
+    props.closeForm();
+  }
+  if (categories.value.length === 0) {
+    toast.info("Please add categories, before create import.");
+    props.closeForm();
   }
 });
 
@@ -429,96 +448,121 @@ function validate() {
       </div>
     </div>
 
-    <div class="col-span-6 -mt-4">
+    <div class="col-span-3">
       <label
         for="default-input"
         class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
       >
-        Status
+        Warehouse branch
       </label>
+
       <div class="fixed w-[46%]">
-        <Listbox v-model="selectedStatus">
+        <Combobox v-model="selectedWarehouseBranch">
           <div class="relative mt-1">
-            <ListboxButton
-              class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+            <div
+              class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
             >
-              <span class="block truncate">{{ selectedStatus.name }}</span>
-              <span
-                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+              <ComboboxInput
+                class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                :displayValue="(warehouseBranch) => warehouseBranch.name"
+                @change="query = $event.target.value"
+              />
+              <ComboboxButton
+                class="absolute inset-y-0 right-0 flex items-center pr-2"
               >
                 <ChevronUpDownIcon
                   class="h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />
-              </span>
-            </ListboxButton>
-
-            <transition
-              leave-active-class="transition duration-100 ease-in"
-              leave-from-class="opacity-100"
-              leave-to-class="opacity-0"
+              </ComboboxButton>
+            </div>
+            <TransitionRoot
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+              @after-leave="warehouseBranchQuery = ''"
             >
-              <ListboxOptions
+              <ComboboxOptions
                 class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
               >
-                <ListboxOption
-                  v-slot="{ active, selected }"
-                  v-for="status in statuses"
-                  :key="status.name"
-                  :value="status"
+                <div
+                  v-if="
+                    filteredWarehouseBranches.length === 0 &&
+                    warehouseBranchQuery !== ''
+                  "
+                  class="relative cursor-default select-none py-2 px-4 text-gray-700"
+                >
+                  Nothing found.
+                </div>
+
+                <ComboboxOption
+                  v-for="warehouseBranch in filteredWarehouseBranches"
                   as="template"
+                  :key="warehouseBranch.id"
+                  :value="warehouseBranch"
+                  v-slot="{ selectedWarehouseBranch, active }"
                 >
                   <li
-                    :class="[
-                      active ? 'bg-amber-100 text-amber-900' : 'text-gray-900',
-                      'relative cursor-default select-none py-2 pl-10 pr-4',
-                    ]"
+                    class="relative cursor-default select-none py-2 pl-10 pr-4"
+                    :class="{
+                      'text-amber-600 bg-amber-100': active,
+                      'text-gray-900': !active,
+                    }"
                   >
                     <span
-                      :class="[
-                        selected ? 'font-medium' : 'font-normal',
-                        'block truncate',
-                      ]"
-                      >{{ status.name }}</span
+                      class="block truncate"
+                      :class="{
+                        'font-medium': selectedWarehouseBranch,
+                        'font-normal': !selectedWarehouseBranch,
+                      }"
                     >
+                      {{ warehouseBranch.name }}
+                    </span>
                     <span
-                      v-if="selected"
-                      class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600"
+                      v-if="selectedWarehouseBranch"
+                      class="absolute inset-y-0 left-0 flex items-center pl-3"
+                      :class="{
+                        'text-white': active,
+                        'text-teal-600': !active,
+                      }"
                     >
                       <CheckIcon class="h-5 w-5" aria-hidden="true" />
                     </span>
                   </li>
-                </ListboxOption>
-              </ListboxOptions>
-            </transition>
+                </ComboboxOption>
+              </ComboboxOptions>
+            </TransitionRoot>
           </div>
-        </Listbox>
+        </Combobox>
       </div>
     </div>
-    <div class="mt-12 col-span-6 grid grid-cols-9">
-      <div
-        class="relative col-span-4 shadow-lg border-gray-400 flex flex-col overflow-auto"
-      >
-        <div class="absolute top-2 left-1 text-gray-400">
-          <svg
-            class="w-5 h-5"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
-            ></path>
-          </svg>
+    <div class="mt-12 col-span-6 grid grid-cols-9 max-h:4">
+      <div class="col-span-4 border-gray-400 flex flex-col">
+        <div
+          class="flex text-gray-400 border-gray-400 focus:border-primary-500 border shadow-md rounded-lg"
+        >
+          <div class="pt-2 ps-2">
+            <svg
+              class="w-5 h-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
+              ></path>
+            </svg>
+          </div>
+          <input
+            class="flex-1 p-1 text-black rounded-lg"
+            type="text"
+            v-model="searchCategory"
+            placeholder="Search category by name"
+          />
         </div>
-        <input
-          class="mb-1 p-1 ps-8 shadow-md border-gray-400 focus:border-primary-500 border rounded-lg"
-          type="text"
-          v-model="searchCategory"
-          placeholder="Search category"
-        />
-        <table>
+
+        <table class="overflow-auto mt-2">
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">
               <th>
@@ -557,59 +601,62 @@ function validate() {
           </tbody>
         </table>
       </div>
-      <div class="col-span-1 flex flex-1 gap-1 flex-col min-h-60">
+      <div class="col-span-1 flex gap-1 flex-col min-h-60 items-center mt-12">
         <button
           @click="selectCategories"
-          class="m-auto bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
         >
           <RightOneIcon />
         </button>
         <button
           @click="selectAllCategories"
-          class="m-auto bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
         >
           <RightDoubleIcon />
         </button>
         <button
           @click="deselectCategories"
-          class="m-auto bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
         >
           <LeftOneIcon />
         </button>
         <button
           @click="deselectedAllCategories"
-          class="m-auto bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
         >
           <LeftDoubleIcon />
         </button>
       </div>
-      <div
-        class="relative col-span-4 shadow-lg border-gray-400 flex flex-col overflow-auto"
-      >
-        <div class="absolute top-2 left-1 text-gray-400">
-          <svg
-            class="w-5 h-5"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
-            ></path>
-          </svg>
+      <div class="col-span-4 border-gray-400 flex flex-col overflow-auto">
+        <div
+          class="flex text-gray-400 border-gray-400 focus:border-primary-500 border shadow-md rounded-lg"
+        >
+          <div class="pt-2 ps-2">
+            <svg
+              class="w-5 h-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
+              ></path>
+            </svg>
+          </div>
+          <input
+            class="p-1 text-black rounded-lg"
+            type="text"
+            v-model="searchSelectedCategory"
+            placeholder="Search selected category by name"
+          />
         </div>
-        <input
-          class="mb-1 p-1 ps-8 shadow-md border-gray-400 focus:border-primary-500 border rounded-lg"
-          type="text"
-          v-model="searchSelectedCategory"
-          placeholder="Search selected category"
-        />
-        <table>
+
+        <table class="overflow-auto mt-2">
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">
               <th>

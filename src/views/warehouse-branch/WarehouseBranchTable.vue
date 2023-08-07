@@ -49,7 +49,6 @@ const isOpenConfirmModal = ref(false);
 
 function fetchWarehouseBranchesData() {
   store.dispatch("getWarehouseBranches").then((response) => {
-    console.log(response);
     meta.value = response.data.meta;
 
     links.value = response.data.meta.links;
@@ -83,7 +82,6 @@ function deleteWarehouseBranch() {
   return store
     .dispatch("deleteWarehouseBranch", selectedWarehouseBranch.value.id)
     .then((response) => {
-      console.log(response);
       if (response.status === 200) {
         toast.success(response.data.message);
         return true;

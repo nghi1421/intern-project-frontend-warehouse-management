@@ -7,6 +7,7 @@ import ConfirmModal from "@/components/ConfirmModal.vue";
 import EditImportModal from "./EditImportModal.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
+import LoadingIcon from "@/components/icons/Loading.vue";
 
 const toast = useToast();
 
@@ -22,6 +23,10 @@ const columns = ref([
   {
     key: "provider_name",
     value: "Provided by",
+  },
+  {
+    key: "warehouse_branch_name",
+    value: "Warehouse branch name",
   },
   {
     key: "status",
@@ -53,6 +58,8 @@ const isOpenEditModal = ref(false);
 
 const isOpenConfirmModal = ref(false);
 
+const loading = ref(true);
+
 function closeModal() {
   isOpenCreateModal.value = false;
   isOpenEditModal.value = false;
@@ -61,7 +68,11 @@ function closeModal() {
 }
 
 function openCreateModal() {
-  isOpenCreateModal.value = true;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenCreateModal.value = true;
+  }
 }
 
 function openEditModal(row) {
@@ -77,14 +88,13 @@ function openConfirmModal(row) {
 function fetchCurrentUser() {
   store.dispatch("searchStaff").then((response) => {
     if (response.status === 200) {
-      staffInformation.value = response.data;
+      staffInformation.value = response.data.data;
     }
   });
 }
 
 function fetchImortsData() {
   store.dispatch("getImports").then((response) => {
-    console.log(response);
     meta.value = response.data.meta;
 
     links.value = response.data.meta.links;
@@ -97,15 +107,21 @@ function fetchProvidersData() {
   store.dispatch("getAllProviders").then((response) => response);
 }
 
+function fetchWarehouseBranchesData() {
+  store.dispatch("getAllWarehouseBranches").then((response) => response);
+}
+
 function fetchCategoriesData() {
-  store.dispatch("getAllCategories").then((response) => response);
+  store
+    .dispatch("getAllCategories")
+    .then((response) => response)
+    .finally(() => (loading.value = false));
 }
 
 function deleteImport() {
   return store
     .dispatch("deleteImport", selectedImport.value.id)
     .then((response) => {
-      console.log(response);
       if (response.status === 200) {
         toast.success(response.data.message);
         return true;
@@ -120,6 +136,7 @@ onMounted(() => {
   fetchImortsData();
   fetchCurrentUser();
   fetchProvidersData();
+  fetchWarehouseBranchesData();
   fetchCategoriesData();
 });
 </script>
@@ -150,7 +167,8 @@ onMounted(() => {
       <button
         type="button"
         @click="openCreateModal"
-        class="rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+        class="flex rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+        :class="{ 'bg-opacity-80 cursor-no-drop': loading }"
       >
         Create import
       </button>
