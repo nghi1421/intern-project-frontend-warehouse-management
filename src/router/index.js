@@ -10,6 +10,7 @@ import ProviderTable from '../views/provider/ProviderTable.vue'
 import WarehouseBranchTable from '../views/warehouse-branch/WarehouseBranchTable.vue'
 import LocationTable from '../views/location/LocationTable.vue'
 import StockTable from '../views/stock/StockTable.vue'
+import NotFoundPage from '../views/404.vue'
 
 const routes = [
   {
@@ -22,7 +23,7 @@ const routes = [
           path: '/users',
           name: 'User',
           component: UserTable,
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: true},
         },
         {
           path: '/staffs',
@@ -65,7 +66,12 @@ const routes = [
           name: 'Stock',
           component: StockTable,
           meta: { requiresAuth: true },
-        }
+      },
+      {
+        path: '/404',
+        name: 'Not found',
+        component: NotFoundPage
+      }
     ]
   },
   {

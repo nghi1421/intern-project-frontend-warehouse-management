@@ -7,13 +7,15 @@ const store = createStore({
       data: {
         id: sessionStorage.getItem('ID'),
         name: sessionStorage.getItem('NAME'),
-        role: sessionStorage.getItem('ROLE')
+        role: sessionStorage.getItem('ROLE'),
+        permissions: sessionStorage.getItem('PERMISSIONS')
       },
       token: sessionStorage.getItem("TOKEN"),
     },
     staff: {
       totalPages: 1,
     },
+
     providers: [],
     positions: [],
     categories: [],
@@ -27,6 +29,7 @@ const store = createStore({
         .then(({data}) => {
           commit('setName', data.staff_information);
           commit('setStaffId', data.staff_information);
+          commit('setPermissions', data.permissions);
           commit('setRole', data.role);
           commit('setToken', data.token)
           return data;
@@ -237,6 +240,10 @@ const store = createStore({
     setRole: (state, role) => {
       state.user.data = { ...state.user.data, role: role };
       sessionStorage.setItem('ROLE', role);
+    },
+    setPermissions: (state, permissions) => {
+      state.user.data = { ...state.user.data, permissions: permissions };
+      sessionStorage.setItem('PERMISSIONS',  JSON.stringify(permissions));
     },
     setPositions: (state, positions) => {
       state.positions = positions;

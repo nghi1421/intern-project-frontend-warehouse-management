@@ -1,6 +1,7 @@
 import axios from "axios";
 import store from "./store";
 import router from "./router";
+import NotFoundPage from './views/404.vue'
 
 const baseUrlApi = 'http://localhost:8000/api'
 
@@ -21,8 +22,13 @@ axiosClient.interceptors.response.use(response => {
     sessionStorage.removeItem('TOKEN')
     sessionStorage.removeItem('NAME')
     sessionStorage.removeItem('ROLE')
+    sessionStorage.removeItem('PERMISSIONS')
     router.push({name: 'Login'})
-  } else if (error.response.status === 404) {
+  }
+  else if (error.response.status === 403) {
+   router.push({name: 'Not found'})
+  }
+  else if (error.response.status === 404) {
     router.push({name: 'NotFound'})
   }
   throw error;
