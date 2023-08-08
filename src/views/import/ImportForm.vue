@@ -100,6 +100,14 @@ let filteredProviders = computed(() =>
       )
 );
 
+const permissions = JSON.parse(store.state.user.data.permissions);
+
+function checkPermissions(permissionList) {
+  return permissions.some(
+    (permission) => permissionList.indexOf(permission.name) != -1
+  );
+}
+
 function handleSubmit() {
   if (validate()) {
     let data = {
@@ -134,52 +142,81 @@ function selectProvider(proivder) {
   selectedProvider.value = proivder;
 }
 
+function validateButton() {
+  if (!checkPermissions(["manage-import"])) {
+    toast.info("You don't have access to do this action");
+    return false;
+  }
+
+  if (props.import?.status === 0) {
+    toast.info("Import is canceled. Could not change");
+    return false;
+  }
+
+  if (props.import?.status === 3) {
+    toast.info("Import is completed. Could not change");
+    return false;
+  }
+
+  return true;
+}
+
 function selectCategories() {
-  const moveList = categories.value.filter((category) => category.selected);
-  categories.value = categories.value.filter((category) => !category.selected);
-  selectedCategories.value = [
-    ...selectedCategories.value,
-    ...moveList.map((category) => {
-      return { ...category, selected: false, amount: 0, unit_price: 0 };
-    }),
-  ];
+  if (validateButton()) {
+    const moveList = categories.value.filter((category) => category.selected);
+    categories.value = categories.value.filter(
+      (category) => !category.selected
+    );
+    selectedCategories.value = [
+      ...selectedCategories.value,
+      ...moveList.map((category) => {
+        return { ...category, selected: false, amount: 0, unit_price: 0 };
+      }),
+    ];
+  }
 }
 
 function selectAllCategories() {
-  selectedCategories.value = [
-    ...selectedCategories.value,
-    ...categories.value.map((category) => {
-      return { ...category, selected: false, amount: 0, unit_price: 0 };
-    }),
-  ];
+  if (validateButton()) {
+    selectedCategories.value = [
+      ...selectedCategories.value,
+      ...categories.value.map((category) => {
+        return { ...category, selected: false, amount: 0, unit_price: 0 };
+      }),
+    ];
 
-  categories.value = [];
+    categories.value = [];
+  }
 }
 
 function deselectCategories() {
-  const moveList = selectedCategories.value.filter(
-    (category) => category.selected
-  );
-  selectedCategories.value = selectedCategories.value.filter(
-    (category) => !category.selected
-  );
-  categories.value = [
-    ...categories.value,
-    ...moveList.map((category) => {
-      return { ...category, selected: false };
-    }),
-  ];
+  if (validateButton()) {
+    const moveList = selectedCategories.value.filter(
+      (category) => category.selected
+    );
+    selectedCategories.value = selectedCategories.value.filter(
+      (category) => !category.selected
+    );
+    categories.value = [
+      ...categories.value,
+      ...moveList.map((category) => {
+        return { ...category, selected: false };
+      }),
+    ];
+  }
 }
 
 function deselectedAllCategories() {
-  categories.value = [
-    ...categories.value,
-    ...selectedCategories.value.map((category) => {
-      return { ...category, selected: false };
-    }),
-  ];
+  if (validateButton()) {
+    categories.value = [
+      ...categories.value,
+      ...selectedCategories.value.map((category) => {
+        return { ...category, selected: false };
+      }),
+    ];
 
-  selectedCategories.value = [];
+    selectedCategories.value = [];
+  }
 }
 
 onMounted(() => {
@@ -188,7 +225,7 @@ onMounted(() => {
   console.log(props.staff);
   if (props.import) {
     selectedProvider.value = props.import.provider;
-    selectedWarehouseBranch.value = selectedWarehouseBranch.value.find(
+    selectedWarehouseBranch.value = warehouseBranches.value.find(
       (warehouseBranch) =>
         warehouseBranch.id === props.import.warehouse_branch_id
     );
@@ -448,7 +485,7 @@ function validate() {
       </div>
     </div>
 
-    <div class="col-span-3">
+    <div v-if="!props.import" class="col-span-3">
       <label
         for="default-input"
         class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
@@ -534,6 +571,57 @@ function validate() {
             </TransitionRoot>
           </div>
         </Combobox>
+      </div>
+    </div>
+    <div class="col-span-3" v-else>
+      <label
+        for="default-input"
+        class="mt-4 p-1 bg-white z-50 ms-4 text-xs font-medium text-gray-900 dark:text-white"
+      >
+        Branch information
+      </label>
+      <div
+        class="grid grid-cols-3 border-2 focus-within:border-primary-400 py-2 px-2 rounded-2xl -mb-8"
+      >
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <div>
+            <IdenfifyIcon></IdenfifyIcon>
+          </div>
+          <span class="inline-block align-middle">Branch ID</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1 ps-1">
+          <span>{{ staff?.id }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <div>
+            <PersonIcon></PersonIcon>
+          </div>
+          <span class="inline-block align-middle">Branch Name</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span>{{ selectedWarehouseBranch?.name }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <div>
+            <PhoneIcon></PhoneIcon>
+          </div>
+          <span class="inline-block align-middle">Phone Number</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span>{{ selectedWarehouseBranch?.phone_number }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <div>
+            <LocationIcon></LocationIcon>
+          </div>
+          <span class="inline-block align-middle">Address</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span class="">{{ selectedWarehouseBranch?.address }}</span>
+        </div>
       </div>
     </div>
     <div class="mt-12 col-span-6 grid grid-cols-9 max-h:4">
@@ -697,19 +785,35 @@ function validate() {
               <th>
                 <span class="p-2 font-semibold">{{ category.unit }}</span>
               </th>
-              <th>
+              <th
+                v-if="
+                  checkPermissions(['manage-import']) &&
+                  (props.import?.status === 1 || props.import?.status === 2)
+                "
+              >
                 <input
                   type="number"
                   class="p-2 font-semibold"
                   v-model="category.unit_price"
                 />
               </th>
-              <th>
+              <th v-else>
+                <span class="p-2 font-semibold">{{ category.unit_price }}</span>
+              </th>
+              <th
+                v-if="
+                  checkPermissions(['manage-import']) &&
+                  (props.import?.status === 1 || props.import?.status === 2)
+                "
+              >
                 <input
                   type="number"
                   class="p-2 font-semibold"
                   v-model="category.amount"
                 />
+              </th>
+              <th v-else>
+                <span class="p-2 font-semibold">{{ category.amount }}</span>
               </th>
             </tr>
           </tbody>

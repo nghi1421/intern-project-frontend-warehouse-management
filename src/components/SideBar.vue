@@ -67,7 +67,7 @@ function getNavigation() {
     });
   }
 
-  if (checkPermission(["manage-import"])) {
+  if (checkPermission(["manage-import", "read-branch-import"])) {
     navigation.value.push({
       name: "Import",
       href: "/imports",

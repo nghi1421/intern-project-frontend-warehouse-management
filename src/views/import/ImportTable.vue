@@ -60,6 +60,14 @@ const isOpenConfirmModal = ref(false);
 
 const loading = ref(true);
 
+const permissions = JSON.parse(store.state.user.data.permissions);
+
+function checkPermission(permissionList) {
+  return permissions.some(
+    (permission) => permissionList.indexOf(permission.name) != -1
+  );
+}
+
 function closeModal() {
   isOpenCreateModal.value = false;
   isOpenEditModal.value = false;
@@ -206,6 +214,7 @@ onMounted(() => {
 
       <button
         @click="openConfirmModal(row)"
+        v-if="checkPermission(['manage-import'])"
         class="p-1 ms-2 overflow-hidden hover:opacity-60 bg-danger-600 rounded-xl text-white whitespace-nowrap"
       >
         <svg
