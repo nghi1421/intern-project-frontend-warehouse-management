@@ -22,7 +22,7 @@ const router = useRouter();
 const toast = useToast();
 
 const userNavigation = [
-  { name: "Your profile", href: "#" },
+  { name: "Your profile", href: "/profile" },
   { name: "Log out", href: "" },
 ];
 
@@ -33,6 +33,28 @@ const name = computed(() => {
 });
 
 function handleAction(event) {
+  switch (event.target.innerText) {
+    case "Log out": {
+      store
+        .dispatch("logout")
+        .then((response) => {
+          router.push("/login");
+          toast.success(response.data.message);
+        })
+        .catch((error) => {
+          toast.error(error.response.data.message);
+        });
+      break;
+    }
+    case "Your profile": {
+      router.push({ name: "Profile" });
+      break;
+    }
+
+    default: {
+      router.push({ name: "Not found" });
+    }
+  }
   if (event.target.innerText === "Log out") {
     store
       .dispatch("logout")

@@ -1,13 +1,9 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import store from "../../store";
+import { onMounted, ref, computed } from "vue";
+import store from "../store";
+import { useVuelidate } from "@vuelidate/core";
+import { required, maxLength } from "@vuelidate/validators";
 import {
-  Combobox,
-  ComboboxInput,
-  ComboboxButton,
-  ComboboxOptions,
-  ComboboxOption,
-  TransitionRoot,
   Listbox,
   ListboxButton,
   ListboxOptions,
@@ -15,17 +11,12 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import VueDatePicker from "@vuepic/vue-datepicker";
+import { useToast } from "vue-toast-notification";
 import "@vuepic/vue-datepicker/dist/main.css";
 import TextInput from "@/components/form/inputs/TextInput.vue";
 import PersonIcon from "@/components/icons/Person.vue";
-import { useVuelidate } from "@vuelidate/core";
-import { required, maxLength } from "@vuelidate/validators";
 
-const props = defineProps({
-  submit: Function,
-  staff: Object,
-  closeForm: Function,
-});
+const toast = useToast();
 
 const rules = computed(() => ({
   name: {
@@ -66,86 +57,45 @@ const genders = [
   },
 ];
 
-const working = ref(true);
-
 const selectedGender = ref(genders[0]);
 
-const selectedPosition = ref({});
-
-let query = ref("");
-
-const positions = ref([]);
+const position = ref("");
 
 const v$ = useVuelidate(rules, { name, phoneNumber, address, dob });
-
-let filteredPositions = computed(() =>
-  query.value === ""
-    ? positions.value
-    : positions.value.filter((position) =>
-        position.name
-          .toLowerCase()
-          .replace(/\s+/g, "")
-          .includes(query.value.toLowerCase().replace(/\s+/g, ""))
-      )
-);
 
 const errorMessage = ref({});
 
 let isValidPhoneNumber = false;
 
+const staffInformation = ref({});
+
 function handleSubmit() {
   validate();
   if (isValidPhoneNumber) {
     let data = {
+      id: staffInformation.value.id,
       name: name.value,
       phone_number: phoneNumber.value,
       address: address.value,
       dob: dob.value,
-      working: working.value,
-      position_id: selectedPosition.value.id,
+      working: staffInformation.value.working,
+      position_id: staffInformation.value.position_id,
       gender: selectedGender.value.id,
+      warehouse_branch_id: staffInformation.value.warehouse_branch_id,
     };
-    if (props.staff) {
-      data = { ...data, id: props.staff.id };
+    updateStaff(data);
+  }
+}
+
+function updateStaff(data) {
+  return store.dispatch("updateStaff", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+    } else {
+      toast.error(response.data.message);
     }
-    props.submit(data).then(function (isSuccess) {
-      if (isSuccess) {
-        clearData;
-        props.closeForm();
-      }
-    });
-  }
+  });
 }
-
-function clearData() {
-  name.value = "";
-  address.value = "";
-  phoneNumber.value = "";
-  dob.value = "2000-1-1";
-  working.value = true;
-  errorMessage.value = {};
-}
-
-onMounted(() => {
-  positions.value = store.state.positions;
-  if (props.staff) {
-    selectedGender.value = genders.find(
-      (gender) => gender.name === props.staff.gender
-    );
-
-    selectedPosition.value = positions.value.find(
-      (position) => position.id === props.staff.position_id
-    );
-
-    name.value = props.staff.name;
-    address.value = props.staff.address;
-    phoneNumber.value = props.staff.phone_number;
-    dob.value = props.staff.dob;
-    working.value = props.staff.working;
-  } else {
-    selectedPosition.value = positions.value[0];
-  }
-});
 
 function validate() {
   errorMessage.value = {};
@@ -178,8 +128,31 @@ function validate() {
       : "";
   }
 }
+
+async function fetchCurrentUserInformation() {
+  await store.dispatch("searchStaff").then((response) => {
+    if (response.status === 200) {
+      staffInformation.value = response.data.data;
+
+      selectedGender.value = genders.find(
+        (gender) => gender.id === staffInformation.value.gender_id
+      );
+      position.value = staffInformation.value.position;
+      name.value = staffInformation.value.name;
+      address.value = staffInformation.value.address;
+      phoneNumber.value = staffInformation.value.phone_number;
+      dob.value = staffInformation.value.dob;
+    }
+  });
+}
+
+onMounted(() => {
+  fetchCurrentUserInformation();
+});
 </script>
+
 <template>
+  <h3 class="text-lg font-medium leading-6 text-gray-900">Profile</h3>
   <form @submit.prevent="handleSubmit" class="grid grid-cols-6 gap-3 bg-white">
     <div class="col-span-3">
       <TextInput
@@ -239,91 +212,6 @@ function validate() {
       </div>
     </div>
     <div class="col-span-3">
-      <label
-        for="default-input"
-        class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
-      >
-        Position
-      </label>
-
-      <div class="fixed w-[46%]">
-        <Combobox v-model="selectedPosition">
-          <div class="relative mt-1">
-            <div
-              class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
-            >
-              <ComboboxInput
-                class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-                :displayValue="(position) => position.name"
-                @change="query = $event.target.value"
-              />
-              <ComboboxButton
-                class="absolute inset-y-0 right-0 flex items-center pr-2"
-              >
-                <ChevronUpDownIcon
-                  class="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              </ComboboxButton>
-            </div>
-            <TransitionRoot
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-              @after-leave="query = ''"
-            >
-              <ComboboxOptions
-                class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-              >
-                <div
-                  v-if="filteredPositions.length === 0 && query !== ''"
-                  class="relative cursor-default select-none py-2 px-4 text-gray-700"
-                >
-                  Nothing found.
-                </div>
-
-                <ComboboxOption
-                  v-for="position in filteredPositions"
-                  as="template"
-                  :key="position.id"
-                  :value="position"
-                  v-slot="{ selectedPosition, active }"
-                >
-                  <li
-                    class="relative cursor-default select-none py-2 pl-10 pr-4"
-                    :class="{
-                      'text-amber-600 bg-amber-100': active,
-                      'text-gray-900': !active,
-                    }"
-                  >
-                    <span
-                      class="block truncate"
-                      :class="{
-                        'font-medium': selectedPosition,
-                        'font-normal': !selectedPosition,
-                      }"
-                    >
-                      {{ position.name }}
-                    </span>
-                    <span
-                      v-if="selectedPosition"
-                      class="absolute inset-y-0 left-0 flex items-center pl-3"
-                      :class="{
-                        'text-white': active,
-                        'text-teal-600': !active,
-                      }"
-                    >
-                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                    </span>
-                  </li>
-                </ComboboxOption>
-              </ComboboxOptions>
-            </TransitionRoot>
-          </div>
-        </Combobox>
-      </div>
-    </div>
-    <div class="col-span-3">
       <div>
         <label
           for="default-input"
@@ -331,7 +219,7 @@ function validate() {
         >
           Gender
         </label>
-        <div class="fixed w-[46%]">
+        <div class="">
           <Listbox v-model="selectedGender">
             <div class="relative mt-1">
               <ListboxButton
@@ -393,33 +281,12 @@ function validate() {
         </div>
       </div>
     </div>
-    <div class="col-span-3 mt-12 inline-flex">
-      <label
-        for="default-input"
-        class="p-1 bg-white text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
-      >
-        Is working?
-      </label>
-      <div>
-        <input name="working" type="checkbox" :checked="working" />
-      </div>
-    </div>
-    <div class="mt-12 flex">
+    <div class="col-span-6 mt-4">
       <button
         type="submit"
-        class="inline-flex justify-center rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"
+        class="rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"
       >
-        Submit
-      </button>
-      <button
-        type="button"
-        class="ms-4 inline-flex justify-center rounded-md border border-transparent bg-amber-100 px-4 py-2 text-sm font-medium text-amber-900 hover:bg-amber-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
-        @click="
-          props.closeForm();
-          clearData();
-        "
-      >
-        Close
+        Update
       </button>
     </div>
   </form>

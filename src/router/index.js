@@ -11,7 +11,7 @@ import WarehouseBranchTable from '../views/warehouse-branch/WarehouseBranchTable
 import LocationTable from '../views/location/LocationTable.vue'
 import StockTable from '../views/stock/StockTable.vue'
 import NotFoundPage from '../views/404.vue'
-
+import Profile from '../views/Profile.vue'
 const routes = [
   {
     path: '/',
@@ -65,6 +65,12 @@ const routes = [
           path: '/stocks',
           name: 'Stock',
           component: StockTable,
+          meta: { requiresAuth: true },
+      },
+      {
+          path: '/profile',
+          name: 'Profile',
+          component: Profile,
           meta: { requiresAuth: true },
       },
       {

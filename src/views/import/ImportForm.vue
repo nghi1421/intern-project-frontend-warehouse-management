@@ -20,6 +20,7 @@ import LeftOneIcon from "@/components/icons/LeftOne.vue";
 import LeftDoubleIcon from "@/components/icons/LeftDouble.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
+import TickIcon from "@/components/icons/Tick.vue";
 
 const toast = useToast();
 
@@ -102,6 +103,31 @@ let filteredProviders = computed(() =>
 
 const permissions = JSON.parse(store.state.user.data.permissions);
 
+const steps = ref([
+  {
+    status_id: 1,
+    id: "01",
+    name: "Khởi tạo",
+    description: "Nhân viên quản lí tạo phiếu nhập hàng.",
+    status: "complete",
+  },
+  {
+    status_id: 2,
+    id: "02",
+    name: "Đang kiểm tra",
+    description: "Thủ kho chi nhánh phiếu nhập hàng kiểm tra phiếu nhập hàng.",
+    status: "complete",
+  },
+  {
+    status_id: 3,
+    id: "03",
+    name: "Hoàn thành",
+    description: "Thủ kho hoàn thành phiếu nhập hàng.",
+    status: "complete",
+  },
+  // upcoming
+]);
+
 function checkPermissions(permissionList) {
   return permissions.some(
     (permission) => permissionList.indexOf(permission.name) != -1
@@ -148,12 +174,12 @@ function validateButton() {
     return false;
   }
 
-  if (props.import?.status === 0) {
+  if (props.import?.status_id === 0) {
     toast.info("Import is canceled. Could not change");
     return false;
   }
 
-  if (props.import?.status === 3) {
+  if (props.import?.status_id === 3) {
     toast.info("Import is completed. Could not change");
     return false;
   }
@@ -219,11 +245,39 @@ function deselectedAllCategories() {
   }
 }
 
+function resetCategories() {
+  selectedCategories.value = props.import.categories.map((category) => {
+    return { ...category, selected: false };
+  });
+
+  const selectedCategoryIds = selectedCategories.value.map(
+    (category) => category.id
+  );
+
+  categories.value = store.state.categories.filter(
+    (category) => selectedCategoryIds.indexOf(category.id) < 0
+  );
+}
+
 onMounted(() => {
   providers.value = store.state.providers;
   warehouseBranches.value = store.state.warehouseBranches;
-  console.log(props.staff);
+
   if (props.import) {
+    steps.value = steps.value.map((step) =>
+      step.status_id <= props.import.status_id
+        ? { ...step, status: "current" }
+        : { ...step, status: "upcoming" }
+    );
+
+    steps.value = steps.value.map((step) =>
+      step.status_id === props.import.status_id && props.import.status_id === 3
+        ? { ...step, status: "complete" }
+        : { ...step }
+    );
+
+    console.log(steps.value);
+
     selectedProvider.value = props.import.provider;
     selectedWarehouseBranch.value = warehouseBranches.value.find(
       (warehouseBranch) =>
@@ -691,6 +745,30 @@ function validate() {
       </div>
       <div class="col-span-1 flex gap-1 flex-col min-h-60 items-center mt-12">
         <button
+          v-if="checkPermissions(['manage-import'])"
+          @click="resetCategories"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <svg
+            class="w-5 h-5"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1.002 7.935 1.007 9.425 4.747"
+            ></path>
+            <path d="M20 4v5h-5"></path>
+          </svg>
+        </button>
+        <button
           @click="selectCategories"
           class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
@@ -788,7 +866,9 @@ function validate() {
               <th
                 v-if="
                   checkPermissions(['manage-import']) &&
-                  (props.import?.status === 1 || props.import?.status === 2)
+                  (!props.import ||
+                    props.import?.status_id === 1 ||
+                    props.import?.status_id === 2)
                 "
               >
                 <input
@@ -803,7 +883,9 @@ function validate() {
               <th
                 v-if="
                   checkPermissions(['manage-import']) &&
-                  (props.import?.status === 1 || props.import?.status === 2)
+                  (!props.import ||
+                    props.import?.status_id === 1 ||
+                    props.import?.status_id === 2)
                 "
               >
                 <input
@@ -820,9 +902,139 @@ function validate() {
         </table>
       </div>
     </div>
-
+    <div v-if="props.import" class="col-span-6">
+      <div class="lg:border-b lg:border-t lg:border-gray-200">
+        <nav
+          class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+          aria-label="Progress"
+        >
+          <ol
+            role="list"
+            class="overflow-hidden rounded-md lg:flex lg:rounded-none lg:border-l lg:border-r lg:border-gray-200"
+          >
+            <li
+              v-for="(step, stepIdx) in steps"
+              :key="step.id"
+              class="relative overflow-hidden lg:flex-1"
+            >
+              <div
+                :class="[
+                  stepIdx === 0 ? 'rounded-t-md border-b-0' : '',
+                  stepIdx === steps.length - 1 ? 'rounded-b-md border-t-0' : '',
+                  'overflow-hidden border border-gray-200 lg:border-0',
+                ]"
+              >
+                <span v-if="step.status === 'complete'" class="group">
+                  <span
+                    class="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
+                    aria-hidden="true"
+                  />
+                  <span
+                    :class="[
+                      stepIdx !== 0 ? 'lg:pl-9' : '',
+                      'flex items-start px-6 py-5 text-sm font-medium',
+                    ]"
+                  >
+                    <span class="flex-shrink-0">
+                      <span
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-success-600 text-white"
+                      >
+                        <TickIcon />
+                      </span>
+                    </span>
+                    <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
+                      <span class="text-sm font-medium">{{ step.name }}</span>
+                      <span class="text-sm font-medium text-gray-500">{{
+                        step.description
+                      }}</span>
+                    </span>
+                  </span>
+                </span>
+                <span v-else-if="step.status === 'current'" aria-current="step">
+                  <span
+                    class="absolute left-0 top-0 h-full w-1 bg-success-600 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
+                    aria-hidden="true"
+                  />
+                  <span
+                    :class="[
+                      stepIdx !== 0 ? 'lg:pl-9' : '',
+                      'flex items-start px-6 py-5 text-sm font-medium',
+                    ]"
+                  >
+                    <span class="flex-shrink-0">
+                      <span
+                        class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-success-600"
+                      >
+                        <span class="text-success-600">{{ step.id }}</span>
+                      </span>
+                    </span>
+                    <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
+                      <span class="text-sm font-medium text-success-600">{{
+                        step.name
+                      }}</span>
+                      <span class="text-sm font-medium text-gray-500">{{
+                        step.description
+                      }}</span>
+                    </span>
+                  </span>
+                </span>
+                <span v-else class="group">
+                  <span
+                    class="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
+                    aria-hidden="true"
+                  />
+                  <span
+                    :class="[
+                      stepIdx !== 0 ? 'lg:pl-9' : '',
+                      'flex items-start px-6 py-5 text-sm font-medium',
+                    ]"
+                  >
+                    <span class="flex-shrink-0">
+                      <span
+                        class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300"
+                      >
+                        <span class="text-gray-500">{{ step.id }}</span>
+                      </span>
+                    </span>
+                    <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
+                      <span class="text-sm font-medium text-gray-500">{{
+                        step.name
+                      }}</span>
+                      <span class="text-sm font-medium text-gray-500">{{
+                        step.description
+                      }}</span>
+                    </span>
+                  </span>
+                </span>
+                <template v-if="stepIdx !== 0">
+                  <!-- Separator -->
+                  <div
+                    class="absolute inset-0 left-0 top-0 hidden w-3 lg:block"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      class="h-full w-full text-gray-300"
+                      viewBox="0 0 12 82"
+                      fill="none"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M0.5 0V31L10.5 41L0.5 51V82"
+                        stroke="currentcolor"
+                        vector-effect="non-scaling-stroke"
+                      />
+                    </svg>
+                  </div>
+                </template>
+              </div>
+            </li>
+          </ol>
+        </nav>
+      </div>
+    </div>
     <div class="col-span-6">
       <button
+        v-if="props.import?.status_id !== 3 && props.import?.status_id !== 0"
         type="submit"
         class="inline-flex justify-center rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"
       >

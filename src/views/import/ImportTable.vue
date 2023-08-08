@@ -173,6 +173,7 @@ onMounted(() => {
     <div class="flex flex-1">
       <h2 class="p-4 font-semibold uppercase">Import Table</h2>
       <button
+        v-if="checkPermission(['manage-import'])"
         type="button"
         @click="openCreateModal"
         class="flex rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
