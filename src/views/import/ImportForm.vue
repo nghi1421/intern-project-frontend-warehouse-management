@@ -149,7 +149,14 @@ function handleSubmit() {
     };
 
     if (props.import) {
-      data = { ...data, id: props.import.id };
+      data = {
+        ...data,
+        id: props.import.id,
+      };
+
+      if (checkPermissions(["update-import-status"])) {
+         (data = { ...data,status: props.import.status_id + 1 });
+      }
     }
     props.submit(data).then(function (isSuccess) {
       if (isSuccess) {
@@ -269,6 +276,8 @@ onMounted(() => {
         ? { ...step, status: "current" }
         : { ...step, status: "upcoming" }
     );
+
+    for ()
 
     steps.value = steps.value.map((step) =>
       step.status_id === props.import.status_id && props.import.status_id === 3
