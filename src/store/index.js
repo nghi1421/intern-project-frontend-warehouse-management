@@ -242,7 +242,7 @@ const store = createStore({
       sessionStorage.setItem('ROLE', role);
     },
     setPermissions: (state, permissions) => {
-      state.user.data = { ...state.user.data, permissions: permissions };
+      state.user.data = { ...state.user.data, permissions: JSON.stringify(permissions) };
       sessionStorage.setItem('PERMISSIONS',  JSON.stringify(permissions));
     },
     setPositions: (state, positions) => {

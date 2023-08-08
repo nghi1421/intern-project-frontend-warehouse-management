@@ -42,6 +42,7 @@ function getNavigation() {
       icon: shallowRef(PartnerIcon),
     });
   }
+
   if (checkPermission(["manage-location"])) {
     navigation.value.push({
       name: "Location",
@@ -50,15 +51,15 @@ function getNavigation() {
     });
   }
 
-  if (checkPermission(["manage-cateogory"])) {
+  if (checkPermission(["manage-category"])) {
     navigation.value.push({
-      name: "Import",
-      href: "/imports",
-      icon: shallowRef(ImportIcon),
+      name: "Category",
+      href: "/categories",
+      icon: shallowRef(CategoryIcon),
     });
   }
 
-  if (checkPermission(["manage-stock"])) {
+  if (checkPermission(["manage-stock", "read-stock"])) {
     navigation.value.push({
       name: "Stock",
       href: "/stocks",
@@ -68,9 +69,9 @@ function getNavigation() {
 
   if (checkPermission(["manage-import"])) {
     navigation.value.push({
-      name: "Category",
-      href: "/categories",
-      icon: shallowRef(CategoryIcon),
+      name: "Import",
+      href: "/imports",
+      icon: shallowRef(ImportIcon),
     });
   }
 }
