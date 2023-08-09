@@ -128,6 +128,32 @@ const steps = ref([
   // upcoming
 ]);
 
+const stepsHover = ref([
+  {
+    status_id: 1,
+    id: "01",
+    name: "Khởi tạo",
+    description: "Nhân viên quản lí tạo phiếu nhập hàng.",
+    status: "complete",
+  },
+  {
+    status_id: 2,
+    id: "02",
+    name: "Đang kiểm tra",
+    description: "Thủ kho chi nhánh phiếu nhập hàng kiểm tra phiếu nhập hàng.",
+    status: "complete",
+  },
+  {
+    status_id: 3,
+    id: "03",
+    name: "Hoàn thành",
+    description: "Thủ kho hoàn thành phiếu nhập hàng.",
+    status: "complete",
+  },
+]);
+
+const stepsLeaveHover = ref([]);
+
 function checkPermissions(permissionList) {
   return permissions.some(
     (permission) => permissionList.indexOf(permission.name) != -1
@@ -155,7 +181,7 @@ function handleSubmit() {
       };
 
       if (checkPermissions(["update-import-status"])) {
-         (data = { ...data,status: props.import.status_id + 1 });
+        data = { ...data, status: props.import.status_id + 1 };
       }
     }
     props.submit(data).then(function (isSuccess) {
@@ -271,21 +297,35 @@ onMounted(() => {
   warehouseBranches.value = store.state.warehouseBranches;
 
   if (props.import) {
-    steps.value = steps.value.map((step) =>
-      step.status_id <= props.import.status_id
-        ? { ...step, status: "current" }
-        : { ...step, status: "upcoming" }
-    );
+    for (let i = 0; i < steps.value.length; i++) {
+      if (steps.value[i].status_id > props.import?.status_id) {
+        steps.value[i] = { ...steps.value[i], status: "upcoming" };
+      } else if (
+        steps.value[i].status_id === props.import?.status_id &&
+        props.import?.status_id !== 3
+      ) {
+        steps.value[i] = { ...steps.value[i], status: "current" };
+      }
+    }
 
-    for ()
+    for (let i = 0; i < stepsHover.value.length; i++) {
+      if (stepsHover.value[i].status_id > props.import?.status_id + 1) {
+        stepsHover.value[i] = {
+          ...stepsHover.value[i],
+          status: "upcoming",
+        };
+      } else if (
+        stepsHover.value[i].status_id - 1 === props.import?.status_id &&
+        props.import?.status_id !== 3
+      ) {
+        stepsHover.value[i] = {
+          ...stepsHover.value[i],
+          status: "current",
+        };
+      }
+    }
 
-    steps.value = steps.value.map((step) =>
-      step.status_id === props.import.status_id && props.import.status_id === 3
-        ? { ...step, status: "complete" }
-        : { ...step }
-    );
-
-    console.log(steps.value);
+    stepsLeaveHover.value = steps.value;
 
     selectedProvider.value = props.import.provider;
     selectedWarehouseBranch.value = warehouseBranches.value.find(
@@ -362,6 +402,18 @@ function validate() {
   }
   toast.warning("Please select at least one category");
   return false;
+}
+
+function hoverSubmit() {
+  if (props.import?.status_id !== 0 && props.import?.status_id !== 3) {
+    steps.value = stepsHover.value;
+  }
+}
+
+function leaveHoverSubmit() {
+  if (props.import?.status_id !== 0 && props.import?.status_id !== 3) {
+    steps.value = stepsLeaveHover.value;
+  }
 }
 </script>
 <template>
@@ -1043,6 +1095,8 @@ function validate() {
     </div>
     <div class="col-span-6">
       <button
+        @mouseover="hoverSubmit"
+        @mouseleave="leaveHoverSubmit"
         v-if="props.import?.status_id !== 3 && props.import?.status_id !== 0"
         type="submit"
         class="inline-flex justify-center rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"
