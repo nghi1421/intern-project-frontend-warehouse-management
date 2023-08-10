@@ -3,6 +3,7 @@ import { ref, shallowRef, onMounted } from "vue";
 import { UsersIcon } from "@heroicons/vue/24/outline";
 import CategoryIcon from "@/components/icons/Category.vue";
 import ImportIcon from "@/components/icons/Import.vue";
+import ExportIcon from "@/components/icons/Export.vue";
 import PartnerIcon from "@/components/icons/Partner.vue";
 import BranchIcon from "@/components/icons/Branch.vue";
 import LocationIcon from "@/components/icons/Location.vue";
@@ -72,6 +73,14 @@ function getNavigation() {
       name: "Import",
       href: "/imports",
       icon: shallowRef(ImportIcon),
+    });
+  }
+
+  if (checkPermission(["manage-export", "read-branch-export"])) {
+    navigation.value.push({
+      name: "Export",
+      href: "/exports",
+      icon: shallowRef(ExportIcon),
     });
   }
 }

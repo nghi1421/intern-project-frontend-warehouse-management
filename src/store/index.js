@@ -123,6 +123,25 @@ const store = createStore({
         .delete(`/imports/${importId}`)
         .then((response) => response)
     },
+    getExports() {
+      return axiosClient.get('/exports')
+        .then((response) => response)
+    },
+    createExport({ commit }, data) {
+      return axiosClient
+        .post('/exports', data)
+        .then((response) => response)
+    },
+    updateExport({ commit }, data) {
+      return axiosClient
+        .put(`/exports/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteExport({ commit }, exportId) {
+      return axiosClient
+        .delete(`/exports/${exportId}`)
+        .then((response) => response)
+    },
     getAllProviders({ commit }) {
       return axiosClient
         .get(`providers/?no_pagination=1`)
