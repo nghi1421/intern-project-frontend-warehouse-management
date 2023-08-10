@@ -1,6 +1,5 @@
 <script setup>
 import store from "../../store";
-import { ref, onMounted } from "vue";
 import {
   TransitionRoot,
   TransitionChild,
@@ -64,9 +63,9 @@ function updateExport(data) {
             >
               <DialogTitle
                 as="h3"
-                class="text-lg font-medium leading-6 text-gray-900"
+                class="text-lg font-medium leading-6 text-gray-900 mb-4"
               >
-                Edit staff
+                Edit export
               </DialogTitle>
 
               <ExportForm

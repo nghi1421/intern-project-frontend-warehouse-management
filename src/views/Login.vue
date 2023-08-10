@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import TextInput from "@/components/form/inputs/TextInput.vue";
 import PersonIcon from "@/components/icons/Person.vue";
@@ -89,7 +90,9 @@ export default {
             v-model:value="username"
             v-model:errorMessage="errorMessage.username"
           >
-            <template v-slot:icon><PersonIcon /></template>
+            <template v-slot:icon
+              ><PersonIcon class="text-gray-400"
+            /></template>
           </TextInput>
           <TextInput
             label="Password"
@@ -97,7 +100,9 @@ export default {
             v-model:value="password"
             v-model:errorMessage="errorMessage.password"
           >
-            <template v-slot:icon><PasswordIcon /></template>
+            <template v-slot:icon
+              ><PasswordIcon class="text-gray-400"
+            /></template>
           </TextInput>
           <div class="pt-4">
             <PrimaryButton type="submit" label="Log in">

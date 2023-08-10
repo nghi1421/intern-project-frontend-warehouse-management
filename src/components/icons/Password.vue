@@ -1,7 +1,8 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    class="h-5 w-5 text-gray-400"
+    class="h-5 w-5"
     viewBox="0 0 20 20"
     fill="currentColor"
   >
