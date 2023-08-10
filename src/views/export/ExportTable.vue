@@ -80,13 +80,21 @@ function openCreateModal() {
 }
 
 function openEditModal(row) {
-  isOpenEditModal.value = true;
-  selectedImport.value = row;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenEditModal.value = true;
+    selectedImport.value = row;
+  }
 }
 
 function openConfirmModal(row) {
-  isOpenConfirmModal.value = true;
-  selectedImport.value = row;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenConfirmModal.value = true;
+    selectedImport.value = row;
+  }
 }
 
 function fetchCurrentUser() {
@@ -149,7 +157,7 @@ onMounted(() => {
   <EditExportModal
     :is-open="isOpenEditModal"
     :closeModal="closeModal"
-    :importData="selectedImport"
+    :exportData="selectedImport"
   >
   </EditExportModal>
   <ConfirmModal

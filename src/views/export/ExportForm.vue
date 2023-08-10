@@ -908,9 +908,18 @@ function leaveHoverSubmit() {
     </div>
     <div class="col-span-6">
       <button
-        @mouseover="hoverSubmit"
-        @mouseleave="leaveHoverSubmit"
-        v-if="props.export?.status_id !== 3 && props.export?.status_id !== 0"
+        v-if="
+          props.export?.status_id !== 3 &&
+          props.export?.status_id !== 0 &&
+          checkPermissions(['update-export-status'])
+        "
+        type="submit"
+        class="inline-flex justify-center rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"
+      >
+        Submit
+      </button>
+      <button
+        v-else
         type="submit"
         class="inline-flex justify-center rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"
       >
