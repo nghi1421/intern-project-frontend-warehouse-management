@@ -637,7 +637,10 @@ function leaveHoverSubmit() {
           </tbody>
         </table>
       </div>
-      <div class="col-span-1 flex gap-1 flex-col min-h-60 items-center mt-12">
+      <div
+        v-if="props.export"
+        class="col-span-1 flex gap-1 flex-col min-h-60 items-center mt-12"
+      >
         <button
           v-if="checkPermissions(['manage-export']) && props.export"
           @click="resetCategories"
@@ -691,6 +694,7 @@ function leaveHoverSubmit() {
           <LeftDoubleIcon />
         </button>
       </div>
+      <div v-else></div>
       <div class="col-span-4 border-gray-400 flex flex-col overflow-auto">
         <div
           class="flex text-gray-400 border-gray-400 focus:border-primary-500 border shadow-md rounded-lg"
@@ -909,8 +913,7 @@ function leaveHoverSubmit() {
     <div class="col-span-6">
       <button
         v-if="
-          props.export?.status_id !== 3 &&
-          props.export?.status_id !== 0 &&
+          [0, 3].includes(props.export?.status_id) &&
           checkPermissions(['update-export-status'])
         "
         @mouseover="hoverSubmit"

@@ -17,7 +17,7 @@ import store from "../../store";
 
 const props = defineProps({
   submit: Function,
-  location: Object,
+  stock: Object,
   closeForm: Function,
 });
 

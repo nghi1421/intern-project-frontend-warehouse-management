@@ -1,7 +1,10 @@
 import axios from "axios";
 import store from "./store";
 import router from "./router";
-import NotFoundPage from './views/404.vue'
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
+const toast = useToast();
 
 const baseUrlApi = 'http://localhost:8000/api'
 
@@ -31,7 +34,10 @@ axiosClient.interceptors.response.use(response => {
   else if (error.response.status === 404) {
     router.push({name: 'NotFound'})
   }
-  throw error;
+  else {
+    toast.error(error.response.data.message);
+  }
+  return Promise.reject(error);
 })
 
 export default axiosClient;

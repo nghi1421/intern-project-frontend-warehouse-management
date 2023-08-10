@@ -3,7 +3,7 @@ import store from "../../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
 // import CreateLocationModal from "./CreateLocationModal.vue";
-// import EditLocationModal from "./EditLocationModal.vue";
+import EditStockModal from "./EditStockModal.vue";
 // import ConfirmModal from "@/components/ConfirmModal.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
@@ -78,18 +78,17 @@ function openConfirmModal(location) {
   selectedLocation.value = location;
 }
 
-function deleteLocation() {
+function deleteStock() {
   return store
-    .dispatch("deleteLocation", selectedLocation.value.id)
+    .dispatch("deleteStock", selectedLocation.value.id)
     .then((response) => {
       if (response.status === 200) {
-        toast.success(response.data.message);
         return true;
       } else {
-        toast.error(response.data.message);
         return false;
       }
-    });
+    })
+    .catch(() => {});
 }
 
 onMounted(() => {
@@ -98,21 +97,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- <CreateLocationModal :is-open="isOpenCreateModal" :closeModal="closeModal">
-  </CreateLocationModal>
-  <EditLocationModal
+  <EditStockModal
     :location="selectedLocation"
     :is-open="isOpenEditModal"
     :close-modal="closeModal"
-  ></EditLocationModal>
+  ></EditStockModal>
   <confirm-modal
     :is-open="isOpenConfirmModal"
     :close-modal="closeModal"
-    :submit="deleteLocation"
+    :submit="deleteStock"
   >
     <template v-slot:header> Are your sure? </template>
-    <template v-slot:message> Delete location! </template>
-  </confirm-modal> -->
+    <template v-slot:message> Delete stock! </template>
+  </confirm-modal>
   <div>
     <div class="flex flex-1">
       <h2 class="p-4 font-semibold uppercase">Stock Table</h2>
@@ -167,9 +164,3 @@ onMounted(() => {
     </template>
   </Table>
 </template>
-
-<style scoped>
-input.dp__pointer {
-  @apply border-none;
-}
-</style>

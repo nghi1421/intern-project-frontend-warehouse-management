@@ -13,22 +13,22 @@ const navigation = ref([]);
 
 const permissions = JSON.parse(store.state.user.data.permissions);
 
-function checkPermission(permissionList) {
+function checkPermissions(permissionList) {
   return permissions.some(
     (permission) => permissionList.indexOf(permission.name) != -1
   );
 }
 
 function getNavigation() {
-  if (checkPermission(["manage-user"])) {
+  if (checkPermissions(["manage-user"])) {
     navigation.value.push({ name: "User", href: "/users", icon: UsersIcon });
   }
 
-  if (checkPermission(["manage-all-staff", "manage-branch-staff"])) {
+  if (checkPermissions(["manage-all-staff", "manage-branch-staff"])) {
     navigation.value.push({ name: "Staff", href: "/staffs", icon: UsersIcon });
   }
 
-  if (checkPermission(["manage-warehouse-branch"])) {
+  if (checkPermissions(["manage-warehouse-branch"])) {
     navigation.value.push({
       name: "Warehouse branch",
       href: "/warehouse-branches",
@@ -36,7 +36,7 @@ function getNavigation() {
     });
   }
 
-  if (checkPermission(["manage-provider"])) {
+  if (checkPermissions(["manage-provider"])) {
     navigation.value.push({
       name: "Provider",
       href: "/providers",
@@ -44,7 +44,7 @@ function getNavigation() {
     });
   }
 
-  if (checkPermission(["manage-location"])) {
+  if (checkPermissions(["manage-location"])) {
     navigation.value.push({
       name: "Location",
       href: "/locations",
@@ -52,7 +52,7 @@ function getNavigation() {
     });
   }
 
-  if (checkPermission(["manage-category"])) {
+  if (checkPermissions(["manage-category"])) {
     navigation.value.push({
       name: "Category",
       href: "/categories",
@@ -60,7 +60,7 @@ function getNavigation() {
     });
   }
 
-  if (checkPermission(["manage-stock", "read-stock"])) {
+  if (checkPermissions(["manage-stock", "read-stock", "manage-branch-stock"])) {
     navigation.value.push({
       name: "Stock",
       href: "/stocks",
@@ -68,7 +68,7 @@ function getNavigation() {
     });
   }
 
-  if (checkPermission(["manage-import", "read-branch-import"])) {
+  if (checkPermissions(["manage-import", "read-branch-import"])) {
     navigation.value.push({
       name: "Import",
       href: "/imports",
@@ -76,7 +76,7 @@ function getNavigation() {
     });
   }
 
-  if (checkPermission(["manage-export", "read-branch-export"])) {
+  if (checkPermissions(["manage-export", "read-branch-export"])) {
     navigation.value.push({
       name: "Export",
       href: "/exports",

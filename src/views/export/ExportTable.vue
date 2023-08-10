@@ -7,7 +7,6 @@ import ConfirmModal from "@/components/ConfirmModal.vue";
 import EditExportModal from "./EditExportModal.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-import LoadingIcon from "@/components/icons/Loading.vue";
 
 const toast = useToast();
 

@@ -804,9 +804,12 @@ function leaveHoverSubmit() {
           </tbody>
         </table>
       </div>
-      <div class="col-span-1 flex gap-1 flex-col min-h-60 items-center mt-12">
+      <div
+        v-if="![0, 3].includes(props.import?.status_id)"
+        class="col-span-1 flex gap-1 flex-col min-h-60 items-center mt-12"
+      >
         <button
-          v-if="checkPermissions(['manage-import'])"
+          v-if="props.import && checkPermissions(['manage-import'])"
           @click="resetCategories"
           class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
           type="button"
@@ -858,6 +861,7 @@ function leaveHoverSubmit() {
           <LeftDoubleIcon />
         </button>
       </div>
+      <div v-else></div>
       <div class="col-span-4 border-gray-400 flex flex-col overflow-auto">
         <div
           class="flex text-gray-400 border-gray-400 focus:border-primary-500 border shadow-md rounded-lg"
@@ -1096,8 +1100,7 @@ function leaveHoverSubmit() {
     <div class="col-span-6">
       <button
         v-if="
-          props.import?.status_id !== 3 &&
-          props.import?.status_id !== 0 &&
+          ![0, 3].includes(props.import?.status_id) &&
           checkPermissions(['update-import-status'])
         "
         @mouseover="hoverSubmit"
@@ -1107,6 +1110,7 @@ function leaveHoverSubmit() {
       >
         Submit
       </button>
+
       <button
         v-else
         type="submit"

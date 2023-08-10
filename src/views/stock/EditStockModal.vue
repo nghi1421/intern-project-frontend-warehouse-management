@@ -9,17 +9,17 @@ import {
 } from "@headlessui/vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-import ImportForm from "./ImportForm.vue";
+import StockForm from "./StockForm.vue";
 const toast = useToast();
 
 const props = defineProps({
   isOpen: Boolean,
-  importData: Object,
   closeModal: Function,
+  location: Object,
 });
 
-function updateImport(data) {
-  return store.dispatch("updateImport", data).then((response) => {
+async function updateStock(data) {
+  return store.dispatch("updateStock", data).then((response) => {
     if (response.status === 200) {
       toast.success(response.data.message);
       return true;
@@ -31,8 +31,8 @@ function updateImport(data) {
 }
 </script>
 <template>
-  <TransitionRoot appear :show="props.isOpen" as="template">
-    <Dialog as="div" @close="props.closeModal()" class="relative z-50">
+  <TransitionRoot appear :show="isOpen" as="template">
+    <Dialog as="div" @close="closeModal" class="relative z-50">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -65,15 +65,14 @@ function updateImport(data) {
                 as="h3"
                 class="text-lg font-medium leading-6 text-gray-900 mb-4"
               >
-                Edit import
+                Edit stock
               </DialogTitle>
 
-              <ImportForm
-                :staff="importData?.staff"
-                :import="importData"
-                :close-form="props.closeModal"
-                :submit="updateImport"
-              ></ImportForm>
+              <StockForm
+                :stock="stock"
+                :close-form="closeModal"
+                :submit="updateStock"
+              ></StockForm>
               <div class="mt-2"></div>
             </DialogPanel>
           </TransitionChild>

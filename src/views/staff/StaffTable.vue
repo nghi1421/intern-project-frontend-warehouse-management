@@ -93,13 +93,12 @@ function deleteStaff() {
     .dispatch("deleteStaff", selectedStaff.value.id)
     .then((response) => {
       if (response.status === 200) {
-        toast.success(response.data.message);
         return true;
       } else {
-        toast.error(response.data.message);
         return false;
       }
-    });
+    })
+    .catch(() => {});
 }
 
 onMounted(() => {
