@@ -1098,7 +1098,7 @@ function leaveHoverSubmit() {
       </div>
     </div>
     <div class="col-span-6">
-      <button
+      <button      
         v-if="
           ![0, 3].includes(props.import?.status_id) &&
           checkPermissions(['update-import-status'])
@@ -1112,6 +1112,7 @@ function leaveHoverSubmit() {
       </button>
 
       <button
+        v-show="![0, 3].includes(props.import?.status_id)"
         v-else
         type="submit"
         class="inline-flex justify-center rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"

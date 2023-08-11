@@ -241,12 +241,23 @@ const store = createStore({
     getStocks() {
       return axiosClient.get('/stocks')
         .then((response) => response)
-    }
+    },
+    updateStock({ commit }, data) {
+      return axiosClient
+        .put(`/stocks/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteStock({ commit }, stockId) {
+      return axiosClient
+        .delete(`/locations/${stockId}`)
+        .then((response) => response)
+    },
   },
   mutations: {
     setName: (state, staffInformation) => {
       state.user.data = { ...state.user.data, name: staffInformation.name };
-      sessionStorage.setItem('NAME', staffInformation.name);
+      sessionStorage.setItem('NAME', staffInformation.name); 
+      sessionStorage.setItem('BRANCH_ID', staffInformation.warehouse_branch_id);
     },
     setStaffId: (state, staffInformation) => {
       state.user.data = { ...state.user.data, id: staffInformation.id };

@@ -2,13 +2,8 @@
 import store from "../../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
-// import CreateLocationModal from "./CreateLocationModal.vue";
 import EditStockModal from "./EditStockModal.vue";
-// import ConfirmModal from "@/components/ConfirmModal.vue";
-import { useToast } from "vue-toast-notification";
-import "vue-toast-notification/dist/theme-sugar.css";
-
-const toast = useToast();
+import ConfirmModal from "@/components/ConfirmModal.vue";
 
 const columns = ref([
   {
@@ -18,6 +13,10 @@ const columns = ref([
   {
     key: "category_name",
     value: "Cateogry name",
+  },
+  {
+    key: "category_unit",
+    value: "Cateogry unit",
   },
   {
     key: "location_name",
@@ -41,8 +40,6 @@ const meta = ref({});
 
 const links = ref([]);
 
-const isOpenCreateModal = ref(false);
-
 const isOpenEditModal = ref(false);
 
 const isOpenConfirmModal = ref(false);
@@ -57,15 +54,14 @@ function fetchStocksData() {
   });
 }
 
+function fetchLocationData() {
+  store.dispatch("getAllLocations").then((response) => response);
+}
+
 function closeModal() {
-  isOpenCreateModal.value = false;
   isOpenEditModal.value = false;
   isOpenConfirmModal.value = false;
   selectedLocation.value = null;
-}
-
-function openCreateModal() {
-  isOpenCreateModal.value = true;
 }
 
 function openEditModal(location) {
@@ -93,12 +89,13 @@ function deleteStock() {
 
 onMounted(() => {
   fetchStocksData();
+  fetchLocationData();
 });
 </script>
 
 <template>
   <EditStockModal
-    :location="selectedLocation"
+    :stock="selectedLocation"
     :is-open="isOpenEditModal"
     :close-modal="closeModal"
   ></EditStockModal>

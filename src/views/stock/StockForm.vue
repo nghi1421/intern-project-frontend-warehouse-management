@@ -2,8 +2,6 @@
 import { ref, computed, onMounted } from "vue";
 import "@vuepic/vue-datepicker/dist/main.css";
 import TextInput from "@/components/form/inputs/TextInput.vue";
-import { useVuelidate } from "@vuelidate/core";
-import { required, maxLength } from "@vuelidate/validators";
 import {
   Combobox,
   ComboboxInput,
@@ -21,116 +19,166 @@ const props = defineProps({
   closeForm: Function,
 });
 
-const rules = computed(() => ({
-  name: {
-    required,
-    maxLength: maxLength(50),
-  },
-  description: {
-    required,
-    maxLength: maxLength(255),
-  },
-}));
+const expiryDate = ref("");
 
-const name = ref("");
-
-const description = ref("");
-
-const v$ = useVuelidate(rules, { name, description });
+// const v$ = useVuelidate(rules, { expiryDate });
 
 const errorMessage = ref({});
 
-const warehouseBranches = ref([]);
+const locations = ref([]);
 
-const selectedWarehouseBranch = ref({});
+const selectedLocation = ref({});
 
-const query = ref("");
+const queryLocation = ref("");
 
-let filteredWarehouseBranches = computed(() =>
-  query.value === ""
-    ? warehouseBranches.value
-    : warehouseBranches.value.filter((warehoueBranch) =>
+let importInformation = {};
+
+let categoryInformation = {};
+
+let filteredLocations = computed(() =>
+  queryLocation.value === ""
+    ? locations.value
+    : locations.value.filter((warehoueBranch) =>
         warehoueBranch.name
           .toLowerCase()
           .replace(/\s+/g, "")
-          .includes(query.value.toLowerCase().replace(/\s+/g, ""))
+          .includes(queryLocation.value.toLowerCase().replace(/\s+/g, ""))
       )
 );
 
 function handleSubmit() {
-  validate();
+  // validate();
 
   let data = {
-    name: name.value,
-    description: description.value,
-    warehouse_branch_id: 1,
+    location_id: selectedLocation.value.id,
   };
-  if (props.location) {
-    data = { ...data, id: props.location.id };
+
+  if (expiryDate.value) {
+    data = { ...data, expiry_date: expiryDate.value };
   }
 
   props.submit(data).then(function (isSuccess) {
     if (isSuccess) {
-      clearData;
       props.closeForm();
     }
   });
 }
 
-function clearData() {
-  name.value = "";
-  description.value = "";
-  errorMessage.value = {};
-}
-
 onMounted(() => {
-  warehouseBranches.value = store.state.warehouseBranches;
-  if (props.location) {
-    name.value = props.location.name;
-    description.value = props.location.description;
-    selectedWarehouseBranch.value = warehouseBranches.value.find(
-      (warehouseBranch) =>
-        warehouseBranch.id === props.location.warehouse_branch_id
+  locations.value = store.state.locations;
+  if (props.stock) {
+    importInformation = props.stock.import;
+    categoryInformation = props.stock.category;
+    selectedLocation.value = locations.value[0];
+    selectedLocation.value = locations.value.find(
+      (location) => location.id === props.stock.location_id
     );
   } else {
-    selectedWarehouseBranch.value = warehouseBranches.value[0];
+    selectedLocation.value = locations.value[0];
   }
 });
 
-function validate() {
-  if (v$.value.$invalid) {
-    errorMessage.value.name = v$.value.name.$error
-      ? v$.value.name.$errors[0].$message
-      : "";
+// function validate() {
+//   if (v$.value.$invalid) {
+//     errorMessage.value.name = v$.value.name.$error
+//       ? v$.value.name.$errors[0].$message
+//       : "";
 
-    errorMessage.value.description = v$.value.description.$error
-      ? v$.value.description.$errors[0].$message
-      : "";
-  }
-}
+//     errorMessage.value.description = v$.value.description.$error
+//       ? v$.value.description.$errors[0].$message
+//       : "";
+//   }
+// }
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="grid grid-cols-6 gap-3 bg-white">
     <div class="col-span-3">
-      <TextInput
-        label="Name"
-        type="text"
-        name="name"
-        place-holder="Fill provider name"
-        v-model:value="name"
-        :error-message="errorMessage.name"
+      <label
+        for="default-input"
+        class="mt-4 p-1 bg-white z-50 ms-4 text-xs font-medium text-gray-900 dark:text-white"
       >
-      </TextInput>
+        Category information
+      </label>
+      <div
+        class="grid grid-cols-3 border-2 focus-within:border-primary-400 py-2 px-2 rounded-2xl mb-4"
+      >
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <span class="inline-block align-middle">Category ID</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1 ps-1">
+          <span>{{ categoryInformation?.id }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <span class="inline-block align-middle">Name</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span>{{ categoryInformation?.name }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <span class="inline-block align-middle">Description</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span>{{ categoryInformation?.description }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <span class="inline-block align-middle">Unit</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span class="">{{ categoryInformation?.unit }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-3">
+      <label
+        for="default-input"
+        class="mt-4 p-1 bg-white z-50 ms-4 text-xs font-medium text-gray-900 dark:text-white"
+      >
+        Import information
+      </label>
+      <div
+        class="grid grid-cols-3 border-2 focus-within:border-primary-400 py-2 px-2 rounded-2xl mb-4"
+      >
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <span class="inline-block align-middle">Import ID</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1 ps-1">
+          <span>{{ importInformation?.id }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <span class="inline-block align-middle">Created by</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span>{{ importInformation?.created_by }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <span class="inline-block align-middle">Provided by</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span>{{ importInformation?.provider }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <span class="inline-block align-middle">Created at</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span>{{ importInformation?.created_at }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="col-span-3">
       <TextInput
-        label="description"
+        label="Expiry date"
         type="text"
-        name="description"
-        place-holder="Fill provider description"
-        v-model:value="description"
-        :error-message="errorMessage.description"
+        name="expiry_date"
+        place-holder="Fill expiry date of stock"
+        v-model:value="expiryDate"
+        :error-message="errorMessage.expiryDate"
       >
       </TextInput>
     </div>
@@ -140,19 +188,19 @@ function validate() {
         for="default-input"
         class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
       >
-        Warehouse branch
+        Location
       </label>
 
       <div class="fixed w-[46%]">
-        <Combobox v-model="selectedWarehouseBranch">
+        <Combobox v-model="selectedLocation">
           <div class="relative mt-1">
             <div
               class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
             >
               <ComboboxInput
                 class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-                :displayValue="(warehouseBranch) => warehouseBranch.name"
-                @change="query = $event.target.value"
+                :displayValue="(location) => location.name"
+                @change="queryLocation = $event.target.value"
               />
               <ComboboxButton
                 class="absolute inset-y-0 right-0 flex items-center pr-2"
@@ -167,24 +215,24 @@ function validate() {
               leave="transition ease-in duration-100"
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
-              @after-leave="query = ''"
+              @after-leave="queryLocation = ''"
             >
               <ComboboxOptions
                 class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
               >
                 <div
-                  v-if="filteredWarehouseBranches.length === 0 && query !== ''"
+                  v-if="filteredLocations.length === 0 && queryLocation !== ''"
                   class="relative cursor-default select-none py-2 px-4 text-gray-700"
                 >
                   Nothing found.
                 </div>
 
                 <ComboboxOption
-                  v-for="warehouseBranch in filteredWarehouseBranches"
+                  v-for="warehouseBranch in filteredLocations"
                   as="template"
                   :key="warehouseBranch.id"
                   :value="warehouseBranch"
-                  v-slot="{ selectedWarehouseBranch, active }"
+                  v-slot="{ selectedLocation, active }"
                 >
                   <li
                     class="relative cursor-default select-none py-2 pl-10 pr-4"
@@ -196,14 +244,14 @@ function validate() {
                     <span
                       class="block truncate"
                       :class="{
-                        'font-medium': selectedWarehouseBranch,
-                        'font-normal': !selectedWarehouseBranch,
+                        'font-medium': selectedLocation,
+                        'font-normal': !selectedLocation,
                       }"
                     >
                       {{ warehouseBranch.name }}
                     </span>
                     <span
-                      v-if="selectedWarehouseBranch"
+                      v-if="selectedLocation"
                       class="absolute inset-y-0 left-0 flex items-center pl-3"
                       :class="{
                         'text-white': active,
