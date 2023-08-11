@@ -18,17 +18,16 @@ const props = defineProps({
   stock: Object,
 });
 
-async function updateStock(data) {
-  return store
-    .dispatch("updateStock", data)
-    .then((response) => {
-      if (response.status === 200) {
-        return true;
-      } else {
-        return false;
-      }
-    })
-    .catch((error) => {});
+function updateStock(data) {
+  return store.dispatch("updateStock", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
 }
 </script>
 <template>

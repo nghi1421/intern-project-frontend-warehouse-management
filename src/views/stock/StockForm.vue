@@ -57,6 +57,10 @@ function handleSubmit() {
     data = { ...data, expiry_date: expiryDate.value };
   }
 
+  if (props.stock) {
+    data = { ...data, id: props.stock.id };
+  }
+  console.log(data);
   props.submit(data).then(function (isSuccess) {
     if (isSuccess) {
       props.closeForm();
