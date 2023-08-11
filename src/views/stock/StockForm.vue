@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import "@vuepic/vue-datepicker/dist/main.css";
-import TextInput from "@/components/form/inputs/TextInput.vue";
+import DateInput from "@/components/form/inputs/DateInput.vue";
 import {
   Combobox,
   ComboboxInput,
@@ -12,6 +12,10 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import store from "../../store";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
+const toast = useToast();
 
 const props = defineProps({
   submit: Function,
@@ -47,25 +51,31 @@ let filteredLocations = computed(() =>
 );
 
 function handleSubmit() {
-  // validate();
+  validate();
 
-  let data = {
-    location_id: selectedLocation.value.id,
-  };
+  if (selectedLocation.value === props.stock.location_id || expiryDate.value) {
+    let data = {};
 
-  if (expiryDate.value) {
-    data = { ...data, expiry_date: expiryDate.value };
-  }
-
-  if (props.stock) {
-    data = { ...data, id: props.stock.id };
-  }
-  console.log(data);
-  props.submit(data).then(function (isSuccess) {
-    if (isSuccess) {
-      props.closeForm();
+    if (selectedLocation.value) {
+      data = { ...data, location_id: selectedLocation.value.id };
     }
-  });
+
+    if (expiryDate.value) {
+      data = { ...data, expiry_date: expiryDate.value };
+    }
+
+    if (props.stock) {
+      data = { ...data, id: props.stock.id };
+    }
+
+    props.submit(data).then(function (isSuccess) {
+      if (isSuccess) {
+        props.closeForm();
+      }
+    });
+  } else {
+    toast.info("Nothing to update.");
+  }
 }
 
 onMounted(() => {
@@ -73,26 +83,19 @@ onMounted(() => {
   if (props.stock) {
     importInformation = props.stock.import;
     categoryInformation = props.stock.category;
-    selectedLocation.value = locations.value[0];
     selectedLocation.value = locations.value.find(
       (location) => location.id === props.stock.location_id
     );
-  } else {
-    selectedLocation.value = locations.value[0];
   }
 });
 
-// function validate() {
-//   if (v$.value.$invalid) {
-//     errorMessage.value.name = v$.value.name.$error
-//       ? v$.value.name.$errors[0].$message
-//       : "";
-
-//     errorMessage.value.description = v$.value.description.$error
-//       ? v$.value.description.$errors[0].$message
-//       : "";
-//   }
-// }
+function validate() {
+  if (expiryDate.value) {
+    if (new Date(expiryDate.value) < new Date()) {
+      errorMessage.value.expiryDate = "Expiry date must be after today.";
+    }
+  }
+}
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="grid grid-cols-6 gap-3 bg-white">
@@ -174,20 +177,18 @@ onMounted(() => {
         </div>
       </div>
     </div>
-
     <div class="col-span-3">
-      <TextInput
+      <DateInput
         label="Expiry date"
-        type="text"
         name="expiry_date"
-        place-holder="Fill expiry date of stock"
+        placeholder="dd/mm/yyyy"
         v-model:value="expiryDate"
         :error-message="errorMessage.expiryDate"
       >
-      </TextInput>
+      </DateInput>
     </div>
 
-    <div class="col-span-3">
+    <div class="col-span-3 -mt-2">
       <label
         for="default-input"
         class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
@@ -283,10 +284,7 @@ onMounted(() => {
       <button
         type="button"
         class="ms-4 inline-flex justify-center rounded-md border border-transparent bg-amber-100 px-4 py-2 text-sm font-medium text-amber-900 hover:bg-amber-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
-        @click="
-          props.closeForm();
-          clearData();
-        "
+        @click="props.closeForm()"
       >
         Close
       </button>

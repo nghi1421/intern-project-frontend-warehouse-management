@@ -10,6 +10,7 @@ import {
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 import StockForm from "./StockForm.vue";
+
 const toast = useToast();
 
 const props = defineProps({

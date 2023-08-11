@@ -1,5 +1,6 @@
 import { createStore } from "vuex";
 import axiosClient from "../axios";
+import axiosCustom from "../axiosCustom";
 
 const store = createStore({
   state: {
@@ -250,6 +251,18 @@ const store = createStore({
     deleteStock({ commit }, stockId) {
       return axiosClient
         .delete(`/locations/${stockId}`)
+        .then((response) => response)
+    },
+    getImportPDF({ commit }, importId) {
+      console.log(importId)
+      return axiosCustom
+        .get(`/pdf/import/${importId}`)
+        .then((response) => response)
+    },
+    getExportPDF({ commit }, exportId) {
+      console.log(exportId)
+      return axiosCustom
+        .get(`/pdf/export/${exportId}`)
         .then((response) => response)
     },
   },

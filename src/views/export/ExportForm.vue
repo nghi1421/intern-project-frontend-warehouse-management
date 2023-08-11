@@ -638,7 +638,7 @@ function leaveHoverSubmit() {
         </table>
       </div>
       <div
-        v-if="props.export"
+        v-if="![0, 3].includes(props.export?.status_id)"
         class="col-span-1 flex gap-1 flex-col min-h-60 items-center mt-12"
       >
         <button
