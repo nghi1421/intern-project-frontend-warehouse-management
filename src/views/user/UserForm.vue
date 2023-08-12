@@ -1,112 +1,102 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import store from "../../store";
 import {
-  Combobox,
-  ComboboxInput,
-  ComboboxButton,
-  ComboboxOptions,
-  ComboboxOption,
-  TransitionRoot,
   Listbox,
   ListboxButton,
   ListboxOptions,
   ListboxOption,
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-import VueDatePicker from "@vuepic/vue-datepicker";
-import "@vuepic/vue-datepicker/dist/main.css";
 import TextInput from "@/components/form/inputs/TextInput.vue";
 import PersonIcon from "@/components/icons/Person.vue";
+import PasswordIcon from "@/components/icons/Password.vue";
+import RightOneIcon from "@/components/icons/RightOne.vue";
+import RightDoubleIcon from "@/components/icons/RightDouble.vue";
+import LeftOneIcon from "@/components/icons/LeftOne.vue";
+import LeftDoubleIcon from "@/components/icons/LeftDouble.vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, maxLength } from "@vuelidate/validators";
 
 const props = defineProps({
   submit: Function,
-  staff: Object,
+  account: Object,
   closeForm: Function,
 });
 
 const rules = computed(() => ({
-  name: {
+  username: {
     required,
     maxLength: maxLength(255),
   },
-  phoneNumber: {
+  password: {
     required,
-  },
-  address: {
     maxLength: maxLength(255),
   },
-  dob: {
+  passwordConfirmation: {
     required,
+    maxLength: maxLength(255),
   },
 }));
 
-const address = ref("");
+const username = ref("");
 
-const name = ref("");
+const password = ref("");
 
-const phoneNumber = ref("");
+const passwordConfirmation = ref("");
 
-const dob = ref("2000-1-1");
+const selectedRole = ref({});
 
-const genders = [
-  {
-    id: 0,
-    name: "Female",
-  },
-  {
-    id: 1,
-    name: "Male",
-  },
-  {
-    id: 2,
-    name: "Other",
-  },
-];
+const roles = ref([]);
 
-const working = ref(true);
-
-const selectedGender = ref(genders[0]);
-
-const selectedPosition = ref({});
-
-let query = ref("");
-
-const positions = ref([]);
-
-const v$ = useVuelidate(rules, { name, phoneNumber, address, dob });
-
-let filteredPositions = computed(() =>
-  query.value === ""
-    ? positions.value
-    : positions.value.filter((position) =>
-        position.name
-          .toLowerCase()
-          .replace(/\s+/g, "")
-          .includes(query.value.toLowerCase().replace(/\s+/g, ""))
-      )
-);
+const v$ = useVuelidate(rules, { username, password, passwordConfirmation });
 
 const errorMessage = ref({});
 
-let isValidPhoneNumber = false;
+const permissions = ref([]);
+
+const selectedPermissions = ref([]);
+
+const searchPermission = ref("");
+
+const searchSelectedPermission = ref("");
+
+let filteredPermissions = computed(() =>
+  searchPermission.value === ""
+    ? permissions.value
+    : permissions.value.filter((permission) =>
+        permission.name
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(searchPermission.value.toLowerCase().replace(/\s+/g, ""))
+      )
+);
+
+let filterdSelectedPermissions = computed(() =>
+  searchSelectedPermission.value === ""
+    ? selectedPermissions.value
+    : selectedPermissions.value.filter((permission) =>
+        permission.name
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(
+            searchSelectedPermission.value.toLowerCase().replace(/\s+/g, "")
+          )
+      )
+);
 
 function handleSubmit() {
-  validate();
-  if (isValidPhoneNumber) {
+  if (validate()) {
     let data = {
-      name: name.value,
-      phone_number: phoneNumber.value,
-      address: address.value,
-      dob: dob.value,
-      working: working.value,
-      position_id: selectedPosition.value.id,
-      gender: selectedGender.value.id,
+      username: username.value,
+      password: password.value,
+      password_confirmation: passwordConfirmation.value,
+      role_id: selectedRole.value.id,
+      permissions: selectedPermissions.value.map((permission) => permission.id),
     };
-    if (props.staff) {
-      data = { ...data, id: props.staff.id };
+
+    if (props.account) {
+      data = { ...data, id: props.account.id };
     }
     props.submit(data).then(function (isSuccess) {
       if (isSuccess) {
@@ -118,63 +108,160 @@ function handleSubmit() {
 }
 
 function clearData() {
-  name.value = "";
-  address.value = "";
-  phoneNumber.value = "";
-  dob.value = "2000-1-1";
-  working.value = true;
+  username.value = "";
+  password.value = "";
+  passwordConfirmation.value = "";
+  selectedRole.value = roles.value[0];
   errorMessage.value = {};
 }
 
-onMounted(() => {
-  positions.value = store.state.positions;
-  if (props.staff) {
-    selectedGender.value = genders.find(
-      (gender) => gender.name === props.staff.gender
-    );
+function selectPermissions() {
+  const moveList = permissions.value.filter(
+    (permission) => permission.selected
+  );
+  permissions.value = permissions.value.filter(
+    (permission) => !permission.selected
+  );
+  selectedPermissions.value = [
+    ...selectedPermissions.value,
+    ...moveList.map((permission) => {
+      return { ...permission, selected: false };
+    }),
+  ];
+}
 
-    selectedPosition.value = positions.value.find(
-      (position) => position.id === props.staff.position_id
-    );
+function selectAllPermissions() {
+  selectedPermissions.value = [
+    ...selectedPermissions.value,
+    ...permissions.value.map((permission) => {
+      return { ...permission, selected: false };
+    }),
+  ];
 
-    name.value = props.staff.name;
-    address.value = props.staff.address;
-    phoneNumber.value = props.staff.phone_number;
-    dob.value = props.staff.dob;
-    working.value = props.staff.working;
-  } else {
-    selectedPosition.value = positions.value[0];
+  permissions.value = [];
+}
+
+function deselectPermissions() {
+  const moveList = selectedPermissions.value.filter(
+    (permission) => permission.selected
+  );
+  selectedPermissions.value = selectedPermissions.value.filter(
+    (permission) => !permission.selected
+  );
+  permissions.value = [
+    ...permissions.value,
+    ...moveList.map((permission) => {
+      return { ...permission, selected: false };
+    }),
+  ];
+}
+
+function deselectedAllPermissions() {
+  permissions.value = [
+    ...permissions.value,
+    ...selectedPermissions.value.map((permission) => {
+      return { ...permission, selected: false };
+    }),
+  ];
+
+  selectedPermissions.value = [];
+}
+
+function resetPermissions() {
+  selectedPermissions.value = props.import.categories.map((permission) => {
+    return { ...permission, selected: false };
+  });
+
+  const selectedPermissionIds = selectedPermissions.value.map(
+    (permission) => permission.id
+  );
+
+  permissions.value = store.state.permissions.filter(
+    (permission) => selectedPermissionIds.indexOf(permission.id) < 0
+  );
+}
+
+function selectPermission(permissionId) {
+  let indexRowSelected = permissions.value.findIndex(function (permission) {
+    return permission.id == permissionId;
+  });
+
+  permissions.value[indexRowSelected].selected =
+    !permissions.value[indexRowSelected].selected;
+}
+
+function selectSelectedPermission(permissionId) {
+  let indexRowSelected = selectedPermissions.value.findIndex(function (
+    permission
+  ) {
+    return permission.id == permissionId;
+  });
+
+  selectedPermissions.value[indexRowSelected].selected =
+    !selectedPermissions.value[indexRowSelected].selected;
+}
+
+watch(selectedRole, async (newRole) => {
+  permissions.value = [];
+  selectedPermissions.value = [];
+  for (let i = 0; i < store.state.permissions.length; i++) {
+    if (newRole.permissions.includes(store.state.permissions[i].id)) {
+      selectedPermissions.value.push({
+        ...store.state.permissions[i],
+        selected: false,
+      });
+    } else {
+      permissions.value.push({
+        ...store.state.permissions[i],
+        selected: false,
+      });
+    }
   }
 });
+
+onMounted(() => {
+  roles.value = store.state.roles;
+
+  for (let i = 0; i < roles.value.length; i++) {
+    let rolePermissionIds = roles.value[i].permissions.map(
+      (permission) => permission.id
+    );
+
+    roles.value[i] = { ...roles.value[i], permissions: rolePermissionIds };
+  }
+
+  selectedRole.value = roles.value[0];
+});
+
 function validate() {
   errorMessage.value = {};
 
   v$.value.$validate();
 
-  isValidPhoneNumber = phoneNumber.value.match(
-    /(84|0[2|3|5|7|8|9])+([0-9]{8})\b/g
-  );
+  if (v$.value.$invalid) {
+    errorMessage.value.oldPassword = v$.value.oldPassword.$error
+      ? v$.value.oldPassword.$errors[0].$message
+      : "";
 
-  if (!isValidPhoneNumber) {
-    errorMessage.value.phoneNumber = "Phone number is invalid";
+    errorMessage.value.password = v$.value.password.$error
+      ? v$.value.password.$errors[0].$message
+      : "";
+
+    errorMessage.value.passwordConfirmation = v$.value.passwordConfirmation
+      .$error
+      ? v$.value.passwordConfirmation.$errors[0].$message
+      : "";
+
+    return false;
   }
 
-  if (v$.value.$invalid) {
-    errorMessage.value.name = v$.value.name.$error
-      ? v$.value.name.$errors[0].$message
-      : "";
-
-    errorMessage.value.phoneNumber = v$.value.phoneNumber.$error
-      ? v$.value.phoneNumber.$errors[0].$message
-      : "";
-
-    errorMessage.value.dob = v$.value.dob.$error
-      ? v$.value.dob.$errors[0].$message
-      : "";
-
-    errorMessage.value.address = v$.value.address.$error
-      ? v$.value.address.$errors[0].$message
-      : "";
+  if (passwordConfirmation.value !== password.value) {
+    errorMessage.value.passwordConfirmation =
+      "Password confirmation is not the same as the new password";
+    return false;
+  } else {
+    errorMessage.value.passwordConfirmation = "";
+    return true;
   }
 }
 </script>
@@ -182,161 +269,58 @@ function validate() {
   <form @submit.prevent="handleSubmit" class="grid grid-cols-6 gap-3 bg-white">
     <div class="col-span-3">
       <TextInput
-        label="Name"
+        label="Username"
         type="text"
         name="name"
-        v-model:value="name"
-        :error-message="errorMessage.name"
+        placeHolder="Please fill username"
+        v-model:value="username"
+        :error-message="errorMessage.username"
       >
-        <template v-slot:icon><PersonIcon /></template>
+        <template v-slot:icon><PersonIcon class="text-gray-400" /></template>
       </TextInput>
     </div>
 
     <div class="col-span-3">
       <TextInput
-        label="Phone number"
-        type="text"
+        label="Password"
+        type="password"
+        placeHolder="Please fill password"
         name="phone_number"
-        v-model:value="phoneNumber"
-        :error-message="errorMessage.phoneNumber"
+        v-model:value="password"
+        :error-message="errorMessage.password"
       >
-        <template v-slot:icon><PersonIcon /></template>
+        <template v-slot:icon><PasswordIcon class="text-gray-400" /></template>
       </TextInput>
     </div>
 
     <div class="col-span-3">
       <TextInput
-        label="Address"
-        v-model:value="address"
+        label="Password confirmation"
+        type="password"
+        placeHolder="Please fill password confirmation"
+        v-model:value="passwordConfirmation"
         name="address"
-        :error-message="errorMessage.address"
+        :error-message="errorMessage.passwordConfirmation"
       >
-        <template v-slot:icon><PersonIcon /></template>
+        <template v-slot:icon><PasswordIcon class="text-gray-400" /></template>
       </TextInput>
     </div>
 
-    <div class="col-span-3">
-      <div class="group">
-        <label
-          for="default-input"
-          class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
-        >
-          Date of birth
-        </label>
-        <div
-          class="-mt-2 border-2 focus-within:border-primary-400 flex items-center py-2 px-3 rounded-2xl mb-4"
-        >
-          <VueDatePicker
-            class="-m-2"
-            :enable-time-picker="false"
-            v-model="dob"
-          ></VueDatePicker>
-        </div>
-        <p v-if="errorMessage.dob" class="-mt-4 ms-4 text-danger-600 text-sm">
-          {{ errorMessage.dob }}
-        </p>
-      </div>
-    </div>
-    <div class="col-span-3">
-      <label
-        for="default-input"
-        class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
-      >
-        Position
-      </label>
-
-      <div class="fixed w-[46%]">
-        <Combobox v-model="selectedPosition">
-          <div class="relative mt-1">
-            <div
-              class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
-            >
-              <ComboboxInput
-                class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-                :displayValue="(position) => position.name"
-                @change="query = $event.target.value"
-              />
-              <ComboboxButton
-                class="absolute inset-y-0 right-0 flex items-center pr-2"
-              >
-                <ChevronUpDownIcon
-                  class="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              </ComboboxButton>
-            </div>
-            <TransitionRoot
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-              @after-leave="query = ''"
-            >
-              <ComboboxOptions
-                class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-              >
-                <div
-                  v-if="filteredPositions.length === 0 && query !== ''"
-                  class="relative cursor-default select-none py-2 px-4 text-gray-700"
-                >
-                  Nothing found.
-                </div>
-
-                <ComboboxOption
-                  v-for="position in filteredPositions"
-                  as="template"
-                  :key="position.id"
-                  :value="position"
-                  v-slot="{ selectedPosition, active }"
-                >
-                  <li
-                    class="relative cursor-default select-none py-2 pl-10 pr-4"
-                    :class="{
-                      'text-amber-600 bg-amber-100': active,
-                      'text-gray-900': !active,
-                    }"
-                  >
-                    <span
-                      class="block truncate"
-                      :class="{
-                        'font-medium': selectedPosition,
-                        'font-normal': !selectedPosition,
-                      }"
-                    >
-                      {{ position.name }}
-                    </span>
-                    <span
-                      v-if="selectedPosition"
-                      class="absolute inset-y-0 left-0 flex items-center pl-3"
-                      :class="{
-                        'text-white': active,
-                        'text-teal-600': !active,
-                      }"
-                    >
-                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                    </span>
-                  </li>
-                </ComboboxOption>
-              </ComboboxOptions>
-            </TransitionRoot>
-          </div>
-        </Combobox>
-      </div>
-    </div>
-    <div class="col-span-3">
+    <div class="col-span-3 -mt-2">
       <div>
         <label
           for="default-input"
           class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
         >
-          Gender
+          Role account
         </label>
         <div class="fixed w-[46%]">
-          <Listbox v-model="selectedGender">
+          <Listbox v-model="selectedRole">
             <div class="relative mt-1">
               <ListboxButton
                 class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
               >
-                <span class="block truncate">{{ selectedGender.name }}</span>
+                <span class="block truncate">{{ selectedRole.name }}</span>
                 <span
                   class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                 >
@@ -357,9 +341,9 @@ function validate() {
                 >
                   <ListboxOption
                     v-slot="{ active, selected }"
-                    v-for="gender in genders"
-                    :key="gender.name"
-                    :value="gender"
+                    v-for="role in roles"
+                    :key="role.name"
+                    :value="role"
                     as="template"
                   >
                     <li
@@ -375,7 +359,7 @@ function validate() {
                           selected ? 'font-medium' : 'font-normal',
                           'block truncate',
                         ]"
-                        >{{ gender.name }}</span
+                        >{{ role.name }}</span
                       >
                       <span
                         v-if="selected"
@@ -392,23 +376,175 @@ function validate() {
         </div>
       </div>
     </div>
-    <!-- <div class="col-span-3 mt-12">
-                    <image-input
-                      name="avatar"
-                      :value="avatar"
-                      :default-url="DefaultImage"
-                      helper-text="PNG, JPEG, JPG. Upto 20MB"
-                    ></image-input>
-                  </div> -->
-    <div class="col-span-3 mt-12 inline-flex">
-      <label
-        for="default-input"
-        class="p-1 bg-white text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
-      >
-        Is working?
-      </label>
-      <div>
-        <input name="working" type="checkbox" :checked="working" />
+    <div class="col-span-6 grid grid-cols-9 max-h-40">
+      <div class="col-span-4 border-gray-400 flex flex-col overflow-auto">
+        <div
+          class="flex text-gray-400 border-gray-400 focus:border-primary-500 border shadow-md rounded-lg"
+        >
+          <div class="pt-2 ps-2">
+            <svg
+              class="w-5 h-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
+              ></path>
+            </svg>
+          </div>
+          <input
+            class="flex-1 p-1 text-black rounded-lg"
+            type="text"
+            v-model="searchPermission"
+            placeholder="Search permission by name"
+          />
+        </div>
+
+        <table class="mt-2">
+          <thead class="p-2">
+            <tr class="bg-slate-500 text-white text-xs">
+              <th>
+                <span class="p-2 font-semibold">ID</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">Name</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="permission in filteredPermissions"
+              :key="`cateogry-${permission.id}`"
+              :class="{
+                'text-gray-800 text-xs hover:bg-slate-100 bg-slate-300':
+                  permission.selected,
+                'text-gray-800 text-xs hover:bg-slate-100 bg-white':
+                  !permission.selected,
+              }"
+              @click="selectPermission(permission.id)"
+            >
+              <th>
+                <span class="p-2 font-semibold">{{ permission.id }}</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">{{ permission.name }}</span>
+              </th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-span-1 flex gap-1 flex-col min-h-60 items-center mt-12">
+        <button
+          @click="resetPermissions"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <svg
+            class="w-5 h-5"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1.002 7.935 1.007 9.425 4.747"
+            ></path>
+            <path d="M20 4v5h-5"></path>
+          </svg>
+        </button>
+        <button
+          @click="selectPermissions"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <RightOneIcon />
+        </button>
+        <button
+          @click="selectAllPermissions"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <RightDoubleIcon />
+        </button>
+        <button
+          @click="deselectPermissions"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <LeftOneIcon />
+        </button>
+        <button
+          @click="deselectedAllPermissions"
+          class="w-7 max:h-7 bg-slate-200 hover:bg-slate-300 hover:shadow-md shadow-sm p-1 rounded-lg text-slate-900"
+          type="button"
+        >
+          <LeftDoubleIcon />
+        </button>
+      </div>
+      <div class="col-span-4 border-gray-400 flex flex-col overflow-auto">
+        <div
+          class="flex text-gray-400 border-gray-400 focus:border-primary-500 border shadow-md rounded-lg"
+        >
+          <div class="pt-2 ps-2">
+            <svg
+              class="w-5 h-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
+              ></path>
+            </svg>
+          </div>
+          <input
+            class="p-1 text-black rounded-lg"
+            type="text"
+            v-model="searchSelectedPermission"
+            placeholder="Search selected permission by name"
+          />
+        </div>
+
+        <table class="overflow-auto mt-2">
+          <thead class="p-2">
+            <tr class="bg-slate-500 text-white text-xs">
+              <th>
+                <span class="p-2 font-semibold">ID</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">Name</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="permission in filterdSelectedPermissions"
+              :key="`selected-permission-${permission.id}`"
+              :class="{
+                'text-gray-800 text-xs hover:bg-slate-100 bg-slate-300':
+                  permission.selected,
+                'text-gray-800 text-xs hover:bg-slate-100 bg-white':
+                  !permission.selected,
+              }"
+              @click="selectSelectedPermission(permission.id)"
+            >
+              <th>
+                <span class="p-2 font-semibold">{{ permission.id }}</span>
+              </th>
+              <th>
+                <span class="p-2 font-semibold">{{ permission.name }}</span>
+              </th>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
     <div class="mt-12 flex">

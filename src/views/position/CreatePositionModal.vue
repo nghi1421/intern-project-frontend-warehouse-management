@@ -9,7 +9,8 @@ import {
 } from "@headlessui/vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-import UserForm from "./UserForm.vue";
+import PositionForm from "./PositionForm.vue";
+
 const toast = useToast();
 
 const props = defineProps({
@@ -17,8 +18,8 @@ const props = defineProps({
   closeModal: Function,
 });
 
-async function createAccount(data) {
-  return store.dispatch("createAccount", data).then((response) => {
+function createPosition(data) {
+  return store.dispatch("createPosition", data).then((response) => {
     if (response.status === 200) {
       toast.success(response.data.message);
       return true;
@@ -64,13 +65,13 @@ async function createAccount(data) {
                 as="h3"
                 class="text-lg font-medium leading-6 text-gray-900 mb-4"
               >
-                Create account
+                Category
               </DialogTitle>
 
-              <UserForm
+              <PositionForm
                 :close-form="props.closeModal"
-                :submit="createAccount"
-              ></UserForm>
+                :submit="createPosition"
+              ></PositionForm>
               <div class="mt-2"></div>
             </DialogPanel>
           </TransitionChild>

@@ -2,46 +2,41 @@
 import store from "../../store";
 import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
-import CreateStaffModal from "./CreateStaffModal.vue";
-import EditStaffModal from "./EditStaffModal.vue";
+import CreatePositionModal from "./CreatePositionModal.vue";
+import EditPositionModal from "./EditPositionModal.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 
 const toast = useToast();
 
-const selectedStaff = ref({});
-
 const columns = ref([
   {
     key: "id",
-    value: "Staff ID",
+    value: "position ID",
   },
   {
     key: "name",
     value: "Name",
   },
+
   {
-    key: "position",
-    value: "Position",
+    key: "created_at",
+    value: "create at",
   },
   {
-    key: "phone_number",
-    value: "Phone number",
-  },
-  {
-    key: "gender",
-    value: "Gender",
-  },
-  {
-    key: "status",
-    value: "Status",
+    key: "updated_at",
+    value: "updated  at",
   },
 ]);
+
+const selectedPosition = ref({});
 
 const rows = ref([]);
 
 const meta = ref({});
+
+const links = ref([]);
 
 const isOpenCreateModal = ref(false);
 
@@ -49,21 +44,15 @@ const isOpenEditModal = ref(false);
 
 const isOpenConfirmModal = ref(false);
 
-const links = ref([]);
+const searchPosition = ref("");
 
-const searchStaff = ref("");
+function fetchPositionsData() {
+  store.dispatch("getPositions").then((response) => {
+    meta.value = response.data.pagination;
 
-function fetchSearchStaff() {
-  //
-}
+    links.value = response.data.pagination.links;
 
-function fetchStaffsData() {
-  store.dispatch("getStaffs").then((response) => {
-    meta.value = response.data.meta;
-
-    links.value = response.data.meta.links;
-
-    rows.value = response.data.data;
+    rows.value = response.data.pagination.data;
   });
 }
 
@@ -71,76 +60,75 @@ function closeModal() {
   isOpenCreateModal.value = false;
   isOpenEditModal.value = false;
   isOpenConfirmModal.value = false;
-  selectedStaff.value = null;
+  selectedPosition.value = null;
+}
+
+function fetchSearchPosition() {
+  //
 }
 
 function openCreateModal() {
   isOpenCreateModal.value = true;
 }
 
-function openEditModal(staff) {
+function openEditModal(position) {
   isOpenEditModal.value = true;
-  selectedStaff.value = staff;
+  selectedPosition.value = position;
 }
 
-function openConfirmModal(staff) {
+function openConfirmModal(position) {
   isOpenConfirmModal.value = true;
-  selectedStaff.value = staff;
+  selectedPosition.value = position;
 }
 
-function storePositions() {
-  store.dispatch("getAllPositions").then((data) => {
-    return data;
-  });
-}
-
-function deleteStaff() {
+function deletePosition() {
   return store
-    .dispatch("deleteStaff", selectedStaff.value.id)
+    .dispatch("deletePosition", selectedPosition.value.id)
     .then((response) => {
       if (response.status === 200) {
+        toast.success(response.data.message);
         return true;
       } else {
+        toast.error(response.data.message);
         return false;
       }
-    })
-    .catch(() => {});
+    });
 }
 
 onMounted(() => {
-  fetchStaffsData();
-  storePositions();
+  fetchPositionsData();
 });
 </script>
+
 <template>
-  <create-staff-modal :is-open="isOpenCreateModal" :close-modal="closeModal">
-  </create-staff-modal>
-  <edit-staff-modal
-    :staff="selectedStaff"
+  <CreatePositionModal :is-open="isOpenCreateModal" :closeModal="closeModal">
+  </CreatePositionModal>
+  <EditPositionModal
+    :position="selectedPosition"
     :is-open="isOpenEditModal"
     :close-modal="closeModal"
-  ></edit-staff-modal>
+  ></EditPositionModal>
   <confirm-modal
     :is-open="isOpenConfirmModal"
     :close-modal="closeModal"
-    :submit="deleteStaff"
+    :submit="deletePosition"
   >
     <template v-slot:header> Are your sure? </template>
-    <template v-slot:message> Delete staff information! </template>
+    <template v-slot:message> Delete position! </template>
   </confirm-modal>
   <div class="flex align-items-between items-center justify-between px-4 py-2">
     <h1
       class="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl"
       style="line-height: inherit"
     >
-      Staff
+      Position
     </h1>
     <button
       type="button"
       @click="openCreateModal"
       class="rounded-md m-2 duration-75 a bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
     >
-      Create staff
+      Create position
     </button>
   </div>
 
@@ -164,11 +152,11 @@ onMounted(() => {
       <input
         class="py-2 px-1 text-black rounded-lg flex-1"
         type="text"
-        v-model="searchStaff"
-        placeholder="Search staff"
+        v-model="searchPosition"
+        placeholder="Search position"
       />
       <button
-        @click="fetchSearchStaff"
+        @click="fetchSearchPosition"
         type="button"
         class="rounded-md duration-75 a bg-primary-600 px-3 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
       >
@@ -183,8 +171,8 @@ onMounted(() => {
     :meta="meta"
     :links="links"
     :action-column="true"
-    :tableRoute="'/staffs'"
-    :searchTerm="searchStaff"
+    :tableRoute="'/positions'"
+    :searchTerm="searchPosition"
   >
     <template v-slot:actions="{ row }">
       <button

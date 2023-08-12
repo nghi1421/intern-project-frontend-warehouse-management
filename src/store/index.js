@@ -22,6 +22,8 @@ const store = createStore({
     categories: [],
     warehouseBranches: [],
     locations: [],
+    roles: [],
+    permissions: [],
   },
   getters: {},
   actions: {
@@ -43,11 +45,11 @@ const store = createStore({
           return data;
         });
     },
-    changePassword({ commit }, data) {
+    changePassword(context, data) {
       return axiosClient.post('/change-password', data)
         .then((response) => response);
     },
-    getStaffs({ commit }) {
+    getStaffs() {
       return axiosClient.get('/staffs')
         .then((data) => {
           return data;
@@ -61,29 +63,53 @@ const store = createStore({
       return axiosClient.get('/users')
         .then((data) => data)
     },
-    getPositions({ commit }) {
+    searchAccount(context, searchTerm) {
+      return axiosClient.get(`/users?search=${searchTerm}`)
+        .then((data) => data)
+    },
+    createAccount(context, data) {
+      return axiosClient
+        .post('/users', data)
+        .then((response) => response)
+    },
+    showAccount(context, data) {
+      return axiosClient
+        .get(`users/${data}`)
+        .then((response) => response)
+    },
+    updateAccount(context, data) {
+      return axiosClient
+        .put(`/users/${data.id}`, data)
+        .then((response) => response) 
+    },
+    deleteAccount(context, staffId) {
+      return axiosClient
+        .delete(`users/${staffId}`)
+        .then((response) => response)
+    },
+    getAllPositions({ commit }) {
       return axiosClient.get('/positions')
         .then((data) => {
           commit('setPositions', data.data.positions)
           return data
         })
     },
-    createStaff({ commit }, data) {
+    createStaff(context, data) {
       return axiosClient
         .post('staffs', data)
         .then((response) => response)
     },
-    updateStaff({ commit }, data) {
+    updateStaff(context, data) {
       return axiosClient
         .put(`/staffs/${data.id}`, data)
         .then((response) => response) 
     },
-    deleteStaff({ commit }, staffId) {
+    deleteStaff(context, staffId) {
       return axiosClient
         .delete(`staffs/${staffId}`)
         .then((response) => response)
     },
-    getCategories({ commit }) {
+    getCategories(context) {
       return axiosClient.get('/categories')
         .then((response) => response)
     },
@@ -228,19 +254,23 @@ const store = createStore({
         .delete(`/locations/${locationId}`)
         .then((response) => response)
     },
-    createLocation({ commit }, data) {
-      return axiosClient
-        .post('/locations', data)
+    getPositions() {
+      return axiosClient.get('/positions')
         .then((response) => response)
     },
-    updateLocation({ commit }, data) {
+    createPosition({ commit }, data) {
       return axiosClient
-        .put(`/locations/${data.id}`, data)
+        .post('/positions', data)
+        .then((response) => response)
+    },
+    updatePosition({ commit }, data) {
+      return axiosClient
+        .put(`/positions/${data.id}`, data)
         .then((response) => response) 
     },
-    deleteLocation({ commit }, locationId) {
+    deletePosition({ commit }, positionId) {
       return axiosClient
-        .delete(`/locations/${locationId}`)
+        .delete(`/positions/${positionId}`)
         .then((response) => response)
     },
     getStocks() {
@@ -269,6 +299,20 @@ const store = createStore({
         .get(`/pdf/export/${exportId}`)
         .then((response) => response)
     },
+    getAllRoles({ commit }) {
+      return axiosClient.get('/roles')
+        .then((response) => {
+          commit('setAllRoles', response.data)
+          return response
+        })
+    },
+    getAllPermissions({ commit }) {
+      return axiosClient.get('/permissions')
+        .then((response) => {
+          commit('setAllPermissions', response.data)
+          return response
+        })
+    }
   },
   mutations: {
     setName: (state, staffInformation) => {
@@ -288,9 +332,15 @@ const store = createStore({
       state.user.data = { ...state.user.data, role: role };
       sessionStorage.setItem('ROLE', role);
     },
+    setAllRoles: (state, roles) => {
+      state.roles = roles;
+    },
+    setAllPermissions: (state, permissions) => {
+      state.permissions = permissions ;
+    },
     setPermissions: (state, permissions) => {
-      state.user.data = { ...state.user.data, permissions: JSON.stringify(permissions) };
-      sessionStorage.setItem('PERMISSIONS',  JSON.stringify(permissions));
+      state.user.data = { ...state.user.data, permissions: JSON.stringify(permissions)};
+      sessionStorage.setItem('PERMISSIONS', JSON.stringify(permissions) );
     },
     setPositions: (state, positions) => {
       state.positions = positions;

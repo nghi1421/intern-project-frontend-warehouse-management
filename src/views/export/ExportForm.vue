@@ -822,7 +822,7 @@ function leaveHoverSubmit() {
                     </span>
                     <span class="ml-4 mt-0.5 flex min-w-0 flex-col">
                       <span class="text-sm font-medium">{{ step.name }}</span>
-                      <span class="text-sm font-medium text-gray-500">{{
+                      <span class="text-xs text-gray-500">{{
                         step.description
                       }}</span>
                     </span>
@@ -850,7 +850,7 @@ function leaveHoverSubmit() {
                       <span class="text-sm font-medium text-success-600">{{
                         step.name
                       }}</span>
-                      <span class="text-sm font-medium text-gray-500">{{
+                      <span class="text-xs text-gray-500">{{
                         step.description
                       }}</span>
                     </span>
@@ -878,7 +878,7 @@ function leaveHoverSubmit() {
                       <span class="text-sm font-medium text-gray-500">{{
                         step.name
                       }}</span>
-                      <span class="text-sm font-medium text-gray-500">{{
+                      <span class="text-xs text-gray-500">{{
                         step.description
                       }}</span>
                     </span>

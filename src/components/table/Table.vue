@@ -20,6 +20,8 @@ export default {
       type: Boolean,
       default: false,
     },
+    tableRoute: String,
+    searchTerm: String,
   },
 
   data() {
@@ -251,6 +253,8 @@ export default {
       :meta="metaData"
       :links="linksData"
       :changePage="changePage"
+      :tableRoute="tableRoute"
+      :searchTerm="searchTerm"
     ></table-pagination>
   </div>
 </template>

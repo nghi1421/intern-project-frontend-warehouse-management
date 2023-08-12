@@ -118,6 +118,7 @@ function validate() {
       <TextInput
         label="Old password"
         type="password"
+        placeHolder="Please fill old password"
         name="old_password"
         v-model:value="oldPassword"
         :error-message="errorMessage.oldPassword"
@@ -131,6 +132,7 @@ function validate() {
         label="New password"
         type="password"
         name="new_password"
+        placeHolder="Please fill new password"
         v-model:value="newPassword"
         :error-message="errorMessage.newPassword"
       >
@@ -143,6 +145,7 @@ function validate() {
         label="Password confirmation"
         type="password"
         v-model:value="newPasswordConfirmation"
+        placeHolder="Please fill password confirmation"
         name="new_password_confirmation"
         :error-message="errorMessage.newPasswordConfirmation"
       >

@@ -11,6 +11,7 @@ import WarehouseBranchTable from '../views/warehouse-branch/WarehouseBranchTable
 import LocationTable from '../views/location/LocationTable.vue'
 import StockTable from '../views/stock/StockTable.vue'
 import ExportTable from '../views/export/ExportTable.vue'
+import PositionTable from '../views/position/PositionTable.vue'
 import NotFoundPage from '../views/404.vue'
 import Profile from '../views/Profile.vue'
 import ChangePassword from '../views/ChangePassword.vue'
@@ -23,8 +24,8 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
         {
-          path: '/users',
-          name: 'User',
+          path: '/accounts',
+          name: 'Account',
           component: UserTable,
           meta: { requiresAuth: true},
         },
@@ -63,10 +64,16 @@ const routes = [
           name: 'WarehouseBranch',
           component: WarehouseBranchTable,
           meta: { requiresAuth: true },
+      },
+        {
+          path: '/positions',
+          name: 'Position',
+          component: PositionTable,
+          meta: { requiresAuth: true },
         },
         {
           path: '/locations',
-          name: 'Locations',
+          name: 'Location',
           component: LocationTable,
           meta: { requiresAuth: true },
         },

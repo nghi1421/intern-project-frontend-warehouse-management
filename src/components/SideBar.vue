@@ -2,11 +2,13 @@
 import { ref, shallowRef, onMounted } from "vue";
 import { UsersIcon } from "@heroicons/vue/24/outline";
 import CategoryIcon from "@/components/icons/Category.vue";
+import AccountIcon from "@/components/icons/Account.vue";
 import ImportIcon from "@/components/icons/Import.vue";
 import ExportIcon from "@/components/icons/Export.vue";
 import PartnerIcon from "@/components/icons/Partner.vue";
 import BranchIcon from "@/components/icons/Branch.vue";
 import LocationIcon from "@/components/icons/Location.vue";
+import PositionIcon from "@/components/icons/GroupPeople.vue";
 import StockIcon from "@/components/icons/Stock.vue";
 import store from "../store";
 const navigation = ref([]);
@@ -20,8 +22,12 @@ function checkPermissions(permissionList) {
 }
 
 function getNavigation() {
-  if (checkPermissions(["manage-user"])) {
-    navigation.value.push({ name: "User", href: "/users", icon: UsersIcon });
+  if (checkPermissions(["manage-account"])) {
+    navigation.value.push({
+      name: "Account",
+      href: "/accounts",
+      icon: shallowRef(AccountIcon),
+    });
   }
 
   if (checkPermissions(["manage-all-staff", "manage-branch-staff"])) {
@@ -49,6 +55,14 @@ function getNavigation() {
       name: "Location",
       href: "/locations",
       icon: shallowRef(LocationIcon),
+    });
+  }
+
+  if (checkPermissions(["manage-position"])) {
+    navigation.value.push({
+      name: "Position",
+      href: "/positions",
+      icon: shallowRef(PositionIcon),
     });
   }
 

@@ -1,8 +1,11 @@
 <script setup>
 import store from "../../store";
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import Table from "@/components/table/Table.vue";
-import CreateStaffModal from "../staff/CreateStaffModal.vue";
+import CreateUserModal from "./CreateUserModal.vue";
+
+const router = useRouter();
 
 const columns = ref([
   {
@@ -12,6 +15,14 @@ const columns = ref([
   {
     key: "username",
     value: "Username",
+  },
+  {
+    key: "staff_name",
+    value: "Staff name",
+  },
+  {
+    key: "role_name",
+    value: "Role name",
   },
   {
     key: "created_at",
@@ -31,7 +42,11 @@ const isOpen = ref(false);
 
 const links = ref([]);
 
-function fetchStaffsData() {
+const searchAccount = ref("");
+
+const selectedAccount = ref({});
+
+function fetchAccountsData() {
   store.dispatch("getUsers").then((response) => {
     meta.value = response.data.meta;
 
@@ -44,39 +59,108 @@ function fetchStaffsData() {
 function closeModal() {
   isOpen.value = false;
 }
+
 function openModal() {
   isOpen.value = true;
 }
 
+function showEditAccount(accountId) {
+  store.dispatch("showAccount", accountId).then((response) => {
+    selectedAccount.value = response.data;
+  });
+}
+
+function fetchRoleData() {
+  store.dispatch("getAllRoles").then((response) => response);
+}
+
+function fetchPermissionsData() {
+  store.dispatch("getAllPermissions").then((response) => response);
+}
+
+function fetchSearchAccount() {
+  router.replace({ path: "/accounts", query: { search: searchAccount.value } });
+
+  store.dispatch("searchAccount", searchAccount.value).then((response) => {
+    console.log(response);
+    meta.value = response.data.meta;
+
+    links.value = response.data.meta.links;
+
+    rows.value = response.data.data;
+  });
+}
+
 onMounted(() => {
-  fetchStaffsData();
+  fetchAccountsData();
+  fetchRoleData();
+  fetchPermissionsData();
 });
 </script>
 <template>
-  <create-staff-modal :is-open="isOpen" :closeModal="closeModal">
-  </create-staff-modal>
-  <div>
-    <div class="flex flex-1">
-      <h2 class="p-4 font-semibold uppercase">Staff Table</h2>
+  <CreateUserModal :is-open="isOpen" :closeModal="closeModal">
+  </CreateUserModal>
+
+  <div class="flex align-items-between items-center justify-between px-4 py-2">
+    <h1
+      class="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl"
+      style="line-height: inherit"
+    >
+      Account
+    </h1>
+    <button
+      type="button"
+      @click="openModal"
+      class="rounded-md m-2 duration-75 a bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+    >
+      Create account
+    </button>
+  </div>
+
+  <div class="px-4 py-2 relative mb-12">
+    <div
+      class="absolute left-4 w-80 flex justify-end rounded-lg shadow-sm ring-1 transition duration-75 text-gray-400 bg-white focus-within:ring-2 ring-gray-950/10 focus-within:ring-primary-600"
+    >
+      <div class="m-auto ps-2">
+        <svg
+          class="w-5 h-5"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
+          ></path>
+        </svg>
+      </div>
+      <input
+        class="py-2 px-1 text-black rounded-lg flex-1"
+        type="text"
+        v-model="searchAccount"
+        placeholder="Search account"
+      />
       <button
+        @click="fetchSearchAccount"
         type="button"
-        @click="openModal"
-        class="rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+        class="rounded-md duration-75 a bg-primary-600 px-3 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
       >
-        Create new staff
+        Search
       </button>
     </div>
   </div>
-
   <Table
     :columns="columns"
     :rows="rows"
     :meta="meta"
     :links="links"
     :action-column="true"
+    :tableRoute="'/accounts'"
+    :searchTerm="searchAccount"
   >
     <template v-slot:actions="{ row }">
       <button
+        @click="showEditAccount(row.id)"
         class="p-1 overflow-hidden hover:opacity-60 bg-success-600 rounded-3xl text-white whitespace-nowrap"
       >
         <svg

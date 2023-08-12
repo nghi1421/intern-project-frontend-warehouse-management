@@ -17,8 +17,10 @@ import {
 } from "@headlessui/vue";
 import { Bars3Icon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { ChevronDownIcon } from "@heroicons/vue/20/solid";
+import AccountIcon from "@/components/icons/Account.vue";
 
 const router = useRouter();
+
 const toast = useToast();
 
 const userNavigation = [
@@ -63,7 +65,7 @@ function handleAction(event) {
 }
 </script>
 <template>
-  <div>
+  <div class="bg-gray-100">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog
         as="div"
@@ -170,11 +172,7 @@ function handleAction(event) {
             <Menu as="div" class="relative">
               <MenuButton class="-m-1.5 flex items-center p-1.5">
                 <span class="sr-only">Open user menu</span>
-                <img
-                  class="h-8 w-8 rounded-full bg-gray-50"
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  alt=""
-                />
+                <AccountIcon :size="6"></AccountIcon>
                 <span class="hidden lg:flex lg:items-center">
                   <span
                     class="ml-4 text-sm font-semibold leading-6 text-gray-900"
@@ -220,8 +218,8 @@ function handleAction(event) {
         </div>
       </div>
 
-      <main class="py-10">
-        <div class="px-4 sm:px-6 lg:px-8">
+      <main class="py-10 h-screen">
+        <div class="mx-2 sm:mx-4 lg:mx-6 bg-white rounded-xl shadow-xl">
           <router-view></router-view>
         </div>
       </main>

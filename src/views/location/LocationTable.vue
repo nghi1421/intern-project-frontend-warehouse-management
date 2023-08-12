@@ -51,6 +51,12 @@ const isOpenEditModal = ref(false);
 
 const isOpenConfirmModal = ref(false);
 
+const searchLocation = ref("");
+
+function fetchSearchLocation() {
+  //
+}
+
 function fetchLocationsData() {
   store.dispatch("getLocations").then((response) => {
     meta.value = response.data.meta;
@@ -122,15 +128,51 @@ onMounted(() => {
     <template v-slot:header> Are your sure? </template>
     <template v-slot:message> Delete location! </template>
   </confirm-modal>
-  <div>
-    <div class="flex flex-1">
-      <h2 class="p-4 font-semibold uppercase">Location Table</h2>
+  <div class="flex align-items-between items-center justify-between px-4 py-2">
+    <h1
+      class="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl"
+      style="line-height: inherit"
+    >
+      Import
+    </h1>
+    <button
+      type="button"
+      @click="openCreateModal"
+      class="rounded-md m-2 duration-75 a bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+    >
+      Create import
+    </button>
+  </div>
+
+  <div class="px-4 py-2 relative mb-12">
+    <div
+      class="absolute left-4 w-80 flex justify-end rounded-lg shadow-sm ring-1 transition duration-75 text-gray-400 bg-white focus-within:ring-2 ring-gray-950/10 focus-within:ring-primary-600"
+    >
+      <div class="m-auto ps-2">
+        <svg
+          class="w-5 h-5"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
+          ></path>
+        </svg>
+      </div>
+      <input
+        class="py-2 px-1 text-black rounded-lg flex-1"
+        type="text"
+        v-model="searchLocation"
+        placeholder="Search location"
+      />
       <button
+        @click="fetchSearchLocation"
         type="button"
-        @click="openCreateModal"
-        class="rounded-md m-2 bg-success-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+        class="rounded-md duration-75 a bg-primary-600 px-3 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
       >
-        Create location
+        Search
       </button>
     </div>
   </div>
@@ -141,6 +183,8 @@ onMounted(() => {
     :meta="meta"
     :links="links"
     :action-column="true"
+    :tableRoute="'/locations'"
+    :searchTerm="searchLocation"
   >
     <template v-slot:actions="{ row }">
       <button
