@@ -43,6 +43,10 @@ const store = createStore({
           return data;
         });
     },
+    changePassword({ commit }, data) {
+      return axiosClient.post('/change-password', data)
+        .then((response) => response);
+    },
     getStaffs({ commit }) {
       return axiosClient.get('/staffs')
         .then((data) => {

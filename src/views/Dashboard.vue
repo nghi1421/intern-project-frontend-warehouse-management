@@ -23,6 +23,7 @@ const toast = useToast();
 
 const userNavigation = [
   { name: "Your profile", href: "/profile" },
+  { name: "Change password", href: "/change-password" },
   { name: "Log out", href: "" },
 ];
 
@@ -50,21 +51,14 @@ function handleAction(event) {
       router.push({ name: "Profile" });
       break;
     }
+    case "Change password": {
+      router.push({ name: "Change password" });
+      break;
+    }
 
     default: {
       router.push({ name: "Not found" });
     }
-  }
-  if (event.target.innerText === "Log out") {
-    store
-      .dispatch("logout")
-      .then((response) => {
-        router.push("/login");
-        toast.success(response.data.message);
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
-      });
   }
 }
 </script>
@@ -202,7 +196,7 @@ function handleAction(event) {
                 leave-to-class="transform opacity-0 scale-95"
               >
                 <MenuItems
-                  class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none"
+                  class="absolute right-0 z-10 mt-2.5 w-40 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none"
                 >
                   <MenuItem
                     v-for="item in userNavigation"

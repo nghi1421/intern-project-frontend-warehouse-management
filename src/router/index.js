@@ -13,6 +13,7 @@ import StockTable from '../views/stock/StockTable.vue'
 import ExportTable from '../views/export/ExportTable.vue'
 import NotFoundPage from '../views/404.vue'
 import Profile from '../views/Profile.vue'
+import ChangePassword from '../views/ChangePassword.vue'
 
 const routes = [
   {
@@ -79,6 +80,12 @@ const routes = [
           path: '/profile',
           name: 'Profile',
           component: Profile,
+          meta: { requiresAuth: true },
+      },
+      {
+          path: '/change-password',
+          name: 'Change password',
+          component: ChangePassword,
           meta: { requiresAuth: true },
       },
       {
