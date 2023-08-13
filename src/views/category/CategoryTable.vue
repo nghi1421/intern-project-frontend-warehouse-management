@@ -20,6 +20,10 @@ const columns = ref([
     value: "Name",
   },
   {
+    key: "amount",
+    value: "Amount",
+  },
+  {
     key: "unit",
     value: "Unit",
   },

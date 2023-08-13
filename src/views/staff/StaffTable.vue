@@ -53,6 +53,8 @@ const links = ref([]);
 
 const searchStaff = ref("");
 
+const loading = ref(true);
+
 function fetchSearchStaff() {
   //
 }
@@ -75,21 +77,34 @@ function closeModal() {
 }
 
 function openCreateModal() {
-  isOpenCreateModal.value = true;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenCreateModal.value = true;
+  }
 }
 
 function openEditModal(staff) {
-  isOpenEditModal.value = true;
-  selectedStaff.value = staff;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenEditModal.value = true;
+    selectedStaff.value = staff;
+  }
 }
 
 function openConfirmModal(staff) {
-  isOpenConfirmModal.value = true;
-  selectedStaff.value = staff;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenConfirmModal.value = true;
+    selectedStaff.value = staff;
+  }
 }
 
 function storePositions() {
   store.dispatch("getAllPositions").then((data) => {
+    loading.value = false;
     return data;
   });
 }

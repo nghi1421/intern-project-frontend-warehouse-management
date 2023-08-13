@@ -29,10 +29,10 @@ axiosClient.interceptors.response.use(response => {
     router.push({name: 'Login'})
   }
   else if (error.response.status === 403) {
-   router.push({name: 'Not found'})
+   router.push({name: 'Forbidden'})
   }
   else if (error.response.status === 404) {
-    router.push({name: 'NotFound'})
+    router.push({name: 'Not found'})
   }
   else {
     toast.error(error.response.data.message);

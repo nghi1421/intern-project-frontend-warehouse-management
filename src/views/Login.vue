@@ -87,6 +87,7 @@ export default {
         >
           <TextInput
             label="Username"
+            placeHolder="Fill username"
             v-model:value="username"
             v-model:errorMessage="errorMessage.username"
           >
@@ -97,6 +98,7 @@ export default {
           <TextInput
             label="Password"
             type="password"
+            placeHolder="Fill password"
             v-model:value="password"
             v-model:errorMessage="errorMessage.password"
           >

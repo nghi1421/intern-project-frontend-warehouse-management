@@ -8,8 +8,15 @@ import {
   ComboboxOptions,
   ComboboxOption,
   TransitionRoot,
+  DisclosureButton,
+  Disclosure,
+  DisclosurePanel,
 } from "@headlessui/vue";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
+import {
+  CheckIcon,
+  ChevronUpDownIcon,
+  ChevronUpIcon,
+} from "@heroicons/vue/20/solid";
 import IdenfifyIcon from "@/components/icons/Identify.vue";
 import PersonIcon from "@/components/icons/Person.vue";
 import LocationIcon from "@/components/icons/Location.vue";
@@ -41,11 +48,32 @@ const selectedCategories = ref([]);
 
 const selectedWarehouseBranch = ref({});
 
+const selectedToWarehouseBranch = ref({});
+
 const searchCategory = ref("");
 
 const searchSelectedCategory = ref("");
 
 const warehouseBranchQuery = ref("");
+
+const toWarehouseBranchQuery = ref("");
+
+let warehouseBranchesLeft = computed(function () {
+  const left = warehouseBranches.value.filter(
+    (warehouseBranch) => warehouseBranch.id != selectedWarehouseBranch.value.id
+  );
+
+  return toWarehouseBranchQuery.value === ""
+    ? left
+    : left.filter((warehoueBranch) =>
+        warehoueBranch.name
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(
+            warehouseBranchQuery.value.toLowerCase().replace(/\s+/g, "")
+          )
+      );
+});
 
 let filteredWarehouseBranches = computed(() =>
   warehouseBranchQuery.value === ""
@@ -135,6 +163,8 @@ const stepsHover = ref([
   },
 ]);
 
+const isToAnotherWarehouseBranch = ref(false);
+
 const stepsLeaveHover = ref([]);
 
 function checkPermissions(permissionList) {
@@ -152,7 +182,12 @@ function handleSubmit() {
       categories: selectedCategories.value.map((category) => category.id),
       amounts: selectedCategories.value.map((category) => category.amount),
     };
-
+    if (isToAnotherWarehouseBranch.value) {
+      data = {
+        ...data,
+        to_warehouse_branch_id: selectedToWarehouseBranch.value.id,
+      };
+    }
     if (props.export) {
       data = {
         ...data,
@@ -262,6 +297,17 @@ function resetCategories() {
   );
 }
 
+function selectDestinationBranch() {
+  isToAnotherWarehouseBranch.value = !isToAnotherWarehouseBranch.value;
+  if (isToAnotherWarehouseBranch.value) {
+    const left = warehouseBranches.value.filter(
+      (warehouseBranch) =>
+        warehouseBranch.id != selectedWarehouseBranch.value.id
+    );
+    selectedToWarehouseBranch.value = left[0];
+  }
+}
+
 onMounted(() => {
   warehouseBranches.value = store.state.warehouseBranches;
 
@@ -300,6 +346,12 @@ onMounted(() => {
       (warehouseBranch) =>
         warehouseBranch.id === props.export.warehouse_branch_id
     );
+
+    if (props.export.destination_id) {
+      selectedToWarehouseBranch.value = warehouseBranches.value.find(
+        (warehouseBranch) => warehouseBranch.id === props.export.destination_id
+      );
+    }
 
     selectedCategories.value = props.export.categories.map((category) => {
       return { ...category, selected: false };
@@ -363,6 +415,13 @@ function validate() {
     }
     return true;
   }
+
+  if (isToAnotherWarehouseBranch.value) {
+    if (!selectedToWarehouseBranch.value) {
+      toast.warning("Please select branch destination");
+    }
+  }
+
   toast.warning("Please select at least one category");
   return false;
 }
@@ -572,8 +631,162 @@ function leaveHoverSubmit() {
         </div>
       </div>
     </div>
-    <div class="col-span-6 grid grid-cols-9 max-h:4">
-      <div class="col-span-4 border-gray-400 flex flex-col">
+
+    <div v-if="!props.export" class="col-span-3 mb-8">
+      <Disclosure v-slot="{ open }">
+        <DisclosureButton
+          @click="selectDestinationBranch"
+          class="flex w-full justify-between rounded-lg bg-purple-100 px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75"
+        >
+          <span>Is it export to another warehouse branch?</span>
+          <ChevronUpIcon
+            :class="open ? 'rotate-180 transform' : ''"
+            class="h-5 w-5 text-purple-500"
+          />
+        </DisclosureButton>
+        <DisclosurePanel class="pt-4 pb-2 text-sm text-gray-500">
+          <label
+            for="default-input"
+            class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
+          >
+            Branch destination
+          </label>
+
+          <div class="fixed w-[46%]">
+            <Combobox v-model="selectedToWarehouseBranch">
+              <div class="relative mt-1">
+                <div
+                  class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
+                >
+                  <ComboboxInput
+                    class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                    :displayValue="(warehouseBranch) => warehouseBranch.name"
+                    @change="toWarehouseBranchQuery = $event.target.value"
+                  />
+                  <ComboboxButton
+                    class="absolute inset-y-0 right-0 flex items-center pr-2"
+                  >
+                    <ChevronUpDownIcon
+                      class="h-5 w-5 text-gray-400"
+                      aria-hidden="true"
+                    />
+                  </ComboboxButton>
+                </div>
+                <TransitionRoot
+                  leave="transition ease-in duration-100"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                  @after-leave="toWarehouseBranchQuery = ''"
+                >
+                  <ComboboxOptions
+                    class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                  >
+                    <div
+                      v-if="
+                        warehouseBranchesLeft.length === 0 &&
+                        toWarehouseBranchQuery !== ''
+                      "
+                      class="relative cursor-default select-none py-2 px-4 text-gray-700"
+                    >
+                      Nothing found.
+                    </div>
+
+                    <ComboboxOption
+                      v-for="warehouseBranch in warehouseBranchesLeft"
+                      as="template"
+                      :key="warehouseBranch.id"
+                      :value="warehouseBranch"
+                      v-slot="{ selectedToWarehouseBranch, active }"
+                    >
+                      <li
+                        class="relative cursor-default select-none py-2 pl-10 pr-4"
+                        :class="{
+                          'text-amber-600 bg-amber-100': active,
+                          'text-gray-900': !active,
+                        }"
+                      >
+                        <span
+                          class="block truncate"
+                          :class="{
+                            'font-medium': selectedToWarehouseBranch,
+                            'font-normal': !selectedToWarehouseBranch,
+                          }"
+                        >
+                          {{ warehouseBranch.name }}
+                        </span>
+                        <span
+                          v-if="selectedToWarehouseBranch"
+                          class="absolute inset-y-0 left-0 flex items-center pl-3"
+                          :class="{
+                            'text-white': active,
+                            'text-teal-600': !active,
+                          }"
+                        >
+                          <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                        </span>
+                      </li>
+                    </ComboboxOption>
+                  </ComboboxOptions>
+                </TransitionRoot>
+              </div>
+            </Combobox>
+          </div>
+        </DisclosurePanel>
+      </Disclosure>
+    </div>
+    <div class="col-span-3 mb-8" v-else>
+      <label
+        for="default-input"
+        class="mt-4 p-1 bg-white z-50 ms-4 text-xs font-medium text-gray-900 dark:text-white"
+      >
+        Branch destination
+      </label>
+      <div
+        class="grid grid-cols-3 border-2 focus-within:border-primary-400 py-2 px-2 rounded-2xl -mb-8"
+      >
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <div>
+            <IdenfifyIcon></IdenfifyIcon>
+          </div>
+          <span class="inline-block align-middle">Branch ID</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1 ps-1">
+          <span>{{ selectedToWarehouseBranch?.id }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <div>
+            <PersonIcon></PersonIcon>
+          </div>
+          <span class="inline-block align-middle">Branch Name</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span>{{ selectedToWarehouseBranch?.name }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <div>
+            <PhoneIcon></PhoneIcon>
+          </div>
+          <span class="inline-block align-middle">Phone Number</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span>{{ selectedToWarehouseBranch?.phone_number }}</span>
+        </div>
+
+        <div class="col-span-1 flex gap-1 text-xs text-gray-500 mb-1">
+          <div>
+            <LocationIcon></LocationIcon>
+          </div>
+          <span class="inline-block align-middle">Address</span>
+        </div>
+        <div class="col-span-2 text-xs mb-1">
+          <span class="">{{ selectedToWarehouseBranch?.address }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-6 grid grid-cols-9 max-h-60">
+      <div class="col-span-4 border-gray-400 flex flex-col overflow-auto">
         <div
           class="flex text-gray-400 border-gray-400 focus:border-primary-500 border shadow-md rounded-lg"
         >
@@ -598,7 +811,7 @@ function leaveHoverSubmit() {
           />
         </div>
 
-        <table class="overflow-auto mt-2">
+        <table class="mt-2">
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">
               <th>
@@ -913,7 +1126,7 @@ function leaveHoverSubmit() {
     <div class="col-span-6">
       <button
         v-if="
-          [0, 3].includes(props.export?.status_id) &&
+          ![0, 3].includes(props.export?.status_id) &&
           checkPermissions(['update-export-status'])
         "
         @mouseover="hoverSubmit"
@@ -924,6 +1137,7 @@ function leaveHoverSubmit() {
         Submit
       </button>
       <button
+        v-show="![0, 3].includes(props.export?.status_id)"
         v-else
         type="submit"
         class="inline-flex justify-center rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"

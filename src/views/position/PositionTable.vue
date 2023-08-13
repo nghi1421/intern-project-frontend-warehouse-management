@@ -48,11 +48,11 @@ const searchPosition = ref("");
 
 function fetchPositionsData() {
   store.dispatch("getPositions").then((response) => {
-    meta.value = response.data.pagination;
+    meta.value = response.data.meta;
 
-    links.value = response.data.pagination.links;
+    links.value = response.data.meta.links;
 
-    rows.value = response.data.pagination.data;
+    rows.value = response.data.data;
   });
 }
 

@@ -45,6 +45,8 @@ const isOpenConfirmModal = ref(false);
 
 const searchProvider = ref("");
 
+const loading = ref(true);
+
 function fetchSearchProvider() {
   //
 }
@@ -56,6 +58,8 @@ function fetchCategoriesData() {
     links.value = response.data.meta.links;
 
     rows.value = response.data.data;
+
+    loading.value = false;
   });
 }
 
@@ -67,17 +71,29 @@ function closeModal() {
 }
 
 function openCreateModal() {
-  isOpenCreateModal.value = true;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenCreateModal.value = true;
+  }
 }
 
 function openEditModal(provider) {
-  isOpenEditModal.value = true;
-  selectedProvider.value = provider;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenEditModal.value = true;
+    selectedProvider.value = provider;
+  }
 }
 
 function openConfirmModal(provider) {
-  isOpenConfirmModal.value = true;
-  selectedProvider.value = provider;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenConfirmModal.value = true;
+    selectedProvider.value = provider;
+  }
 }
 
 function deleteProvider() {

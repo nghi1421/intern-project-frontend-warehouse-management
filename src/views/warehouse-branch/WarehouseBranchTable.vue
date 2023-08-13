@@ -49,6 +49,8 @@ const isOpenConfirmModal = ref(false);
 
 const searchWarehouseBranch = ref("");
 
+const loading = ref(true);
+
 function fetchSearchWarehouseBranch() {
   //
 }
@@ -60,6 +62,8 @@ function fetchWarehouseBranchesData() {
     links.value = response.data.meta.links;
 
     rows.value = response.data.data;
+
+    loading.value = false;
   });
 }
 
@@ -71,17 +75,29 @@ function closeModal() {
 }
 
 function openCreateModal() {
-  isOpenCreateModal.value = true;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenCreateModal.value = true;
+  }
 }
 
 function openEditModal(warehouseBranch) {
-  isOpenEditModal.value = true;
-  selectedWarehouseBranch.value = warehouseBranch;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenEditModal.value = true;
+    selectedWarehouseBranch.value = warehouseBranch;
+  }
 }
 
 function openConfirmModal(warehouseBranch) {
-  isOpenConfirmModal.value = true;
-  selectedWarehouseBranch.value = warehouseBranch;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenConfirmModal.value = true;
+    selectedWarehouseBranch.value = warehouseBranch;
+  }
 }
 
 function deleteWarehouseBranch() {

@@ -107,12 +107,15 @@ function validate() {
 </script>
 
 <template>
-  <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4 text-center">
+  <h1
+    class="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl mb-4 text-center px-3 py-2"
+    style="line-height: inherit"
+  >
     Change password
-  </h3>
+  </h1>
   <form
     @submit.prevent="handleSubmit"
-    class="flex-col min-w-sm max-w-md gap-3 bg-white m-auto"
+    class="flex-col min-w-sm max-w-md gap-3 bg-white m-auto py-8"
   >
     <div class="col-span-3">
       <TextInput

@@ -8,11 +8,11 @@ import CategoryTable from '../views/category/CategoryTable.vue'
 import ImportTable from '../views/import/ImportTable.vue'
 import ProviderTable from '../views/provider/ProviderTable.vue'
 import WarehouseBranchTable from '../views/warehouse-branch/WarehouseBranchTable.vue'
-import LocationTable from '../views/location/LocationTable.vue'
 import StockTable from '../views/stock/StockTable.vue'
 import ExportTable from '../views/export/ExportTable.vue'
 import PositionTable from '../views/position/PositionTable.vue'
 import NotFoundPage from '../views/404.vue'
+import ForbiddenPage from '../views/403.vue'
 import Profile from '../views/Profile.vue'
 import ChangePassword from '../views/ChangePassword.vue'
 
@@ -72,12 +72,6 @@ const routes = [
           meta: { requiresAuth: true },
         },
         {
-          path: '/locations',
-          name: 'Location',
-          component: LocationTable,
-          meta: { requiresAuth: true },
-        },
-        {
           path: '/stocks',
           name: 'Stock',
           component: StockTable,
@@ -99,6 +93,11 @@ const routes = [
         path: '/404',
         name: 'Not found',
         component: NotFoundPage
+      },
+      {
+        path: '/403',
+        name: 'Forbidden',
+        component: ForbiddenPage
       }
     ]
   },

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted } from "vue";
 import store from "../../store";
 import {
   Listbox,
@@ -11,10 +11,6 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import TextInput from "@/components/form/inputs/TextInput.vue";
 import PersonIcon from "@/components/icons/Person.vue";
 import PasswordIcon from "@/components/icons/Password.vue";
-import RightOneIcon from "@/components/icons/RightOne.vue";
-import RightDoubleIcon from "@/components/icons/RightDouble.vue";
-import LeftOneIcon from "@/components/icons/LeftOne.vue";
-import LeftDoubleIcon from "@/components/icons/LeftDouble.vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, maxLength } from "@vuelidate/validators";
 
@@ -53,37 +49,37 @@ const v$ = useVuelidate(rules, { username, password, passwordConfirmation });
 
 const errorMessage = ref({});
 
-const permissions = ref([]);
+// const permissions = ref([]);
 
-const selectedPermissions = ref([]);
+// const selectedPermissions = ref([]);
 
-const searchPermission = ref("");
+// const searchPermission = ref("");
 
-const searchSelectedPermission = ref("");
+// const searchSelectedPermission = ref("");
 
-let filteredPermissions = computed(() =>
-  searchPermission.value === ""
-    ? permissions.value
-    : permissions.value.filter((permission) =>
-        permission.name
-          .toLowerCase()
-          .replace(/\s+/g, "")
-          .includes(searchPermission.value.toLowerCase().replace(/\s+/g, ""))
-      )
-);
+// let filteredPermissions = computed(() =>
+//   searchPermission.value === ""
+//     ? permissions.value
+//     : permissions.value.filter((permission) =>
+//         permission.name
+//           .toLowerCase()
+//           .replace(/\s+/g, "")
+//           .includes(searchPermission.value.toLowerCase().replace(/\s+/g, ""))
+//       )
+// );
 
-let filterdSelectedPermissions = computed(() =>
-  searchSelectedPermission.value === ""
-    ? selectedPermissions.value
-    : selectedPermissions.value.filter((permission) =>
-        permission.name
-          .toLowerCase()
-          .replace(/\s+/g, "")
-          .includes(
-            searchSelectedPermission.value.toLowerCase().replace(/\s+/g, "")
-          )
-      )
-);
+// let filterdSelectedPermissions = computed(() =>
+//   searchSelectedPermission.value === ""
+//     ? selectedPermissions.value
+//     : selectedPermissions.value.filter((permission) =>
+//         permission.name
+//           .toLowerCase()
+//           .replace(/\s+/g, "")
+//           .includes(
+//             searchSelectedPermission.value.toLowerCase().replace(/\s+/g, "")
+//           )
+//       )
+// );
 
 function handleSubmit() {
   if (validate()) {
@@ -92,7 +88,7 @@ function handleSubmit() {
       password: password.value,
       password_confirmation: passwordConfirmation.value,
       role_id: selectedRole.value.id,
-      permissions: selectedPermissions.value.map((permission) => permission.id),
+      // permissions: selectedPermissions.value.map((permission) => permission.id),
     };
 
     if (props.account) {
@@ -115,120 +111,120 @@ function clearData() {
   errorMessage.value = {};
 }
 
-function selectPermissions() {
-  const moveList = permissions.value.filter(
-    (permission) => permission.selected
-  );
-  permissions.value = permissions.value.filter(
-    (permission) => !permission.selected
-  );
-  selectedPermissions.value = [
-    ...selectedPermissions.value,
-    ...moveList.map((permission) => {
-      return { ...permission, selected: false };
-    }),
-  ];
-}
+// function selectPermissions() {
+//   const moveList = permissions.value.filter(
+//     (permission) => permission.selected
+//   );
+//   permissions.value = permissions.value.filter(
+//     (permission) => !permission.selected
+//   );
+//   selectedPermissions.value = [
+//     ...selectedPermissions.value,
+//     ...moveList.map((permission) => {
+//       return { ...permission, selected: false };
+//     }),
+//   ];
+// }
 
-function selectAllPermissions() {
-  selectedPermissions.value = [
-    ...selectedPermissions.value,
-    ...permissions.value.map((permission) => {
-      return { ...permission, selected: false };
-    }),
-  ];
+// function selectAllPermissions() {
+//   selectedPermissions.value = [
+//     ...selectedPermissions.value,
+//     ...permissions.value.map((permission) => {
+//       return { ...permission, selected: false };
+//     }),
+//   ];
 
-  permissions.value = [];
-}
+//   permissions.value = [];
+// }
 
-function deselectPermissions() {
-  const moveList = selectedPermissions.value.filter(
-    (permission) => permission.selected
-  );
-  selectedPermissions.value = selectedPermissions.value.filter(
-    (permission) => !permission.selected
-  );
-  permissions.value = [
-    ...permissions.value,
-    ...moveList.map((permission) => {
-      return { ...permission, selected: false };
-    }),
-  ];
-}
+// function deselectPermissions() {
+//   const moveList = selectedPermissions.value.filter(
+//     (permission) => permission.selected
+//   );
+//   selectedPermissions.value = selectedPermissions.value.filter(
+//     (permission) => !permission.selected
+//   );
+//   permissions.value = [
+//     ...permissions.value,
+//     ...moveList.map((permission) => {
+//       return { ...permission, selected: false };
+//     }),
+//   ];
+// }
 
-function deselectedAllPermissions() {
-  permissions.value = [
-    ...permissions.value,
-    ...selectedPermissions.value.map((permission) => {
-      return { ...permission, selected: false };
-    }),
-  ];
+// function deselectedAllPermissions() {
+//   permissions.value = [
+//     ...permissions.value,
+//     ...selectedPermissions.value.map((permission) => {
+//       return { ...permission, selected: false };
+//     }),
+//   ];
 
-  selectedPermissions.value = [];
-}
+//   selectedPermissions.value = [];
+// }
 
-function resetPermissions() {
-  selectedPermissions.value = props.import.categories.map((permission) => {
-    return { ...permission, selected: false };
-  });
+// function resetPermissions() {
+//   selectedPermissions.value = props.import.categories.map((permission) => {
+//     return { ...permission, selected: false };
+//   });
 
-  const selectedPermissionIds = selectedPermissions.value.map(
-    (permission) => permission.id
-  );
+//   const selectedPermissionIds = selectedPermissions.value.map(
+//     (permission) => permission.id
+//   );
 
-  permissions.value = store.state.permissions.filter(
-    (permission) => selectedPermissionIds.indexOf(permission.id) < 0
-  );
-}
+//   permissions.value = store.state.permissions.filter(
+//     (permission) => selectedPermissionIds.indexOf(permission.id) < 0
+//   );
+// }
 
-function selectPermission(permissionId) {
-  let indexRowSelected = permissions.value.findIndex(function (permission) {
-    return permission.id == permissionId;
-  });
+// function selectPermission(permissionId) {
+//   let indexRowSelected = permissions.value.findIndex(function (permission) {
+//     return permission.id == permissionId;
+//   });
 
-  permissions.value[indexRowSelected].selected =
-    !permissions.value[indexRowSelected].selected;
-}
+//   permissions.value[indexRowSelected].selected =
+//     !permissions.value[indexRowSelected].selected;
+// }
 
-function selectSelectedPermission(permissionId) {
-  let indexRowSelected = selectedPermissions.value.findIndex(function (
-    permission
-  ) {
-    return permission.id == permissionId;
-  });
+// function selectSelectedPermission(permissionId) {
+//   let indexRowSelected = selectedPermissions.value.findIndex(function (
+//     permission
+//   ) {
+//     return permission.id == permissionId;
+//   });
 
-  selectedPermissions.value[indexRowSelected].selected =
-    !selectedPermissions.value[indexRowSelected].selected;
-}
+//   selectedPermissions.value[indexRowSelected].selected =
+//     !selectedPermissions.value[indexRowSelected].selected;
+// }
 
-watch(selectedRole, async (newRole) => {
-  permissions.value = [];
-  selectedPermissions.value = [];
-  for (let i = 0; i < store.state.permissions.length; i++) {
-    if (newRole.permissions.includes(store.state.permissions[i].id)) {
-      selectedPermissions.value.push({
-        ...store.state.permissions[i],
-        selected: false,
-      });
-    } else {
-      permissions.value.push({
-        ...store.state.permissions[i],
-        selected: false,
-      });
-    }
-  }
-});
+// watch(selectedRole, async (newRole) => {
+//   permissions.value = [];
+//   selectedPermissions.value = [];
+//   for (let i = 0; i < store.state.permissions.length; i++) {
+//     if (newRole.permissions.includes(store.state.permissions[i].id)) {
+//       selectedPermissions.value.push({
+//         ...store.state.permissions[i],
+//         selected: false,
+//       });
+//     } else {
+//       permissions.value.push({
+//         ...store.state.permissions[i],
+//         selected: false,
+//       });
+//     }
+//   }
+// });
 
 onMounted(() => {
   roles.value = store.state.roles;
 
-  for (let i = 0; i < roles.value.length; i++) {
-    let rolePermissionIds = roles.value[i].permissions.map(
-      (permission) => permission.id
-    );
+  // for (let i = 0; i < roles.value.length; i++) {
+  //   let rolePermissionIds = roles.value[i].permissions.map(
+  //     (permission) => permission.id
+  //   );
 
-    roles.value[i] = { ...roles.value[i], permissions: rolePermissionIds };
-  }
+  //   roles.value[i] = { ...roles.value[i], permissions: rolePermissionIds };
+  // }
 
   selectedRole.value = roles.value[0];
 });
@@ -376,7 +372,7 @@ function validate() {
         </div>
       </div>
     </div>
-    <div class="col-span-6 grid grid-cols-9 max-h-40">
+    <!-- <div class="col-span-6 grid grid-cols-9 max-h-40">
       <div class="col-span-4 border-gray-400 flex flex-col overflow-auto">
         <div
           class="flex text-gray-400 border-gray-400 focus:border-primary-500 border shadow-md rounded-lg"
@@ -546,7 +542,7 @@ function validate() {
           </tbody>
         </table>
       </div>
-    </div>
+    </div> -->
     <div class="mt-12 flex">
       <button
         type="submit"

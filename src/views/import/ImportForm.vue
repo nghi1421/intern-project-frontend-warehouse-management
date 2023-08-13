@@ -8,6 +8,7 @@ import {
   ComboboxOptions,
   ComboboxOption,
   TransitionRoot,
+
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import IdenfifyIcon from "@/components/icons/Identify.vue";
@@ -178,6 +179,7 @@ function handleSubmit() {
       data = {
         ...data,
         id: props.import.id,
+        status: props.import.status_id,
       };
 
       if (checkPermissions(["update-import-status"])) {
@@ -295,7 +297,6 @@ function resetCategories() {
 onMounted(() => {
   providers.value = store.state.providers;
   warehouseBranches.value = store.state.warehouseBranches;
-
   if (props.import) {
     for (let i = 0; i < steps.value.length; i++) {
       if (steps.value[i].status_id > props.import?.status_id) {
@@ -328,6 +329,7 @@ onMounted(() => {
     stepsLeaveHover.value = steps.value;
 
     selectedProvider.value = props.import.provider;
+    console.log(props.import);
     selectedWarehouseBranch.value = warehouseBranches.value.find(
       (warehouseBranch) =>
         warehouseBranch.id === props.import.warehouse_branch_id
@@ -388,20 +390,37 @@ function selectSelectedCategory(categoryId) {
 }
 
 function validate() {
-  if (selectedCategories.value.length > 0) {
-    const isInvalid = selectedCategories.value.some(
-      (category) => category.amount <= 0 || category.unit_price <= 0
-    );
-    if (isInvalid) {
-      toast.warning(
-        "Please check your amount and unit price of selected categories"
+  if (!props.import.from_warehouse_branch_id) {
+    if (selectedCategories.value.length > 0) {
+      const isInvalid = selectedCategories.value.some(
+        (category) => category.amount <= 0 || category.unit_price <= 0
       );
-      return false;
+      if (isInvalid) {
+        toast.warning(
+          "Please check your amount and unit price of selected categories"
+        );
+        return false;
+      }
+      return true;
     }
-    return true;
+    toast.warning("Please select at least one category");
+    return false;
+  } else {
+    if (selectedCategories.value.length > 0) {
+      const isInvalid = selectedCategories.value.some(
+        (category) => category.amount <= 0 || category.unit_price < 0
+      );
+      if (isInvalid) {
+        toast.warning(
+          "Please check your amount and unit price of selected categories"
+        );
+        return false;
+      }
+      return true;
+    }
+    toast.warning("Please select at least one category");
+    return false;
   }
-  toast.warning("Please select at least one category");
-  return false;
 }
 
 function hoverSubmit() {
@@ -688,6 +707,7 @@ function leaveHoverSubmit() {
         </Combobox>
       </div>
     </div>
+
     <div class="col-span-3" v-else>
       <label
         for="default-input"
@@ -739,8 +759,9 @@ function leaveHoverSubmit() {
         </div>
       </div>
     </div>
-    <div class="mt-12 col-span-6 grid grid-cols-9 max-h:4">
-      <div class="col-span-4 border-gray-400 flex flex-col">
+
+    <div class="mt-12 col-span-6 grid grid-cols-9 max-h-60">
+      <div class="col-span-4 border-gray-400 flex flex-col overflow-auto">
         <div
           class="flex text-gray-400 border-gray-400 focus:border-primary-500 border shadow-md rounded-lg"
         >
@@ -765,7 +786,7 @@ function leaveHoverSubmit() {
           />
         </div>
 
-        <table class="overflow-auto mt-2">
+        <table class="mt-2">
           <thead class="p-2">
             <tr class="bg-slate-500 text-white text-xs">
               <th>
@@ -938,6 +959,7 @@ function leaveHoverSubmit() {
               >
                 <input
                   type="number"
+                  min="0"
                   class="p-2 font-semibold"
                   v-model="category.unit_price"
                 />
@@ -955,6 +977,7 @@ function leaveHoverSubmit() {
               >
                 <input
                   type="number"
+                  min="0"
                   class="p-2 font-semibold"
                   v-model="category.amount"
                 />

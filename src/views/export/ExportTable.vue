@@ -24,6 +24,10 @@ const columns = ref([
     value: "Warehouse branch name",
   },
   {
+    key: "destination_name",
+    value: "Destination",
+  },
+  {
     key: "status",
     value: "status",
   },
@@ -161,9 +165,18 @@ function fetchExportPDF(exportId) {
 
 onMounted(() => {
   fetchExportsData();
-  fetchCurrentUser();
-  fetchWarehouseBranchesData();
-  fetchCategoriesData();
+  if (
+    checkPermissions(["read-branch-export"]) &&
+    !checkPermissions(["update-export-status"]) &
+      !checkPermissions(["manage-export"])
+  ) {
+    fetchExportsData();
+  } else {
+    fetchExportsData();
+    fetchCurrentUser();
+    fetchWarehouseBranchesData();
+    fetchCategoriesData();
+  }
 });
 </script>
 <template>
@@ -195,6 +208,7 @@ onMounted(() => {
       Export
     </h1>
     <button
+      v-if="checkPermissions(['manage-export'])"
       type="button"
       @click="openCreateModal"
       class="rounded-md m-2 duration-75 a bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"

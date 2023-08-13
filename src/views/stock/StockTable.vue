@@ -4,6 +4,10 @@ import { ref, onMounted } from "vue";
 import Table from "@/components/table/Table.vue";
 import EditStockModal from "./EditStockModal.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
+const toast = useToast();
 
 const columns = ref([
   {
@@ -15,13 +19,14 @@ const columns = ref([
     value: "Cateogry name",
   },
   {
+    key: "quantity",
+    value: "Quantity",
+  },
+  {
     key: "category_unit",
     value: "Cateogry unit",
   },
-  {
-    key: "location_name",
-    value: "Location",
-  },
+
   {
     key: "import_id",
     value: "Import id",
@@ -46,6 +51,8 @@ const isOpenConfirmModal = ref(false);
 
 const searchStock = ref("");
 
+const loading = ref(true);
+
 function fetchSearchStock() {
   //
 }
@@ -57,11 +64,9 @@ function fetchStocksData() {
     links.value = response.data.meta.links;
 
     rows.value = response.data.data;
-  });
-}
 
-function fetchLocationData() {
-  store.dispatch("getAllLocations").then((response) => response);
+    loading.value = false;
+  });
 }
 
 function closeModal() {
@@ -71,8 +76,12 @@ function closeModal() {
 }
 
 function openEditModal(location) {
-  isOpenEditModal.value = true;
-  selectedLocation.value = location;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenEditModal.value = true;
+    selectedLocation.value = location;
+  }
 }
 
 function openConfirmModal(location) {
@@ -95,7 +104,6 @@ function deleteStock() {
 
 onMounted(() => {
   fetchStocksData();
-  fetchLocationData();
 });
 </script>
 

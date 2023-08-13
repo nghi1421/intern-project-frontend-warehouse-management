@@ -88,10 +88,10 @@ const store = createStore({
         .then((response) => response)
     },
     getAllPositions({ commit }) {
-      return axiosClient.get('/positions')
-        .then((data) => {
-          commit('setPositions', data.data.positions)
-          return data
+      return axiosClient.get('/positions?no_pagination=1')
+        .then((response) => {
+          commit('setPositions', response.data.data)
+          return response
         })
     },
     createStaff(context, data) {

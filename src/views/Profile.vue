@@ -10,11 +10,10 @@ import {
   ListboxOption,
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-import VueDatePicker from "@vuepic/vue-datepicker";
 import { useToast } from "vue-toast-notification";
 import "@vuepic/vue-datepicker/dist/main.css";
 import TextInput from "@/components/form/inputs/TextInput.vue";
-import PersonIcon from "@/components/icons/Person.vue";
+import DateInput from "@/components/form/inputs/DateInput.vue";
 
 const toast = useToast();
 
@@ -152,8 +151,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <h3 class="text-lg font-medium leading-6 text-gray-900">Profile</h3>
-  <form @submit.prevent="handleSubmit" class="grid grid-cols-6 gap-3 bg-white">
+  <h1
+    class="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl mb-4 px-3 py-2"
+    style="line-height: inherit"
+  >
+    Profile
+  </h1>
+  <form
+    @submit.prevent="handleSubmit"
+    class="grid grid-cols-6 gap-3 bg-white px-3 py-4"
+  >
     <div class="col-span-3">
       <TextInput
         label="Name"
@@ -162,7 +169,6 @@ onMounted(() => {
         v-model:value="name"
         :error-message="errorMessage.name"
       >
-        <template v-slot:icon><PersonIcon /></template>
       </TextInput>
     </div>
 
@@ -174,7 +180,6 @@ onMounted(() => {
         v-model:value="phoneNumber"
         :error-message="errorMessage.phoneNumber"
       >
-        <template v-slot:icon><PersonIcon /></template>
       </TextInput>
     </div>
 
@@ -185,31 +190,18 @@ onMounted(() => {
         name="address"
         :error-message="errorMessage.address"
       >
-        <template v-slot:icon><PersonIcon /></template>
       </TextInput>
     </div>
 
     <div class="col-span-3">
-      <div class="group">
-        <label
-          for="default-input"
-          class="p-1 bg-white z-50 ms-4 mb-2 text-xs font-medium text-gray-900 dark:text-white group-focus-within:text-primary-400 group-focus-within:text-sm ease-in duration-150"
-        >
-          Date of birth
-        </label>
-        <div
-          class="-mt-2 border-2 focus-within:border-primary-400 flex items-center py-2 px-3 rounded-2xl mb-4"
-        >
-          <VueDatePicker
-            class="-m-2"
-            :enable-time-picker="false"
-            v-model="dob"
-          ></VueDatePicker>
-        </div>
-        <p v-if="errorMessage.dob" class="-mt-4 ms-4 text-danger-600 text-sm">
-          {{ errorMessage.dob }}
-        </p>
-      </div>
+      <DateInput
+        label="Date of birth"
+        name="dob"
+        placeholder="dd/mm/yyyy"
+        v-model:value="dob"
+        :error-message="errorMessage.dob"
+      >
+      </DateInput>
     </div>
     <div class="col-span-3">
       <div>

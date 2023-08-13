@@ -4,6 +4,10 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Table from "@/components/table/Table.vue";
 import CreateUserModal from "./CreateUserModal.vue";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
+const toast = useToast();
 
 const router = useRouter();
 
@@ -46,6 +50,8 @@ const searchAccount = ref("");
 
 const selectedAccount = ref({});
 
+const loading = ref(true);
+
 function fetchAccountsData() {
   store.dispatch("getUsers").then((response) => {
     meta.value = response.data.meta;
@@ -61,21 +67,27 @@ function closeModal() {
 }
 
 function openModal() {
-  isOpen.value = true;
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpen.value = true;
+  }
 }
 
 function showEditAccount(accountId) {
-  store.dispatch("showAccount", accountId).then((response) => {
-    selectedAccount.value = response.data;
-  });
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    store.dispatch("showAccount", accountId).then((response) => {
+      selectedAccount.value = response.data;
+    });
+  }
 }
 
 function fetchRoleData() {
-  store.dispatch("getAllRoles").then((response) => response);
-}
-
-function fetchPermissionsData() {
-  store.dispatch("getAllPermissions").then((response) => response);
+  store.dispatch("getAllRoles").then(() => {
+    loading.value = false;
+  });
 }
 
 function fetchSearchAccount() {
@@ -94,7 +106,6 @@ function fetchSearchAccount() {
 onMounted(() => {
   fetchAccountsData();
   fetchRoleData();
-  fetchPermissionsData();
 });
 </script>
 <template>

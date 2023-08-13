@@ -50,14 +50,6 @@ function getNavigation() {
     });
   }
 
-  if (checkPermissions(["manage-location"])) {
-    navigation.value.push({
-      name: "Location",
-      href: "/locations",
-      icon: shallowRef(LocationIcon),
-    });
-  }
-
   if (checkPermissions(["manage-position"])) {
     navigation.value.push({
       name: "Position",
