@@ -14,6 +14,7 @@ export default {
   props: {
     rows: Array,
     columns: Array,
+    loading: Boolean,
     meta: Object,
     links: Array,
     actionColumn: {
@@ -22,6 +23,7 @@ export default {
     },
     tableRoute: String,
     searchTerm: String,
+    filters: Array,
   },
 
   data() {
@@ -32,7 +34,9 @@ export default {
       metaData: this.meta,
       linksData: this.links,
       open: false,
-      loading: true,
+      loadingStatus: true,
+      sortField: "id",
+      sortDirection: "asc",
     };
   },
 
@@ -53,6 +57,18 @@ export default {
       } else {
         this.data = this.data.map(function (row) {
           return { ...row, selected: false };
+        });
+      }
+    },
+
+    clickSort(columnKey) {
+      const column = this.columns.find((column) => column.key === columnKey);
+      if (column.sortable) {
+        this.sortField = columnKey;
+        this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+        this.$emit("sortTable", {
+          sortField: this.sortField,
+          sortDirection: this.sortDirection,
         });
       }
     },
@@ -80,7 +96,7 @@ export default {
     },
 
     changePage(url) {
-      this.loading = true;
+      this.loadingStatus = true;
       axios
         .get(url, {
           headers: { Authorization: `Bearer ${this.$store.state.user.token}` },
@@ -91,7 +107,7 @@ export default {
           });
           this.metaData = response.data.meta;
           this.linksData = response.data.meta.links;
-          this.loading = false;
+          this.loadingStatus = false;
         });
     },
   },
@@ -103,7 +119,7 @@ export default {
       });
       this.metaData = this.meta;
       this.linksData = this.links;
-      this.loading = false;
+      this.loadingStatus = false;
     },
   },
 };
@@ -116,6 +132,37 @@ export default {
         <div
           class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5"
         >
+          <div v-if="filters.length > 0">
+            <div class="flex gap-2 px-2 y-1 mb-2">
+              <label
+                for="default-input"
+                class="p-1 bg-white whitespace-nowrap text-xs font-medium text-gray-900"
+              >
+                Filtering by
+              </label>
+              <span
+                v-for="filter in filters"
+                :key="filter"
+                class="inline-flex whitespace-nowrap items-center gap-x-0.5 rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-primary-600 ring-1 ring-inset ring-primary-500/10"
+              >
+                {{ filter }}
+                <button
+                  @click="$emit('removeFilter', filter)"
+                  type="button"
+                  class="group relative -mr-1 rounded-sm hover:bg-gray-500/20"
+                >
+                  <span class="sr-only">Remove</span>
+                  <svg
+                    viewBox="0 0 14 14"
+                    class="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                  >
+                    <path d="M4 4l6 6m0-6l-6 6" />
+                  </svg>
+                  <span class="absolute -inset-1" />
+                </button>
+              </span>
+            </div>
+          </div>
           <table
             class="min-h-[100px] min-w-full border-collapse overflow-auto table-auto w-full whitespace-no-wrap bg-white relative"
           >
@@ -146,29 +193,40 @@ export default {
                   }"
                   style="text-align: left"
                 >
-                  <span class="whitespace-nowrap uppercase font-bold text-xs">
-                    {{ column.value }}
-                    <!-- :class="{
-                        'opacity-60': query[sortName] !== column.name,
-                        'opacity-100': query[sortName] === column.name,
-                        'rotate-180':
-                          query[sortName] === column.name &&
-                          query[sortDirectionName] === 'DESC',
-                      }" -->
+                  <span
+                    @click="clickSort(column.key)"
+                    class="whitespace-nowrap uppercase font-bold text-xs"
+                    :class="{ 'cursor-pointer': column.sortable }"
+                  >
                     <svg
                       v-if="column.sortable"
-                      class="ms-1 inline-block h-3 w-3"
+                      class="w-3 h-3 inline-block"
                       xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
                       fill="currentColor"
-                      aria-hidden="true"
+                      stroke="none"
+                      viewBox="0 0 24 24"
                     >
-                      <path
-                        fill-rule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clip-rule="evenodd"
-                      ></path>
+                      <path d="M8 16H4l6 6V2H8zm6-11v17h2V8h4l-6-6z"></path>
                     </svg>
+                    {{ column.value }}
+                    <span v-if="column.key === sortField && column.sortable">
+                      <svg
+                        :class="{
+                          'rotate-180': sortDirection === 'desc',
+                        }"
+                        class="inline-block h-3 w-3"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clip-rule="evenodd"
+                        ></path>
+                      </svg>
+                    </span>
                   </span>
                 </th>
                 <th
@@ -245,7 +303,7 @@ export default {
               </tr>
             </tbody>
           </table>
-          <Loading :loading="loading" />
+          <Loading :loading="loading || loadingStatus" />
         </div>
       </div>
     </div>

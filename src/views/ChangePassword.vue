@@ -1,12 +1,12 @@
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import store from "../store";
 import { useVuelidate } from "@vuelidate/core";
 import { required, maxLength } from "@vuelidate/validators";
 import { useToast } from "vue-toast-notification";
 import "@vuepic/vue-datepicker/dist/main.css";
 import TextInput from "@/components/form/inputs/TextInput.vue";
-import PersonIcon from "@/components/icons/Person.vue";
+import PasswordIcon from "@/components/icons/Password.vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -126,7 +126,7 @@ function validate() {
         v-model:value="oldPassword"
         :error-message="errorMessage.oldPassword"
       >
-        <template v-slot:icon><PersonIcon /></template>
+        <template v-slot:icon><PasswordIcon class="text-gray-400" /></template>
       </TextInput>
     </div>
 
@@ -139,7 +139,7 @@ function validate() {
         v-model:value="newPassword"
         :error-message="errorMessage.newPassword"
       >
-        <template v-slot:icon><PersonIcon /></template>
+        <template v-slot:icon><PasswordIcon class="text-gray-400" /></template>
       </TextInput>
     </div>
 
@@ -152,7 +152,7 @@ function validate() {
         name="new_password_confirmation"
         :error-message="errorMessage.newPasswordConfirmation"
       >
-        <template v-slot:icon><PersonIcon /></template>
+        <template v-slot:icon><PasswordIcon class="text-gray-400" /></template>
       </TextInput>
     </div>
     <div class="col-span-6 mt-4">

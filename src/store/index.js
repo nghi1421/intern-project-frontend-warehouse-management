@@ -59,9 +59,9 @@ const store = createStore({
       return axiosClient.get(`/staffs/${context.state.user.data.id}`)
         .then((response) => response)
     },
-    getUsers() {
-      return axiosClient.get('/users')
-        .then((data) => data)
+    getUsers(context, query) {
+        return axiosClient.get(`/users${query}`)
+          .then((data) => data)
     },
     searchAccount(context, searchTerm) {
       return axiosClient.get(`/users?search=${searchTerm}`)

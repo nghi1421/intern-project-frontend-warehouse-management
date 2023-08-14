@@ -1,11 +1,25 @@
 <script setup>
 import store from "../../store";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import Table from "@/components/table/Table.vue";
 import CreateUserModal from "./CreateUserModal.vue";
+import { ChevronUpIcon } from "@heroicons/vue/20/solid";
+import {
+  Menu,
+  MenuButton,
+  MenuItems,
+  DisclosureButton,
+  Disclosure,
+  DisclosurePanel,
+} from "@headlessui/vue";
+import ListComponent from "@/components/form/List.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
+import SearchIcon from "@/components/icons/Search.vue";
+import TransitionSlideVertical from "@/components/TransitionSlideVertical.vue";
+import FilterIcon from "@/components/icons/Filter.vue";
+import SearchChoiceIcon from "@/components/icons/SearchChoice.vue";
 
 const toast = useToast();
 
@@ -14,29 +28,50 @@ const router = useRouter();
 const columns = ref([
   {
     key: "id",
-    value: "User ID",
+    sortable: true,
+    searchable: true,
+    value: "User id",
   },
   {
     key: "username",
+    sortable: true,
+    searchable: true,
     value: "Username",
   },
   {
     key: "staff_name",
+    sortable: false,
+    searchable: false,
     value: "Staff name",
   },
   {
     key: "role_name",
+    sortable: false,
+    searchable: false,
     value: "Role name",
   },
   {
     key: "created_at",
+    sortable: true,
+    searchable: false,
     value: "Create at",
   },
   {
     key: "updated_at",
+    sortable: true,
+    searchable: false,
     value: "updated at",
   },
 ]);
+
+const filterColumns = ref([
+  {
+    key: "role_id",
+    checked: true,
+  },
+]);
+
+const searchColumns = ref([]);
 
 const rows = ref([]);
 
@@ -52,14 +87,73 @@ const selectedAccount = ref({});
 
 const loading = ref(true);
 
-function fetchAccountsData() {
-  store.dispatch("getUsers").then((response) => {
+const roles = ref([]);
+
+const selectedRole = ref();
+
+const filters = ref(["Nam", "Thu kho"]);
+
+const params = ref({
+  search: "",
+  sort_field: "id",
+  sort_direction: "asc",
+  search_columns: [],
+});
+
+function createQuery() {
+  let query = "";
+  if (
+    params.value.search_columns.length !== 0 &&
+    params.value.search.trim().length !== 0
+  ) {
+    query = `?search=${
+      params.value.search
+    }"&search_columns[]="${params.value.search_columns.join(
+      ",&search_columns[]="
+    )}`;
+  }
+
+  if (query) {
+    query =
+      query +
+      `&sort_field=${params.value.sortField}&sort_direction=${params.value.sortDirection}`;
+  } else {
+    query =
+      query +
+      `?sort_field=${params.value.sortField}&sort_direction=${params.value.sortDirection}`;
+  }
+
+  return query;
+}
+
+function removeFilter(filter) {
+  filters.value.splice(filters.value.indexOf(filter));
+
+  // fetchAccountsData(
+  //   `?sort_field=${query.sortField}&sort_direction=${query.sortDirection}`
+  // );
+}
+
+function fetchAccountsData(query) {
+  loading.value = true;
+
+  store.dispatch("getUsers", query).then((response) => {
     meta.value = response.data.meta;
 
     links.value = response.data.meta.links;
 
     rows.value = response.data.data;
+
+    loading.value = false;
   });
+}
+
+function reset() {
+  filters.value = [];
+}
+
+function filter() {
+  fetchAccountsData(createQuery());
 }
 
 function closeModal() {
@@ -85,8 +179,11 @@ function showEditAccount(accountId) {
 }
 
 function fetchRoleData() {
+  loading.value = true;
   store.dispatch("getAllRoles").then(() => {
     loading.value = false;
+    roles.value = store.state.roles;
+    selectedRole.value = roles.value[0];
   });
 }
 
@@ -103,9 +200,24 @@ function fetchSearchAccount() {
   });
 }
 
+function sortTable(query) {
+  fetchAccountsData(
+    `?sort_field=${query.sortField}&sort_direction=${query.sortDirection}`
+  );
+}
+
+function updateSelectedRole(data) {
+  selectedRole.value = data;
+}
 onMounted(() => {
-  fetchAccountsData();
+  fetchAccountsData("");
   fetchRoleData();
+  searchColumns.value = columns.value.filter(
+    (column) => column.searchable === true
+  );
+  searchColumns.value = searchColumns.value.map(function (column) {
+    return { key: column.key, name: column.value, checked: true };
+  });
 });
 </script>
 <template>
@@ -128,22 +240,12 @@ onMounted(() => {
     </button>
   </div>
 
-  <div class="px-4 py-2 relative mb-12">
+  <div class="px-4 py-2 mb-4 flex align-items-center gap-2">
     <div
-      class="absolute left-4 w-80 flex justify-end rounded-lg shadow-sm ring-1 transition duration-75 text-gray-400 bg-white focus-within:ring-2 ring-gray-950/10 focus-within:ring-primary-600"
+      class="left-4 w-80 flex justify-end rounded-lg shadow-sm ring-1 transition duration-75 text-gray-400 bg-white focus-within:ring-2 ring-gray-950/10 focus-within:ring-primary-600"
     >
       <div class="m-auto ps-2">
-        <svg
-          class="w-5 h-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
-          ></path>
-        </svg>
+        <SearchIcon class="text-gray-400" />
       </div>
       <input
         class="py-2 px-1 text-black rounded-lg flex-1"
@@ -159,15 +261,130 @@ onMounted(() => {
         Search
       </button>
     </div>
+    <Menu as="div" class="relative my-auto">
+      <MenuButton
+        class="items-center hover:opacity-80 focus:ouline-none rounded-lg p-1"
+      >
+        <FilterIcon class="text-gray-400 hover:text-gray-600 opacity-60" />
+      </MenuButton>
+      <TransitionSlideVertical>
+        <MenuItems
+          class="absolute right-0 z-10 mt-2.5 p-4 w-80 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none"
+        >
+          <div class="flex justify-between mb-4">
+            <h4
+              class="text-base font-semibold leading-6 text-gray-950 dark:text-white"
+            >
+              Filters
+            </h4>
+            <div class="flex gap-2">
+              <button
+                @click="filter"
+                type="button"
+                class="rounded-md duration-75 opacity-60 hover:opacity-80 text-green-600 px-3 py-2 text-sm font-medium bg-green-200 hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              >
+                Filter
+              </button>
+              <button
+                @click="reset"
+                type="button"
+                class="rounded-md duration-75 opacity-60 hover:opacity-80 text-warning-600 px-3 py-1 text-sm font-medium bg-warning-200 hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+          <div class="mb-4">
+            <ListComponent
+              @updateSelectedItem="updateSelectedRole"
+              :items="roles"
+              :selectedItem="selectedRole"
+              label="Role"
+            ></ListComponent>
+            <!-- <Disclosure v-slot="{ open }">
+              <DisclosureButton
+                class="flex w-full justify-between rounded-lg bg-primary-100 px-4 py-2 text-left text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
+              >
+                <span>Role</span>
+                <ChevronUpIcon
+                  :class="open ? 'rotate-180 transform duration-200' : ''"
+                  class="h-5 w-5 text-primary-500"
+                />
+              </DisclosureButton>
+              <TransitionSlideVertical>
+                <DisclosurePanel class="pt-4 pb-2 text-sm text-gray-500">
+                  <ListComponent
+                    @updateSelectedItem="updateSelectedRole"
+                    :items="roles"
+                    :selectedItem="selectedRole"
+                  ></ListComponent>
+                </DisclosurePanel>
+              </TransitionSlideVertical>
+            </Disclosure> -->
+          </div>
+        </MenuItems>
+      </TransitionSlideVertical>
+    </Menu>
+
+    <Menu as="div" class="relative my-auto">
+      <MenuButton
+        class="items-center hover:opacity-80 focus:ouline-none rounded-lg p-1"
+      >
+        <SearchChoiceIcon
+          class="text-gray-400 hover:text-gray-600 opacity-60"
+        />
+      </MenuButton>
+      <TransitionSlideVertical>
+        <MenuItems
+          class="absolute right-0 z-10 mt-2.5 p-4 w-80 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-900/5 focus:outline-none"
+        >
+          <div class="flex items-center justify-between">
+            <h4
+              class="text-base font-semibold leading-6 text-gray-950 dark:text-white mb-4"
+            >
+              Search columns
+            </h4>
+          </div>
+          <div class="flex-col gap-8">
+            <div v-for="searchColumn in searchColumns" :key="searchColumn">
+              <div class="flex gap-8">
+                <label
+                  class="text-teal-500 hover:bg-gray-200 px-2 py-2 rounded-lg cursor-pointer"
+                >
+                  <input
+                    @click="searchColumn.checked = !searchColumn.checked"
+                    type="checkbox"
+                    ref="toggleAll"
+                    :checked="searchColumn.checked"
+                    class="-mt-3 form-checkbox focus:outline-none focus:shadow-outline"
+                  />
+                </label>
+                <label
+                  for="default-input"
+                  class="p-1 bg-white whitespace-nowrap text-sm font-medium text-gray-900"
+                >
+                  {{ searchColumn.name }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </MenuItems>
+      </TransitionSlideVertical>
+    </Menu>
   </div>
+
   <Table
+    @removeFilter="removeFilter"
+    @sortTable="sortTable"
     :columns="columns"
+    :loading="loading"
     :rows="rows"
     :meta="meta"
     :links="links"
     :action-column="true"
     :tableRoute="'/accounts'"
     :searchTerm="searchAccount"
+    :filters="filters"
   >
     <template v-slot:actions="{ row }">
       <button
@@ -211,7 +428,48 @@ onMounted(() => {
 </template>
 
 <style scoped>
-input.dp__pointer {
-  @apply border-none;
+[type="checkbox"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.form-checkbox {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-print-color-adjust: exact;
+  color-adjust: exact;
+  display: inline-block;
+  vertical-align: middle;
+  background-origin: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  flex-shrink: 0;
+  color: currentColor;
+  background-color: #fff;
+  border-color: #e2e8f0;
+  border-width: 1px;
+  border-radius: 0.25rem;
+  height: 1.2em;
+  width: 1.2em;
+}
+
+.form-checkbox:checked {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
+  border-color: transparent;
+  background-color: currentColor;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.form-checkbox:indeterminate {
+  background-image: url("data:image/svg+xml,%3Csvg class='w-16 h-16' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Crect x='2' y='5.25' width='8' height='1.5' rx='0.75' fill='white'%3E%3C/rect%3E%3C/svg%3E");
+  border-color: transparent;
+  background-color: currentColor;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 </style>
