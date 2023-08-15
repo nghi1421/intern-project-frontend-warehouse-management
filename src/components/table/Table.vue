@@ -19,10 +19,8 @@ export default {
     links: Array,
     actionColumn: {
       type: Boolean,
-      default: false,
+      default: true,
     },
-    tableRoute: String,
-    searchTerm: String,
   },
 
   data() {
@@ -93,22 +91,6 @@ export default {
         }
       }
     },
-
-    changePage(url) {
-      this.loadingStatus = true;
-      axios
-        .get(url, {
-          headers: { Authorization: `Bearer ${this.$store.state.user.token}` },
-        })
-        .then((response) => {
-          this.data = response.data.data.map(function (row) {
-            return { ...row, selected: false };
-          });
-          this.metaData = response.data.meta;
-          this.linksData = response.data.meta.links;
-          this.loadingStatus = false;
-        });
-    },
   },
 
   watch: {
@@ -131,37 +113,6 @@ export default {
         <div
           class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5"
         >
-          <!-- <div v-if="filters.length > 0">
-            <div class="flex gap-2 px-2 y-1 mb-2">
-              <label
-                for="default-input"
-                class="p-1 bg-white whitespace-nowrap text-xs font-medium text-gray-900"
-              >
-                Filtering by
-              </label>
-              <span
-                v-for="filter in filters"
-                :key="`filter-${filter.key}`"
-                class="inline-flex whitespace-nowrap items-center gap-x-0.5 rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-primary-600 ring-1 ring-inset ring-primary-500/10"
-              >
-                {{ filter.name }}
-                <button
-                  @click="$emit('removeFilter', filter)"
-                  type="button"
-                  class="group relative -mr-1 rounded-sm hover:bg-gray-500/20"
-                >
-                  <span class="sr-only">Remove</span>
-                  <svg
-                    viewBox="0 0 14 14"
-                    class="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
-                  >
-                    <path d="M4 4l6 6m0-6l-6 6" />
-                  </svg>
-                  <span class="absolute -inset-1" />
-                </button>
-              </span>
-            </div>
-          </div> -->
           <table
             class="min-h-[100px] min-w-full border-collapse overflow-auto table-auto w-full whitespace-no-wrap bg-white relative"
           >
@@ -306,13 +257,7 @@ export default {
         </div>
       </div>
     </div>
-    <table-pagination
-      :meta="metaData"
-      :links="linksData"
-      :changePage="changePage"
-      :tableRoute="tableRoute"
-      :searchTerm="searchTerm"
-    ></table-pagination>
+    <table-pagination :meta="metaData" :links="linksData"></table-pagination>
   </div>
 </template>
 

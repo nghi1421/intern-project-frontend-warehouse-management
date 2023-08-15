@@ -1,15 +1,12 @@
 <script>
 import { formatNumber } from "../../utilities";
-
+import eventClient from "../../eventClient.js";
 export default {
   name: "table-pagination",
 
   props: {
     meta: Object,
     links: Array,
-    changePage: Function,
-    tableRoute: String,
-    searchTerm: String,
   },
 
   computed: {
@@ -28,26 +25,7 @@ export default {
     click(event) {
       if (event.target.getAttribute("href")) {
         const href = event.target.getAttribute("href");
-        let query = {};
-        if (this.searchTerm) {
-          query = { ...query, search: this.searchTerm };
-        }
-        if (href.slice(href.indexOf("?page=" + 5)) != 1) {
-          query = { ...query, page: href.slice(href.indexOf("?page=" + 5)) };
-          if (this.searchTerm) {
-            query = { ...query, search: this.searchTerm };
-          }
-          this.$router.replace({
-            path: this.tableRoute,
-            query,
-          });
-        } else {
-          this.$router.replace({
-            path: this.tableRoute,
-            query,
-          });
-        }
-        this.changePage(href);
+        eventClient.emit("change-page", href.slice(href.indexOf("?page=" + 5)));
       }
     },
     lable(lable) {

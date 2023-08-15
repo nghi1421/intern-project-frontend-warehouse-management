@@ -1,6 +1,6 @@
 <script setup>
 import store from "../../store";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import Table from "@/components/table/Table.vue";
 import CreateUserModal from "./CreateUserModal.vue";
@@ -10,6 +10,7 @@ import "vue-toast-notification/dist/theme-sugar.css";
 import SearchIcon from "@/components/icons/Search.vue";
 import TransitionSlideVertical from "@/components/TransitionSlideVertical.vue";
 import SearchChoiceIcon from "@/components/icons/SearchChoice.vue";
+import eventClient from "../../eventClient.js";
 
 const toast = useToast();
 
@@ -73,6 +74,7 @@ const loading = ref(true);
 const roles = ref([]);
 
 const params = ref({
+  page: 1,
   search: "",
   sort_field: "id",
   sort_direction: "asc",
@@ -81,11 +83,12 @@ const params = ref({
 
 watch(searchAccount, (newValue) => {
   params.value = { ...params.value, search: newValue };
+  if (newValue.length === 0) {
+    params.value.page = 1;
+    router.push({ path: "/accounts", query: params.value });
+    fetchAccountsData(params.value);
+  }
 });
-
-function removeFilter(filter) {
-  params.value = { ...params.value, [filter.key]: "" };
-}
 
 function fetchAccountsData(query) {
   loading.value = true;
@@ -134,27 +137,24 @@ function fetchRoleData() {
 function fetchSearchAccount() {
   const searchChecked = searchColumns.value.filter((column) => column.checked);
   params.value.search_columns = searchChecked.map((column) => column.key);
+  params.value.page = 1;
   router.push({ path: "/accounts", query: params.value });
 
-  store.dispatch("getUsers", params.value).then((response) => {
-    meta.value = response.data.meta;
-
-    links.value = response.data.meta.links;
-
-    rows.value = response.data.data;
-  });
+  fetchAccountsData(params.value);
 }
 
 function sortTable(query) {
-  fetchAccountsData({
+  params.value = {
     ...params.value,
     sort_field: query.sortField,
     sort_direction: query.sortDirection,
-  });
+  };
+  router.push({ path: "/accounts", query: params.value });
+  fetchAccountsData(params.value);
 }
 
 onMounted(() => {
-  fetchAccountsData("");
+  fetchAccountsData();
   fetchRoleData();
   searchColumns.value = columns.value.filter(
     (column) => column.searchable === true
@@ -162,6 +162,16 @@ onMounted(() => {
   searchColumns.value = searchColumns.value.map(function (column) {
     return { key: column.key, name: column.value, checked: true };
   });
+
+  eventClient.on("change-page", (pageNumber) => {
+    params.value.page = pageNumber;
+    router.push({ path: "/accounts", query: params.value });
+    fetchAccountsData(params.value);
+  });
+});
+
+onUnmounted(() => {
+  eventClient.off("change-page");
 });
 </script>
 <template>
@@ -254,16 +264,12 @@ onMounted(() => {
   </div>
 
   <Table
-    @removeFilter="removeFilter"
     @sortTable="sortTable"
     :columns="columns"
     :loading="loading"
     :rows="rows"
     :meta="meta"
     :links="links"
-    :action-column="true"
-    :tableRoute="'/accounts'"
-    :searchTerm="searchAccount"
   >
     <template v-slot:actions="{ row }">
       <button
