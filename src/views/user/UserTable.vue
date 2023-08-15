@@ -1,24 +1,14 @@
 <script setup>
 import store from "../../store";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import Table from "@/components/table/Table.vue";
 import CreateUserModal from "./CreateUserModal.vue";
-import { ChevronUpIcon } from "@heroicons/vue/20/solid";
-import {
-  Menu,
-  MenuButton,
-  MenuItems,
-  DisclosureButton,
-  Disclosure,
-  DisclosurePanel,
-} from "@headlessui/vue";
-import ListComponent from "@/components/form/List.vue";
+import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 import SearchIcon from "@/components/icons/Search.vue";
 import TransitionSlideVertical from "@/components/TransitionSlideVertical.vue";
-import FilterIcon from "@/components/icons/Filter.vue";
 import SearchChoiceIcon from "@/components/icons/SearchChoice.vue";
 
 const toast = useToast();
@@ -46,7 +36,7 @@ const columns = ref([
   },
   {
     key: "role_name",
-    sortable: false,
+    sortable: true,
     searchable: false,
     value: "Role name",
   },
@@ -61,13 +51,6 @@ const columns = ref([
     sortable: true,
     searchable: false,
     value: "updated at",
-  },
-]);
-
-const filterColumns = ref([
-  {
-    key: "role_id",
-    checked: true,
   },
 ]);
 
@@ -89,49 +72,19 @@ const loading = ref(true);
 
 const roles = ref([]);
 
-const selectedRole = ref();
-
-const filters = ref(["Nam", "Thu kho"]);
-
 const params = ref({
   search: "",
   sort_field: "id",
   sort_direction: "asc",
-  search_columns: [],
+  search_columns: ["id", "username"],
 });
 
-function createQuery() {
-  let query = "";
-  if (
-    params.value.search_columns.length !== 0 &&
-    params.value.search.trim().length !== 0
-  ) {
-    query = `?search=${
-      params.value.search
-    }"&search_columns[]="${params.value.search_columns.join(
-      ",&search_columns[]="
-    )}`;
-  }
-
-  if (query) {
-    query =
-      query +
-      `&sort_field=${params.value.sortField}&sort_direction=${params.value.sortDirection}`;
-  } else {
-    query =
-      query +
-      `?sort_field=${params.value.sortField}&sort_direction=${params.value.sortDirection}`;
-  }
-
-  return query;
-}
+watch(searchAccount, (newValue) => {
+  params.value = { ...params.value, search: newValue };
+});
 
 function removeFilter(filter) {
-  filters.value.splice(filters.value.indexOf(filter));
-
-  // fetchAccountsData(
-  //   `?sort_field=${query.sortField}&sort_direction=${query.sortDirection}`
-  // );
+  params.value = { ...params.value, [filter.key]: "" };
 }
 
 function fetchAccountsData(query) {
@@ -146,14 +99,6 @@ function fetchAccountsData(query) {
 
     loading.value = false;
   });
-}
-
-function reset() {
-  filters.value = [];
-}
-
-function filter() {
-  fetchAccountsData(createQuery());
 }
 
 function closeModal() {
@@ -183,15 +128,15 @@ function fetchRoleData() {
   store.dispatch("getAllRoles").then(() => {
     loading.value = false;
     roles.value = store.state.roles;
-    selectedRole.value = roles.value[0];
   });
 }
 
 function fetchSearchAccount() {
-  router.replace({ path: "/accounts", query: { search: searchAccount.value } });
+  const searchChecked = searchColumns.value.filter((column) => column.checked);
+  params.value.search_columns = searchChecked.map((column) => column.key);
+  router.push({ path: "/accounts", query: params.value });
 
-  store.dispatch("searchAccount", searchAccount.value).then((response) => {
-    console.log(response);
+  store.dispatch("getUsers", params.value).then((response) => {
     meta.value = response.data.meta;
 
     links.value = response.data.meta.links;
@@ -201,14 +146,13 @@ function fetchSearchAccount() {
 }
 
 function sortTable(query) {
-  fetchAccountsData(
-    `?sort_field=${query.sortField}&sort_direction=${query.sortDirection}`
-  );
+  fetchAccountsData({
+    ...params.value,
+    sort_field: query.sortField,
+    sort_direction: query.sortDirection,
+  });
 }
 
-function updateSelectedRole(data) {
-  selectedRole.value = data;
-}
 onMounted(() => {
   fetchAccountsData("");
   fetchRoleData();
@@ -261,70 +205,6 @@ onMounted(() => {
         Search
       </button>
     </div>
-    <Menu as="div" class="relative my-auto">
-      <MenuButton
-        class="items-center hover:opacity-80 focus:ouline-none rounded-lg p-1"
-      >
-        <FilterIcon class="text-gray-400 hover:text-gray-600 opacity-60" />
-      </MenuButton>
-      <TransitionSlideVertical>
-        <MenuItems
-          class="absolute right-0 z-10 mt-2.5 p-4 w-80 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none"
-        >
-          <div class="flex justify-between mb-4">
-            <h4
-              class="text-base font-semibold leading-6 text-gray-950 dark:text-white"
-            >
-              Filters
-            </h4>
-            <div class="flex gap-2">
-              <button
-                @click="filter"
-                type="button"
-                class="rounded-md duration-75 opacity-60 hover:opacity-80 text-green-600 px-3 py-2 text-sm font-medium bg-green-200 hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-              >
-                Filter
-              </button>
-              <button
-                @click="reset"
-                type="button"
-                class="rounded-md duration-75 opacity-60 hover:opacity-80 text-warning-600 px-3 py-1 text-sm font-medium bg-warning-200 hover:bg-opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-          <div class="mb-4">
-            <ListComponent
-              @updateSelectedItem="updateSelectedRole"
-              :items="roles"
-              :selectedItem="selectedRole"
-              label="Role"
-            ></ListComponent>
-            <!-- <Disclosure v-slot="{ open }">
-              <DisclosureButton
-                class="flex w-full justify-between rounded-lg bg-primary-100 px-4 py-2 text-left text-sm font-medium text-primary-900 hover:bg-primary-200 focus:outline-none focus-visible:ring focus-visible:ring-primary-500 focus-visible:ring-opacity-75"
-              >
-                <span>Role</span>
-                <ChevronUpIcon
-                  :class="open ? 'rotate-180 transform duration-200' : ''"
-                  class="h-5 w-5 text-primary-500"
-                />
-              </DisclosureButton>
-              <TransitionSlideVertical>
-                <DisclosurePanel class="pt-4 pb-2 text-sm text-gray-500">
-                  <ListComponent
-                    @updateSelectedItem="updateSelectedRole"
-                    :items="roles"
-                    :selectedItem="selectedRole"
-                  ></ListComponent>
-                </DisclosurePanel>
-              </TransitionSlideVertical>
-            </Disclosure> -->
-          </div>
-        </MenuItems>
-      </TransitionSlideVertical>
-    </Menu>
 
     <Menu as="div" class="relative my-auto">
       <MenuButton
@@ -384,7 +264,6 @@ onMounted(() => {
     :action-column="true"
     :tableRoute="'/accounts'"
     :searchTerm="searchAccount"
-    :filters="filters"
   >
     <template v-slot:actions="{ row }">
       <button

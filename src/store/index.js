@@ -60,7 +60,7 @@ const store = createStore({
         .then((response) => response)
     },
     getUsers(context, query) {
-        return axiosClient.get(`/users${query}`)
+      return axiosClient.get(`/users`, { params: query })
           .then((data) => data)
     },
     searchAccount(context, searchTerm) {

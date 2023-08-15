@@ -23,7 +23,6 @@ export default {
     },
     tableRoute: String,
     searchTerm: String,
-    filters: Array,
   },
 
   data() {
@@ -132,7 +131,7 @@ export default {
         <div
           class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5"
         >
-          <div v-if="filters.length > 0">
+          <!-- <div v-if="filters.length > 0">
             <div class="flex gap-2 px-2 y-1 mb-2">
               <label
                 for="default-input"
@@ -142,10 +141,10 @@ export default {
               </label>
               <span
                 v-for="filter in filters"
-                :key="filter"
+                :key="`filter-${filter.key}`"
                 class="inline-flex whitespace-nowrap items-center gap-x-0.5 rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-primary-600 ring-1 ring-inset ring-primary-500/10"
               >
-                {{ filter }}
+                {{ filter.name }}
                 <button
                   @click="$emit('removeFilter', filter)"
                   type="button"
@@ -162,7 +161,7 @@ export default {
                 </button>
               </span>
             </div>
-          </div>
+          </div> -->
           <table
             class="min-h-[100px] min-w-full border-collapse overflow-auto table-auto w-full whitespace-no-wrap bg-white relative"
           >
