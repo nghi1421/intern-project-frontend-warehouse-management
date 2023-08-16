@@ -254,8 +254,8 @@ const store = createStore({
         .delete(`/locations/${locationId}`)
         .then((response) => response)
     },
-    getPositions() {
-      return axiosClient.get('/positions')
+    getPositions(context, query) {
+      return axiosClient.get('/positions', query)
         .then((response) => response)
     },
     createPosition({ commit }, data) {
