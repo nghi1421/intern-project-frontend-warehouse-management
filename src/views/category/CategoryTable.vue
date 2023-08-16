@@ -100,6 +100,8 @@ function fetchCategoriesData(query) {
   });
 }
 
+const searchCategory = ref(route.query.search);
+
 watch(searchCategory, (newValue) => {
   params.value = { ...params.value, search: newValue };
   if (newValue.length === 0) {
@@ -148,8 +150,6 @@ function openConfirmModal(staff) {
   isOpenConfirmModal.value = true;
   selectedCategory.value = staff;
 }
-
-const searchCategory = ref("");
 
 function deleteCategory() {
   return store
