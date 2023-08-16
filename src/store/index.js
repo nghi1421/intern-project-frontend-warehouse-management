@@ -181,8 +181,8 @@ const store = createStore({
           return response
         })
     },
-    getProviders() {
-      return axiosClient.get('/providers')
+    getProviders(context, query) {
+      return axiosClient.get('/providers', {params: query})
         .then((response) => response)
     },
     createProvider({ commit }, data) {
@@ -208,8 +208,8 @@ const store = createStore({
           return response
         })
     },
-    getWarehouseBranches() {
-      return axiosClient.get('/warehouse-branches')
+    getWarehouseBranches(context, query) {
+      return axiosClient.get('/warehouse-branches', { params: query})
         .then((response) => response)
     },
     createWarehouseBranch({ commit }, data) {
