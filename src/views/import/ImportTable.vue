@@ -229,7 +229,7 @@ function fetchImportPDF(importId) {
 
 onMounted(() => {
   params.value = { ...params.value, ...route.query };
-  fetchImortsData();
+  fetchImortsData(params.value);
   fetchCurrentUser();
   fetchProvidersData();
   fetchWarehouseBranchesData();
