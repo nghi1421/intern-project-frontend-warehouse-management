@@ -135,8 +135,8 @@ const store = createStore({
         .delete(`/categories/${categoryId}`)
         .then((response) => response)
     },
-    getImports() {
-      return axiosClient.get('/imports')
+    getImports(context, query) {
+      return axiosClient.get('/imports',{params: query})
         .then((response) => response)
     },
     createImport({ commit }, data) {
@@ -154,8 +154,8 @@ const store = createStore({
         .delete(`/imports/${importId}`)
         .then((response) => response)
     },
-    getExports() {
-      return axiosClient.get('/exports')
+    getExports(context, query) {
+      return axiosClient.get('/exports', { params: query})
         .then((response) => response)
     },
     createExport({ commit }, data) {
