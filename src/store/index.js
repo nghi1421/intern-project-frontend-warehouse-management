@@ -273,8 +273,8 @@ const store = createStore({
         .delete(`/positions/${positionId}`)
         .then((response) => response)
     },
-    getStocks() {
-      return axiosClient.get('/stocks')
+    getStocks(context, query) {
+      return axiosClient.get('/stocks', { params: query})
         .then((response) => response)
     },
     updateStock({ commit }, data) {

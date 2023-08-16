@@ -287,7 +287,7 @@ onUnmounted(() => {
         class="py-2 px-1 text-black rounded-lg flex-1"
         type="text"
         v-model="searchImport"
-        placeholder="Search import"
+        placeholder="Search by import id"
       />
       <button
         @click="fetchSearchImport"

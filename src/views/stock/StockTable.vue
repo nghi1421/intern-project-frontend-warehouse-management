@@ -37,13 +37,13 @@ const columns = ref([
   {
     key: "quantity",
     value: "Quantity",
-    sortable: true,
+    sortable: false,
     searchable: false,
   },
   {
     key: "category_unit",
     value: "Cateogry unit",
-    sortable: true,
+    sortable: false,
     searchable: false,
   },
 
@@ -57,7 +57,7 @@ const columns = ref([
     key: "expiry_date",
     value: "Expiry date",
     sortable: true,
-    searchable: true,
+    searchable: false,
   },
 ]);
 
