@@ -109,8 +109,8 @@ const store = createStore({
         .delete(`staffs/${staffId}`)
         .then((response) => response)
     },
-    getCategories(context) {
-      return axiosClient.get('/categories')
+    getCategories(context, query) {
+      return axiosClient.get('/categories', { params : query})
         .then((response) => response)
     },
     getAllCategories({ commit }) {
@@ -255,7 +255,7 @@ const store = createStore({
         .then((response) => response)
     },
     getPositions(context, query) {
-      return axiosClient.get('/positions', query)
+      return axiosClient.get('/positions', { params: query})
         .then((response) => response)
     },
     createPosition({ commit }, data) {

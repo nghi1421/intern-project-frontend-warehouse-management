@@ -25,7 +25,7 @@ const route = useRoute();
 const columns = ref([
   {
     key: "id",
-    value: "position ID",
+    value: "Position ID",
     sortable: true,
     searchable: true,
   },
@@ -80,12 +80,14 @@ const loading = ref(true);
 
 function fetchPositionsData(query) {
   loading.value = true;
+
   store.dispatch("getPositions", query).then((response) => {
     meta.value = response.data.meta;
 
     links.value = response.data.meta.links;
 
     rows.value = response.data.data;
+
     loading.value = false;
   });
 }
@@ -165,7 +167,7 @@ onMounted(() => {
   eventClient.on("change-page", (pageNumber) => {
     params.value.page = pageNumber;
     router.push({ path: "/providers", query: params.value });
-    fetchProvidersData(params.value);
+    fetchPositionsData(params.value);
   });
 });
 
