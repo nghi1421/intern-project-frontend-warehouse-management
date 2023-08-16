@@ -32,8 +32,8 @@ export default {
       linksData: this.links,
       open: false,
       loadingStatus: true,
-      sortField: "id",
-      sortDirection: "asc",
+      sortField: this.$route.query.sort_field ? this.$route.query.sort_field : "id",
+      sortDirection: this.$route.sort_direction ? this.$route.sort_direction : "asc",
     };
   },
 

@@ -1,7 +1,7 @@
 <script setup>
 import store from "../../store";
 import { ref, onMounted, watch, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Table from "@/components/table/Table.vue";
 import CreateUserModal from "./CreateUserModal.vue";
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
@@ -15,6 +15,8 @@ import eventClient from "../../eventClient.js";
 const toast = useToast();
 
 const router = useRouter();
+
+const route = useRoute();
 
 const columns = ref([
   {
@@ -154,7 +156,8 @@ function sortTable(query) {
 }
 
 onMounted(() => {
-  fetchAccountsData();
+  params.value = { ...params.value, ...route.query };
+  fetchAccountsData(route.query);
   fetchRoleData();
   searchColumns.value = columns.value.filter(
     (column) => column.searchable === true

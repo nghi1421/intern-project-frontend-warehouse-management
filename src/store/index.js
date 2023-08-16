@@ -49,8 +49,8 @@ const store = createStore({
       return axiosClient.post('/change-password', data)
         .then((response) => response);
     },
-    getStaffs() {
-      return axiosClient.get('/staffs')
+    getStaffs(context, query) {
+      return axiosClient.get('/staffs', { params: query })
         .then((data) => {
           return data;
         })
