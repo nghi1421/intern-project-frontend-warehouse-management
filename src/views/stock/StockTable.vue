@@ -1,43 +1,77 @@
 <script setup>
 import store from "../../store";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch, onUnmounted } from "vue";
 import Table from "@/components/table/Table.vue";
 import EditStockModal from "./EditStockModal.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
+import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
+import TransitionSlideVertical from "@/components/TransitionSlideVertical.vue";
+import SearchChoiceIcon from "@/components/icons/SearchChoice.vue";
+import EditIcon from "@/components/icons/EditIcon.vue";
+import DeleteIcon from "@/components/icons/DeleteIcon.vue";
+import SearchIcon from "@/components/icons/Search.vue";
+import eventClient from "../../eventClient.js";
+import { useRouter, useRoute } from "vue-router";
 
 const toast = useToast();
+
+const router = useRouter();
+
+const route = useRoute();
 
 const columns = ref([
   {
     key: "id",
-    value: "stock ID",
+    value: "Stock ID",
+    sortable: true,
+    searchable: true,
   },
   {
     key: "category_name",
     value: "Cateogry name",
+    sortable: true,
+    searchable: false,
   },
   {
     key: "quantity",
     value: "Quantity",
+    sortable: true,
+    searchable: false,
   },
   {
     key: "category_unit",
     value: "Cateogry unit",
+    sortable: true,
+    searchable: false,
   },
 
   {
     key: "import_id",
-    value: "Import id",
+    value: "Import ID",
+    sortable: true,
+    searchable: true,
   },
   {
     key: "expiry_date",
     value: "Expiry date",
+    sortable: true,
+    searchable: true,
   },
 ]);
 
 const selectedLocation = ref({});
+
+const params = ref({
+  page: 1,
+  search: "",
+  sort_field: "id",
+  sort_direction: "asc",
+  search_columns: ["id"],
+});
+
+const searchColumns = ref([]);
 
 const rows = ref([]);
 
@@ -53,12 +87,37 @@ const searchStock = ref("");
 
 const loading = ref(true);
 
-function fetchSearchStock() {
-  //
+watch(searchStock, (newValue) => {
+  params.value = { ...params.value, search: newValue };
+  if (newValue.length === 0) {
+    params.value.page = 1;
+    router.push({ path: "/stocks", query: params.value });
+    fetchStocksData(params.value);
+  }
+});
+
+function sortTable(query) {
+  params.value = {
+    ...params.value,
+    sort_field: query.sortField,
+    sort_direction: query.sortDirection,
+  };
+  router.push({ path: "/stocks", query: params.value });
+  fetchStocksData(params.value);
 }
 
-function fetchStocksData() {
-  store.dispatch("getStocks").then((response) => {
+function fetchSearchStock() {
+  const searchChecked = searchColumns.value.filter((column) => column.checked);
+  params.value.search_columns = searchChecked.map((column) => column.key);
+  params.value.page = 1;
+  router.push({ path: "/stocks", query: params.value });
+
+  fetchStocksData(params.value);
+}
+
+function fetchStocksData(query) {
+  loading.value = true;
+  store.dispatch("getStocks", query).then((response) => {
     meta.value = response.data.meta;
 
     links.value = response.data.meta.links;
@@ -103,7 +162,23 @@ function deleteStock() {
 }
 
 onMounted(() => {
-  fetchStocksData();
+  params.value = { ...params.value, ...route.query };
+  fetchStocksData(params.value);
+  searchColumns.value = columns.value.filter(
+    (column) => column.searchable === true
+  );
+  searchColumns.value = searchColumns.value.map(function (column) {
+    return { key: column.key, name: column.value, checked: true };
+  });
+  eventClient.on("change-page", (pageNumber) => {
+    params.value.page = pageNumber;
+    router.push({ path: "/exports", query: params.value });
+    fetchProvidersData(params.value);
+  });
+});
+
+onUnmounted(() => {
+  eventClient.off("change-page");
 });
 </script>
 
@@ -130,22 +205,12 @@ onMounted(() => {
     </h1>
   </div>
 
-  <div class="px-4 py-2 relative mb-12">
+  <div class="px-4 py-2 mb-4 flex align-items-center gap-2">
     <div
-      class="absolute left-4 w-80 flex justify-end rounded-lg shadow-sm ring-1 transition duration-75 text-gray-400 bg-white focus-within:ring-2 ring-gray-950/10 focus-within:ring-primary-600"
+      class="left-4 w-80 flex justify-end rounded-lg shadow-sm ring-1 transition duration-75 text-gray-400 bg-white focus-within:ring-2 ring-gray-950/10 focus-within:ring-primary-600"
     >
       <div class="m-auto ps-2">
-        <svg
-          class="w-5 h-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"
-          ></path>
-        </svg>
+        <SearchIcon class="text-gray-400" />
       </div>
       <input
         class="py-2 px-1 text-black rounded-lg flex-1"
@@ -161,6 +226,51 @@ onMounted(() => {
         Search
       </button>
     </div>
+    <Menu as="div" class="relative my-auto">
+      <MenuButton
+        class="items-center hover:opacity-80 focus:ouline-none rounded-lg p-1"
+      >
+        <SearchChoiceIcon
+          class="text-gray-400 hover:text-gray-600 opacity-60"
+        />
+      </MenuButton>
+      <TransitionSlideVertical>
+        <MenuItems
+          class="absolute right-0 z-10 mt-2.5 p-4 w-80 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-900/5 focus:outline-none"
+        >
+          <div class="flex items-center justify-between">
+            <h4
+              class="text-base font-semibold leading-6 text-gray-950 dark:text-white mb-4"
+            >
+              Search columns
+            </h4>
+          </div>
+          <div class="flex-col gap-8">
+            <div v-for="searchColumn in searchColumns" :key="searchColumn">
+              <div class="flex gap-8">
+                <label
+                  class="text-teal-500 hover:bg-gray-200 px-2 py-2 rounded-lg cursor-pointer"
+                >
+                  <input
+                    @click="searchColumn.checked = !searchColumn.checked"
+                    type="checkbox"
+                    ref="toggleAll"
+                    :checked="searchColumn.checked"
+                    class="-mt-3 form-checkbox focus:outline-none focus:shadow-outline"
+                  />
+                </label>
+                <label
+                  for="default-input"
+                  class="p-1 bg-white whitespace-nowrap text-sm font-medium text-gray-900"
+                >
+                  {{ searchColumn.name }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </MenuItems>
+      </TransitionSlideVertical>
+    </Menu>
   </div>
 
   <Table
@@ -168,47 +278,22 @@ onMounted(() => {
     :rows="rows"
     :meta="meta"
     :links="links"
-    :action-column="true"
-    :tableRoute="'/stocks'"
-    :searchTerm="searchStock"
+    @sortTable="sortTable"
+    :loading="loading"
   >
     <template v-slot:actions="{ row }">
       <button
         @click="openEditModal(row)"
         class="p-1 overflow-hidden hover:opacity-60 bg-success-600 rounded-3xl text-white whitespace-nowrap"
       >
-        <svg
-          class="w-5 h-5"
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          fill="currentColor"
-          viewBox="0 0 16 16"
-        >
-          <path
-            d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
-          ></path>
-          <path
-            d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
-          ></path>
-        </svg>
+        <EditIcon />
       </button>
 
       <button
         @click="openConfirmModal(row)"
         class="p-1 ms-2 overflow-hidden hover:opacity-60 bg-danger-600 rounded-xl text-white whitespace-nowrap"
       >
-        <svg
-          class="w-5 h-5"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <path
-            d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h4a1 1 0 1 1 0 2h-1.069l-.867 12.142A2 2 0 0 1 17.069 22H6.93a2 2 0 0 1-1.995-1.858L4.07 8H3a1 1 0 0 1 0-2h4V4zm2 2h6V4H9v2zM6.074 8l.857 12H17.07l.857-12H6.074zM10 10a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1z"
-            fill="currentColor"
-          ></path>
-        </svg>
+        <DeleteIcon />
       </button>
     </template>
   </Table>

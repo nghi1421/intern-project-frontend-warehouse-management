@@ -7,9 +7,6 @@ import ConfirmModal from "@/components/ConfirmModal.vue";
 import EditImportModal from "./EditImportModal.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
-import TransitionSlideVertical from "@/components/TransitionSlideVertical.vue";
-import SearchChoiceIcon from "@/components/icons/SearchChoice.vue";
 import EditIcon from "@/components/icons/EditIcon.vue";
 import DeleteIcon from "@/components/icons/DeleteIcon.vue";
 import SearchIcon from "@/components/icons/Search.vue";
@@ -76,8 +73,6 @@ const params = ref({
   search_columns: ["id"],
 });
 
-const searchColumns = ref([]);
-
 const staffInformation = ref({});
 
 const rows = ref([]);
@@ -120,8 +115,6 @@ function sortTable(query) {
 }
 
 function fetchSearchImport() {
-  const searchChecked = searchColumns.value.filter((column) => column.checked);
-  params.value.search_columns = searchChecked.map((column) => column.key);
   params.value.page = 1;
   router.push({ path: "/imports", query: params.value });
 
@@ -234,12 +227,6 @@ onMounted(() => {
   fetchProvidersData();
   fetchWarehouseBranchesData();
   fetchCategoriesData();
-  searchColumns.value = columns.value.filter(
-    (column) => column.searchable === true
-  );
-  searchColumns.value = searchColumns.value.map(function (column) {
-    return { key: column.key, name: column.value, checked: true };
-  });
   eventClient.on("change-page", (pageNumber) => {
     params.value.page = pageNumber;
     router.push({ path: "/imports", query: params.value });
@@ -310,51 +297,6 @@ onUnmounted(() => {
         Search
       </button>
     </div>
-    <Menu as="div" class="relative my-auto">
-      <MenuButton
-        class="items-center hover:opacity-80 focus:ouline-none rounded-lg p-1"
-      >
-        <SearchChoiceIcon
-          class="text-gray-400 hover:text-gray-600 opacity-60"
-        />
-      </MenuButton>
-      <TransitionSlideVertical>
-        <MenuItems
-          class="absolute right-0 z-10 mt-2.5 p-4 w-80 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-900/5 focus:outline-none"
-        >
-          <div class="flex items-center justify-between">
-            <h4
-              class="text-base font-semibold leading-6 text-gray-950 dark:text-white mb-4"
-            >
-              Search columns
-            </h4>
-          </div>
-          <div class="flex-col gap-8">
-            <div v-for="searchColumn in searchColumns" :key="searchColumn">
-              <div class="flex gap-8">
-                <label
-                  class="text-teal-500 hover:bg-gray-200 px-2 py-2 rounded-lg cursor-pointer"
-                >
-                  <input
-                    @click="searchColumn.checked = !searchColumn.checked"
-                    type="checkbox"
-                    ref="toggleAll"
-                    :checked="searchColumn.checked"
-                    class="-mt-3 form-checkbox focus:outline-none focus:shadow-outline"
-                  />
-                </label>
-                <label
-                  for="default-input"
-                  class="p-1 bg-white whitespace-nowrap text-sm font-medium text-gray-900"
-                >
-                  {{ searchColumn.name }}
-                </label>
-              </div>
-            </div>
-          </div>
-        </MenuItems>
-      </TransitionSlideVertical>
-    </Menu>
   </div>
 
   <Table
