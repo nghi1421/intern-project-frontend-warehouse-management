@@ -14,22 +14,11 @@ import ImportForm from "./ImportForm.vue";
 const toast = useToast();
 
 const props = defineProps({
+  createImport: Function,
   staff: Object,
   isOpen: Boolean,
   closeModal: Function,
 });
-
-function createImport(data) {
-  return store.dispatch("createImport", data).then((response) => {
-    if (response.status === 200) {
-      toast.success(response.data.message);
-      return true;
-    } else {
-      toast.error(response.data.message);
-      return false;
-    }
-  });
-}
 </script>
 <template>
   <TransitionRoot appear :show="props.isOpen" as="template">

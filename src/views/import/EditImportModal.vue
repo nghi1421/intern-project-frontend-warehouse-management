@@ -16,19 +16,8 @@ const props = defineProps({
   isOpen: Boolean,
   importData: Object,
   closeModal: Function,
+  updateImport: Function,
 });
-
-function updateImport(data) {
-  return store.dispatch("updateImport", data).then((response) => {
-    if (response.status === 200) {
-      toast.success(response.data.message);
-      return true;
-    } else {
-      toast.error(response.data.message);
-      return false;
-    }
-  });
-}
 </script>
 <template>
   <TransitionRoot appear :show="props.isOpen" as="template">

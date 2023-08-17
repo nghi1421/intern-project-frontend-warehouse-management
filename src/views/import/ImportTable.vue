@@ -220,6 +220,32 @@ function fetchImportPDF(importId) {
   });
 }
 
+function createImport(data) {
+  return store.dispatch("createImport", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchImortsData(params.value);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
+function updateImport(data) {
+  return store.dispatch("updateImport", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchImortsData(params.value);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
 onMounted(() => {
   params.value = { ...params.value, ...route.query };
   fetchImortsData(params.value);
@@ -240,12 +266,14 @@ onUnmounted(() => {
 </script>
 <template>
   <CreateImportModal
+    :createImport="createImport"
     :is-open="isOpenCreateModal"
     :closeModal="closeModal"
     :staff="staffInformation"
   >
   </CreateImportModal>
   <EditImportModal
+    :updateImport="updateImport"
     :is-open="isOpenEditModal"
     :closeModal="closeModal"
     :importData="selectedImport"

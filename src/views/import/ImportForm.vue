@@ -8,7 +8,6 @@ import {
   ComboboxOptions,
   ComboboxOption,
   TransitionRoot,
-
 } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import IdenfifyIcon from "@/components/icons/Identify.vue";
@@ -329,7 +328,6 @@ onMounted(() => {
     stepsLeaveHover.value = steps.value;
 
     selectedProvider.value = props.import.provider;
-    console.log(props.import);
     selectedWarehouseBranch.value = warehouseBranches.value.find(
       (warehouseBranch) =>
         warehouseBranch.id === props.import.warehouse_branch_id
@@ -390,7 +388,7 @@ function selectSelectedCategory(categoryId) {
 }
 
 function validate() {
-  if (!props.import.from_warehouse_branch_id) {
+  if (!props.import?.from_warehouse_branch_id) {
     if (selectedCategories.value.length > 0) {
       const isInvalid = selectedCategories.value.some(
         (category) => category.amount <= 0 || category.unit_price <= 0
