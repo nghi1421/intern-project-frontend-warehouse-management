@@ -173,7 +173,7 @@ onMounted(() => {
   eventClient.on("change-page", (pageNumber) => {
     params.value.page = pageNumber;
     router.push({ path: "/stocks", query: params.value });
-    fetchProvidersData(params.value);
+    fetchStocksData(params.value);
   });
 });
 

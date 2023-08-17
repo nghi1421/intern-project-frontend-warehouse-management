@@ -151,12 +151,39 @@ function openConfirmModal(staff) {
   selectedCategory.value = staff;
 }
 
+function createCategory(data) {
+  return store.dispatch("createCategory", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchCategoriesData(params.value);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
+function updateCategory(data) {
+  return store.dispatch("updateCategory", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchCategoriesData(params.value);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
 function deleteCategory() {
   return store
     .dispatch("deleteCategory", selectedCategory.value.id)
     .then((response) => {
       if (response.status === 200) {
         toast.success(response.data.message);
+        fetchCategoriesData(params.value);
         return true;
       } else {
         toast.error(response.data.message);
@@ -177,7 +204,7 @@ onMounted(() => {
   eventClient.on("change-page", (pageNumber) => {
     params.value.page = pageNumber;
     router.push({ path: "/categories", query: params.value });
-    fetchProvidersData(params.value);
+    fetchCategoriesData(params.value);
   });
 });
 
@@ -187,9 +214,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <create-category-modal :is-open="isOpenCreateModal" :closeModal="closeModal">
+  <create-category-modal
+    :createCategory="createCategory"
+    :is-open="isOpenCreateModal"
+    :closeModal="closeModal"
+  >
   </create-category-modal>
   <edit-category-modal
+    :updateCategory="updateCategory"
     :category="selectedCategory"
     :is-open="isOpenEditModal"
     :close-modal="closeModal"

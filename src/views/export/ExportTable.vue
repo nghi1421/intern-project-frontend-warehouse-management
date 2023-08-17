@@ -35,13 +35,13 @@ const columns = ref([
   },
   {
     key: "warehouse_branch_name",
-    value: "Warehouse branch name",
+    value: "From",
     sortable: true,
     searchable: false,
   },
   {
     key: "destination_name",
-    value: "Destination",
+    value: "To",
     sortable: true,
     searchable: false,
   },
@@ -268,7 +268,7 @@ onMounted(() => {
   eventClient.on("change-page", (pageNumber) => {
     params.value.page = pageNumber;
     router.push({ path: "/exports", query: params.value });
-    fetchProvidersData(params.value);
+    fetchExportsData(params.value);
   });
 });
 

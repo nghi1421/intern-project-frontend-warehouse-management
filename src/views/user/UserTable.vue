@@ -4,6 +4,7 @@ import { ref, onMounted, watch, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Table from "@/components/table/Table.vue";
 import CreateUserModal from "./CreateUserModal.vue";
+import EditUserModal from "./EditUserModal.vue";
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
@@ -65,7 +66,9 @@ const rows = ref([]);
 
 const meta = ref({});
 
-const isOpen = ref(false);
+const isOpenCreateModal = ref(false);
+
+const isOpenConfirmModal = ref(false);
 
 const links = ref([]);
 
@@ -76,6 +79,8 @@ const selectedAccount = ref({});
 const loading = ref(true);
 
 const roles = ref([]);
+
+const isOpenEditModal = ref(false);
 
 const params = ref({
   page: 1,
@@ -109,24 +114,34 @@ function fetchAccountsData(query) {
 }
 
 function closeModal() {
-  isOpen.value = false;
+  isOpenCreateModal.value = false;
+  isOpenEditModal.value = false;
+  isOpenConfirmModal.value = false;
 }
 
 function openModal() {
   if (loading.value) {
     toast.info("Please wait for loading page.");
   } else {
-    isOpen.value = true;
+    isOpenCreateModal.value = true;
   }
 }
 
-function showEditAccount(accountId) {
+function showEditAccount(row) {
   if (loading.value) {
     toast.info("Please wait for loading page.");
   } else {
-    store.dispatch("showAccount", accountId).then((response) => {
-      selectedAccount.value = response.data;
-    });
+    isOpenEditModal.value = true;
+    selectedAccount.value = row;
+  }
+}
+
+function openConfirmModal(row) {
+  if (loading.value) {
+    toast.info("Please wait for loading page.");
+  } else {
+    isOpenConfirmModal.value = true;
+    selectedAccount.value = row;
   }
 }
 
@@ -157,6 +172,18 @@ function sortTable(query) {
   fetchAccountsData(params.value);
 }
 
+function createAccount(data) {
+  return store.dispatch("createAccount", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
 onMounted(() => {
   params.value = { ...params.value, ...route.query };
   fetchAccountsData(route.query);
@@ -180,9 +207,17 @@ onUnmounted(() => {
 });
 </script>
 <template>
-  <CreateUserModal :is-open="isOpen" :closeModal="closeModal">
+  <CreateUserModal
+    :createAccount="createAccount"
+    :is-open="isOpenCreateModal"
+    :closeModal="closeModal"
+  >
   </CreateUserModal>
-
+  <EditUserModal
+    :account="selectedAccount"
+    :is-open="isOpenEditModal"
+    :close-modal="closeModal"
+  ></EditUserModal>
   <div class="flex align-items-between items-center justify-between px-4 py-2">
     <h1
       class="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl"
@@ -278,13 +313,14 @@ onUnmounted(() => {
   >
     <template v-slot:actions="{ row }">
       <button
-        @click="showEditAccount(row.id)"
+        @click="showEditAccount(row)"
         class="p-1 overflow-hidden hover:opacity-60 bg-success-600 rounded-3xl text-white whitespace-nowrap"
       >
         <EditIcon />
       </button>
 
       <button
+        @click="openConfirmModal(row)"
         class="p-1 ms-2 overflow-hidden hover:opacity-60 bg-danger-600 rounded-xl text-white whitespace-nowrap"
       >
         <DeleteIcon />

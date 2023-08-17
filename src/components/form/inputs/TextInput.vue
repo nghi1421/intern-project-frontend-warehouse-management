@@ -9,6 +9,7 @@ export default {
     value: String,
     placeHolder: String,
     errorMessage: String,
+    disabled: Boolean,
   },
 
   methods: {
@@ -39,6 +40,7 @@ export default {
         @input="updateInput"
         :name="name"
         :type="type"
+        :disabled="disabled"
         :placeholder="placeHolder"
         :value="value"
         class="pl-2 outline-none w-full border-none"

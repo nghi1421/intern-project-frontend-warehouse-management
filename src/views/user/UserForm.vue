@@ -215,9 +215,22 @@ function clearData() {
 //   }
 // });
 
+function resetPassword() {
+  //
+}
+
 onMounted(() => {
   roles.value = store.state.roles;
 
+  if (props.account) {
+    username.value = props.account.username;
+    selectedRole.value = roles.value.find(
+      (role) => role.id === props.account.role_id
+    );
+    username.value = props.account.username;
+  } else {
+    selectedRole.value = roles.value[0];
+  }
   // for (let i = 0; i < roles.value.length; i++) {
   //   let rolePermissionIds = roles.value[i].permissions.map(
   //     (permission) => permission.id
@@ -225,8 +238,6 @@ onMounted(() => {
 
   //   roles.value[i] = { ...roles.value[i], permissions: rolePermissionIds };
   // }
-
-  selectedRole.value = roles.value[0];
 });
 
 function validate() {
@@ -278,6 +289,7 @@ function validate() {
 
     <div class="col-span-3">
       <TextInput
+        disabled
         label="Password"
         type="password"
         placeHolder="Please fill password"
@@ -291,6 +303,7 @@ function validate() {
 
     <div class="col-span-3">
       <TextInput
+        disabled
         label="Password confirmation"
         type="password"
         placeHolder="Please fill password confirmation"
@@ -549,6 +562,14 @@ function validate() {
         class="inline-flex justify-center rounded-md border border-transparent bg-success-100 px-4 py-2 text-sm font-medium text-success-900 hover:bg-success-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-500 focus-visible:ring-offset-2"
       >
         Submit
+      </button>
+
+      <button
+        type="button"
+        @click="resetPassword"
+        class="ms-4 inline-flex justify-center rounded-md border border-transparent bg-danger-100 px-4 py-2 text-sm font-medium text-danger-900 hover:bg-danger-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger-500 focus-visible:ring-offset-2"
+      >
+        Reset password
       </button>
       <button
         type="button"

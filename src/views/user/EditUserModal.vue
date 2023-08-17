@@ -9,26 +9,14 @@ import {
 } from "@headlessui/vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-import StaffForm from "./StaffForm.vue";
+import UserForm from "./UserForm.vue";
 const toast = useToast();
 
 const props = defineProps({
   isOpen: Boolean,
   closeModal: Function,
-  staff: Object,
+  account: Object,
 });
-
-async function updateStaff(data) {
-  return store.dispatch("updateStaff", data).then((response) => {
-    if (response.status === 200) {
-      toast.success(response.data.message);
-      return true;
-    } else {
-      toast.error(response.data.message);
-      return false;
-    }
-  });
-}
 </script>
 <template>
   <TransitionRoot appear :show="props.isOpen" as="template">
@@ -65,14 +53,13 @@ async function updateStaff(data) {
                 as="h3"
                 class="text-lg font-medium leading-6 text-gray-900"
               >
-                Edit staff
+                Edit account
               </DialogTitle>
 
-              <staff-form
-                :staff="staff"
+              <UserForm
+                :account="account"
                 :close-form="props.closeModal"
-                :submit="updateStaff"
-              ></staff-form>
+              ></UserForm>
               <div class="mt-2"></div>
             </DialogPanel>
           </TransitionChild>

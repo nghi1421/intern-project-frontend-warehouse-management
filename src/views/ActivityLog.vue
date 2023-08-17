@@ -1,24 +1,74 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import store from "../../store";
+import { onMounted, ref, watch } from "vue";
+import store from "../store";
 import Loading from "@/components/Loading.vue";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+import { useRouter, useRoute } from "vue-router";
+
+const router = useRouter();
+
+const route = useRoute();
 
 const logs = ref([]);
+
 const loading = ref(true);
-function fetchImortLog() {
-  return store.dispatch("getImportLog").then((response) => {
+
+const date = ref();
+
+function fetchImortLog(query) {
+  loading.value = true;
+  return store.dispatch("getImportLog", query).then((response) => {
     if (response.status === 200) {
-      logs.value = response.data;
       loading.value = false;
+      logs.value = response.data;
       return true;
     } else {
       return false;
     }
   });
 }
+function convertDate(inputFormat) {
+  function pad(s) {
+    return s < 10 ? "0" + s : s;
+  }
+  var d = new Date(inputFormat);
+  return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join("-");
+}
+
+watch(date, (newDate) => {
+  if (!newDate[1]) {
+    date.value[1] = new Date();
+  }
+  router.push({
+    path: "/activity-log",
+    query: {
+      start_date: convertDate(date.value[0]),
+      end_date: convertDate(date.value[1]),
+    },
+  });
+  fetchImortLog({
+    start_date: convertDate(date.value[0]),
+    end_date: convertDate(date.value[1]),
+  });
+});
 
 onMounted(() => {
-  fetchImortLog();
+  const startDate = new Date(new Date().setDate(1));
+  const endDate = new Date();
+  date.value = [startDate, endDate];
+  router.push({
+    path: "/activity-log",
+    query: {
+      start_date: convertDate(date.value[0]),
+      end_date: convertDate(date.value[1]),
+    },
+  });
+
+  fetchImortLog({
+    start_date: convertDate(date.value[0]),
+    end_date: convertDate(date.value[1]),
+  });
 });
 </script>
 <template>
@@ -29,6 +79,16 @@ onMounted(() => {
     >
       Activity log
     </h1>
+  </div>
+  <div class="px-4 py-2 mb-4 flex align-items-center gap-2">
+    <VueDatePicker
+      v-model="date"
+      :clearable="false"
+      range
+      :enable-time-picker="false"
+      :max-date="new Date()"
+    >
+    </VueDatePicker>
   </div>
   <div class="flow-root">
     <div class="overflow-x-auto">
@@ -191,7 +251,7 @@ onMounted(() => {
               </tr>
             </tbody>
           </table>
-          <Loading :loading="loading || loadingStatus" />
+          <Loading :loading="loading" />
         </div>
       </div>
     </div>

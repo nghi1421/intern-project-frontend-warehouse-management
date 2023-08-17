@@ -35,13 +35,13 @@ const columns = ref([
   },
   {
     key: "provided_from",
-    value: "Provided from",
+    value: "from",
     sortable: true,
     searchable: false,
   },
   {
     key: "warehouse_branch_name",
-    value: "Branch name",
+    value: "to",
     sortable: true,
     searchable: false,
   },
@@ -59,7 +59,7 @@ const columns = ref([
   },
   {
     key: "updated_at",
-    value: "Update  at",
+    value: "Update at",
     sortable: true,
     searchable: false,
   },
@@ -257,7 +257,7 @@ onMounted(() => {
   eventClient.on("change-page", (pageNumber) => {
     params.value.page = pageNumber;
     router.push({ path: "/imports", query: params.value });
-    fetchProvidersData(params.value);
+    fetchImortsData(params.value);
   });
 });
 

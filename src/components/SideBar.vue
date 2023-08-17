@@ -90,13 +90,11 @@ function getNavigation() {
     });
   }
 
-  if (store.state.user.data.role === "Nhan vien quan li") {
-    navigation.value.push({
-      name: "Log",
-      href: "/log",
-      icon: shallowRef(LogIcon),
-    });
-  }
+  navigation.value.push({
+    name: "Activity log",
+    href: "/activity-log",
+    icon: shallowRef(LogIcon),
+  });
 }
 
 onMounted(() => {

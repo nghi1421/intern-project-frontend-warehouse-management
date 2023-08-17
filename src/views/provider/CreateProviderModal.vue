@@ -14,21 +14,10 @@ import ProviderForm from "./ProviderForm.vue";
 const toast = useToast();
 
 const props = defineProps({
+  createProvider: Function,
   isOpen: Boolean,
   closeModal: Function,
 });
-
-function createProvider(data) {
-  return store.dispatch("createProvider", data).then((response) => {
-    if (response.status === 200) {
-      toast.success(response.data.message);
-      return true;
-    } else {
-      toast.error(response.data.message);
-      return false;
-    }
-  });
-}
 </script>
 <template>
   <TransitionRoot appear :show="isOpen" as="template">

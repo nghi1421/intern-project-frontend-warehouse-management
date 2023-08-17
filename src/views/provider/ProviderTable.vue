@@ -152,12 +152,39 @@ function openConfirmModal(provider) {
   }
 }
 
+function createProvider(data) {
+  return store.dispatch("createProvider", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchProvidersData(params.value);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
+function updateProvider(data) {
+  return store.dispatch("updateProvider", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchProvidersData(params.value);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
 function deleteProvider() {
   return store
     .dispatch("deleteProvider", selectedProvider.value.id)
     .then((response) => {
       if (response.status === 200) {
         toast.success(response.data.message);
+        fetchProvidersData(params.value);
         return true;
       } else {
         toast.error(response.data.message);
@@ -188,9 +215,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <CreateProviderModal :is-open="isOpenCreateModal" :closeModal="closeModal">
+  <CreateProviderModal
+    :createProvider="createProvider"
+    :is-open="isOpenCreateModal"
+    :closeModal="closeModal"
+  >
   </CreateProviderModal>
   <EditProviderModal
+    :updateProvider="updateProvider"
     :provider="selectedProvider"
     :is-open="isOpenEditModal"
     :close-modal="closeModal"

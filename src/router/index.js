@@ -14,7 +14,7 @@ import PositionTable from '../views/position/PositionTable.vue'
 import NotFoundPage from '../views/404.vue'
 import ForbiddenPage from '../views/403.vue'
 import Profile from '../views/Profile.vue'
-import ImportLog from '../views/import/ImportLog.vue'
+import ActivityLog from '../views/ActivityLog.vue'
 
 import ChangePassword from '../views/ChangePassword.vue'
 
@@ -50,9 +50,9 @@ const routes = [
           meta: { requiresAuth: true },
         },
         {
-          path: '/log',
-          name: 'Log',
-          component: ImportLog,
+          path: '/activity-log',
+          name: 'Activity log',
+          component: ActivityLog,
           meta: { requiresAuth: true },
         },
         {
