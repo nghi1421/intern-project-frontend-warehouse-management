@@ -139,6 +139,10 @@ const store = createStore({
       return axiosClient.get('/imports',{params: query})
         .then((response) => response)
     },
+    getImportLog(context) {
+      return axiosClient.get('/log')
+        .then((response) => response)
+    },
     createImport({ commit }, data) {
       return axiosClient
         .post('/imports', data)

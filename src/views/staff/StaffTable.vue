@@ -169,11 +169,38 @@ function fetchAllPositionsData() {
   });
 }
 
+function createStaff(data) {
+  return store.dispatch("createStaff", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchStaffsData(route.query);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
+function updateStaff(data) {
+  return store.dispatch("updateStaff", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchStaffsData(route.query);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
 function deleteStaff() {
   return store
     .dispatch("deleteStaff", selectedStaff.value.id)
     .then((response) => {
       if (response.status === 200) {
+        fetchStaffsData(route.query);
         return true;
       } else {
         return false;
@@ -204,13 +231,18 @@ onUnmounted(() => {
 });
 </script>
 <template>
-  <create-staff-modal :is-open="isOpenCreateModal" :close-modal="closeModal">
-  </create-staff-modal>
-  <edit-staff-modal
+  <CreateStaffModal
+    :createStaff="createStaff"
+    :is-open="isOpenCreateModal"
+    :close-modal="closeModal"
+  >
+  </CreateStaffModal>
+  <EditStaffModal
+    :updateStaff="updateStaff"
     :staff="selectedStaff"
     :is-open="isOpenEditModal"
     :close-modal="closeModal"
-  ></edit-staff-modal>
+  ></EditStaffModal>
   <confirm-modal
     :is-open="isOpenConfirmModal"
     :close-modal="closeModal"

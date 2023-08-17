@@ -7,7 +7,7 @@ import ImportIcon from "@/components/icons/Import.vue";
 import ExportIcon from "@/components/icons/Export.vue";
 import PartnerIcon from "@/components/icons/Partner.vue";
 import BranchIcon from "@/components/icons/Branch.vue";
-import LocationIcon from "@/components/icons/Location.vue";
+import LogIcon from "@/components/icons/LogIcon.vue";
 import PositionIcon from "@/components/icons/GroupPeople.vue";
 import StockIcon from "@/components/icons/Stock.vue";
 import store from "../store";
@@ -87,6 +87,14 @@ function getNavigation() {
       name: "Export",
       href: "/exports",
       icon: shallowRef(ExportIcon),
+    });
+  }
+
+  if (store.state.user.data.role === "Nhan vien quan li") {
+    navigation.value.push({
+      name: "Log",
+      href: "/log",
+      icon: shallowRef(LogIcon),
     });
   }
 }

@@ -197,6 +197,7 @@ function deleteImport() {
     .dispatch("deleteImport", selectedImport.value.id)
     .then((response) => {
       if (response.status === 200) {
+        fetchImortsData(params.value);
         toast.success(response.data.message);
         return true;
       } else {

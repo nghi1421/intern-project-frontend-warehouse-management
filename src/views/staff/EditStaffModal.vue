@@ -13,22 +13,11 @@ import StaffForm from "./StaffForm.vue";
 const toast = useToast();
 
 const props = defineProps({
+  updateStaff: Function,
   isOpen: Boolean,
   closeModal: Function,
   staff: Object,
 });
-
-async function updateStaff(data) {
-  return store.dispatch("updateStaff", data).then((response) => {
-    if (response.status === 200) {
-      toast.success(response.data.message);
-      return true;
-    } else {
-      toast.error(response.data.message);
-      return false;
-    }
-  });
-}
 </script>
 <template>
   <TransitionRoot appear :show="props.isOpen" as="template">

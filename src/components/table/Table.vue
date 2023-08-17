@@ -1,7 +1,6 @@
 <script>
 import Loading from "@/components/Loading.vue";
 import TablePagination from "@/components/table/TablePagination.vue";
-import axios from "axios";
 
 export default {
   name: "Table",
@@ -32,8 +31,12 @@ export default {
       linksData: this.links,
       open: false,
       loadingStatus: true,
-      sortField: this.$route.query.sort_field ? this.$route.query.sort_field : "id",
-      sortDirection: this.$route.sort_direction ? this.$route.sort_direction : "asc",
+      sortField: this.$route.query.sort_field
+        ? this.$route.query.sort_field
+        : "id",
+      sortDirection: this.$route.sort_direction
+        ? this.$route.sort_direction
+        : "asc",
     };
   },
 
