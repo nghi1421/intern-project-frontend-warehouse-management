@@ -41,7 +41,7 @@ const columns = ref([
   },
   {
     key: "warehouse_branch_name",
-    value: "Warehouse branch name",
+    value: "Branch name",
     sortable: true,
     searchable: false,
   },

@@ -154,6 +154,16 @@ const stepsHover = ref([
 
 const stepsLeaveHover = ref([]);
 
+const stepCanel = [
+  {
+    status_id: 0,
+    id: "00",
+    name: "Hủy",
+    description: "Nhân viên quản lí hủy đơn nhập hàng.",
+    status: "complete",
+  },
+];
+
 function checkPermissions(permissionList) {
   return permissions.some(
     (permission) => permissionList.indexOf(permission.name) != -1
@@ -192,6 +202,28 @@ function handleSubmit() {
       }
     });
   }
+}
+
+function cancelImport() {
+  let data = {
+    staff_id: props.staff.id,
+    provider_id: selectedProvider.value.id,
+    status: 0,
+    warehouse_branch_id: selectedWarehouseBranch.value.id,
+    categories: selectedCategories.value.map((category) => category.id),
+    amounts: selectedCategories.value.map((category) => category.amount),
+    unit_prices: selectedCategories.value.map(
+      (category) => category.unit_price
+    ),
+    id: props.import.id,
+  };
+
+  props.submit(data).then(function (isSuccess) {
+    if (isSuccess) {
+      clearData;
+      props.closeForm();
+    }
+  });
 }
 
 function clearData() {
@@ -308,20 +340,24 @@ onMounted(() => {
       }
     }
 
-    for (let i = 0; i < stepsHover.value.length; i++) {
-      if (stepsHover.value[i].status_id > props.import?.status_id + 1) {
-        stepsHover.value[i] = {
-          ...stepsHover.value[i],
-          status: "upcoming",
-        };
-      } else if (
-        stepsHover.value[i].status_id - 1 === props.import?.status_id &&
-        props.import?.status_id !== 3
-      ) {
-        stepsHover.value[i] = {
-          ...stepsHover.value[i],
-          status: "current",
-        };
+    if (props.import.status_id === 0) {
+      steps.value = stepCanel;
+    } else {
+      for (let i = 0; i < stepsHover.value.length; i++) {
+        if (stepsHover.value[i].status_id > props.import?.status_id + 1) {
+          stepsHover.value[i] = {
+            ...stepsHover.value[i],
+            status: "upcoming",
+          };
+        } else if (
+          stepsHover.value[i].status_id - 1 === props.import?.status_id &&
+          props.import?.status_id !== 3
+        ) {
+          stepsHover.value[i] = {
+            ...stepsHover.value[i],
+            status: "current",
+          };
+        }
       }
     }
 
@@ -431,6 +467,24 @@ function leaveHoverSubmit() {
   if (props.import?.status_id !== 0 && props.import?.status_id !== 3) {
     steps.value = stepsLeaveHover.value;
   }
+}
+
+function hoverCancelImport() {
+  const stepCanel = [
+    {
+      status_id: 0,
+      id: "00",
+      name: "Hủy",
+      description: "Nhân viên quản lí hủy đơn hàng.",
+      status: "complete",
+    },
+  ];
+
+  steps.value = stepCanel;
+}
+
+function leaveHoverCancelImport() {
+  steps.value = stepsLeaveHover.value;
 }
 </script>
 <template>
@@ -1023,7 +1077,14 @@ function leaveHoverSubmit() {
                   >
                     <span class="flex-shrink-0">
                       <span
+                        v-if="step.status_id !== 0"
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-success-600 text-white"
+                      >
+                        <TickIcon />
+                      </span>
+                      <span
+                        v-else
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white"
                       >
                         <TickIcon />
                       </span>
@@ -1140,6 +1201,18 @@ function leaveHoverSubmit() {
       >
         Submit
       </button>
+
+      <button
+        v-if="[1, 2].includes(props.import?.status_id) && checkPermissions(['manage-import'])"
+        @mouseover="hoverCancelImport"
+        @mouseleave="leaveHoverCancelImport"
+        @click="cancelImport"
+        type="button"
+        class="ms-4 inline-flex justify-center rounded-md border border-transparent bg-danger-100 px-4 py-2 text-sm font-medium text-danger-900 hover:bg-danger-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger-500 focus-visible:ring-offset-2"
+      >
+        Cancel import
+      </button>
+
       <button
         type="button"
         class="ms-4 inline-flex justify-center rounded-md border border-transparent bg-amber-100 px-4 py-2 text-sm font-medium text-amber-900 hover:bg-amber-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"

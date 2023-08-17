@@ -195,12 +195,39 @@ function fetchCategoriesData() {
     .finally(() => (loading.value = false));
 }
 
+function createExport(data) {
+  return store.dispatch("createExport", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchExportsData(params.value);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
+function updateExport(data) {
+  return store.dispatch("updateExport", data).then((response) => {
+    if (response.status === 200) {
+      toast.success(response.data.message);
+      fetchExportsData(params.value);
+      return true;
+    } else {
+      toast.error(response.data.message);
+      return false;
+    }
+  });
+}
+
 function deleteExport() {
   return store
     .dispatch("deleteExport", selectedImport.value.id)
     .then((response) => {
       if (response.status === 200) {
         toast.success(response.data.message);
+        fetchExportsData(params.value);
         return true;
       } else {
         toast.error(response.data.message);
@@ -251,12 +278,14 @@ onUnmounted(() => {
 </script>
 <template>
   <CreateExportModal
+    :createExport="createExport"
     :is-open="isOpenCreateModal"
     :closeModal="closeModal"
     :staff="staffInformation"
   >
   </CreateExportModal>
   <EditExportModal
+    :updateExport="updateExport"
     :is-open="isOpenEditModal"
     :closeModal="closeModal"
     :exportData="selectedImport"

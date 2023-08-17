@@ -734,7 +734,7 @@ function leaveHoverSubmit() {
         </DisclosurePanel>
       </Disclosure>
     </div>
-    <div class="col-span-3 mb-8" v-else>
+    <div v-if="props.export?.to_warehouse_branch_id" class="col-span-3 mb-8">
       <label
         for="default-input"
         class="mt-4 p-1 bg-white z-50 ms-4 text-xs font-medium text-gray-900 dark:text-white"
