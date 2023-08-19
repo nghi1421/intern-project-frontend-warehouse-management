@@ -15,6 +15,7 @@ import NotFoundPage from '../views/404.vue'
 import ForbiddenPage from '../views/403.vue'
 import Profile from '../views/Profile.vue'
 import ActivityLog from '../views/ActivityLog.vue'
+import TrackBranch from '../views/TrackBranch.vue'
 
 import ChangePassword from '../views/ChangePassword.vue'
 
@@ -95,6 +96,12 @@ const routes = [
           path: '/change-password',
           name: 'Change password',
           component: ChangePassword,
+          meta: { requiresAuth: true },
+      },
+      {
+          path: '/track',
+          name: 'Track',
+          component: TrackBranch,
           meta: { requiresAuth: true },
       },
       {

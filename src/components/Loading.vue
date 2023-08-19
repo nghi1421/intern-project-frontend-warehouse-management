@@ -6,7 +6,7 @@ const props = defineProps({
 
 <template>
   <div
-    class="absolute inset-0 z-10 rounded-lg bg-white bg-opacity-75 dark:bg-slate-500/10"
+    class="absolute inset-0 z-10 bg-white bg-opacity-75 dark:bg-slate-500/10"
     v-if="props.loading"
   >
     <div class="flex h-full items-center justify-center py-12">

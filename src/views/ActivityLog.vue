@@ -97,8 +97,8 @@ onMounted(() => {
           <table
             class="min-h-[100px] max-w-full min-w-full border-collapse overflow-auto table-auto w-full whitespace-no-wrap bg-white relative"
           >
-            <thead class="">
-              <tr>
+            <thead class="text-white">
+              <tr class="bg-slate-600">
                 <th class="border-dashed border-t border-gray-200">
                   <span class="whitespace-nowrap uppercase font-bold text-xs">
                     Create at

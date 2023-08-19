@@ -316,6 +316,10 @@ const store = createStore({
           commit('setAllPermissions', response.data)
           return response
         })
+    },
+    getTrack(context) {
+      return axiosClient.get('/track')
+        .then((response) => response)
     }
   },
   mutations: {

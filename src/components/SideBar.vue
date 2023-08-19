@@ -10,6 +10,8 @@ import BranchIcon from "@/components/icons/Branch.vue";
 import LogIcon from "@/components/icons/LogIcon.vue";
 import PositionIcon from "@/components/icons/GroupPeople.vue";
 import StockIcon from "@/components/icons/Stock.vue";
+import TrackIcon from "@/components/icons/TrackIcon.vue";
+
 import store from "../store";
 const navigation = ref([]);
 
@@ -95,6 +97,14 @@ function getNavigation() {
     href: "/activity-log",
     icon: shallowRef(LogIcon),
   });
+
+  if (store.state.user.data.role === "Nhan vien quan li") {
+    navigation.value.push({
+      name: "Track",
+      href: "/track",
+      icon: shallowRef(TrackIcon),
+    });
+  }
 }
 
 onMounted(() => {
